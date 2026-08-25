@@ -1,4 +1,3 @@
-````markdown
 # STWG Web – Technische Projektdokumentation
 
 > **Projekt:** STWG Web  
@@ -113,7 +112,7 @@ Das Projekt ist damit kein klassisches kleines Flask-Webprojekt mehr, sondern ei
             │                │
             ▼                ▼
        externe API       Discord Bot
-````
+
 
 ## 2.2 Hauptkomponenten
 
