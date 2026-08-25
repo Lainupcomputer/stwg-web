@@ -41,3 +41,12 @@ def require_admin_permission(fn):
         return fn(*args, **kwargs)
     return wrapper
 
+def require_support_permission(fn):
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        if not session.get("is_supporter", False):
+
+            # return jsonify({"error": "Nicht autorisiert"}), 403
+            return redirect(url_for("index"))
+        return fn(*args, **kwargs)
+    return wrapper
