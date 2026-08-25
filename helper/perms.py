@@ -29,3 +29,15 @@ def has_license(user, license_name):
 
     except (json.JSONDecodeError, TypeError):
         return False
+    
+
+def require_admin_permission(fn):
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        if not session.get("is_admin", False):
+
+            # return jsonify({"error": "Nicht autorisiert"}), 403
+            return redirect(url_for("index"))
+        return fn(*args, **kwargs)
+    return wrapper
+

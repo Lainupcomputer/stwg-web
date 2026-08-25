@@ -7,16 +7,19 @@ from flask import (
     redirect,
     url_for
 )
-
+from dhooks import Webhook
 from database import db
 from database.models import (
     UserProfile,
     Comment,
     Warning,
-    GroupAction
-)
+    GroupAction,
+    DataStorage
 
+)
+ 
 from sqlalchemy.orm import selectinload
+from helper.perms import require_admin_permission
 
 
 def user_blueprint():
@@ -28,28 +31,13 @@ def user_blueprint():
     )
 
 
-    def is_admin():
-        return session.get("is_admin", False)
-
-
-    def require_admin():
-
-        if not is_admin():
-            return redirect(url_for("index"))
-
-        return None
-
-
     # ==========================================================
     # BENUTZER VERWALTUNG
     # ==========================================================
 
     @user.route("/view", methods=["GET"])
+    @require_admin_permission
     def view_users():
-
-        if not is_admin():
-            return redirect(url_for("index"))
-
         return render_template(
             "users.html",
             active="user"
@@ -61,12 +49,8 @@ def user_blueprint():
     # ==========================================================
 
     @user.route("/", methods=["GET"])
+    @require_admin_permission
     def get_users():
-
-        if not is_admin():
-            return redirect(url_for("index"))
-
-
         users = (
             UserProfile.query
             .options(
@@ -167,12 +151,8 @@ def user_blueprint():
     # ==========================================================
 
     @user.route("/<int:id>", methods=["GET"])
+    @require_admin_permission
     def get_user(id):
-
-        if not is_admin():
-            return redirect(url_for("index"))
-
-
         user = (
             UserProfile.query
             .options(
@@ -250,15 +230,9 @@ def user_blueprint():
     # ==========================================================
 
     @user.route("/<int:id>", methods=["PUT"])
+    @require_admin_permission
     def update_user(id):
-
-        if not is_admin():
-            return redirect(url_for("index"))
-
-
         user = UserProfile.query.get(id)
-
-
         if not user:
 
             return jsonify({
@@ -314,15 +288,9 @@ def user_blueprint():
     # ==========================================================
 
     @user.route("/<int:id>", methods=["DELETE"])
+    @require_admin_permission
     def delete_user(id):
-
-        if not is_admin():
-            return redirect(url_for("index"))
-
-
         user = UserProfile.query.get(id)
-
-
         if not user:
 
             return jsonify({
@@ -346,15 +314,9 @@ def user_blueprint():
     # ==========================================================
 
     @user.route("/<int:id>/comments", methods=["POST"])
+    @require_admin_permission
     def add_comment(id):
-
-        if not is_admin():
-            return redirect(url_for("index"))
-
-
         user = UserProfile.query.get(id)
-
-
         if not user:
 
             return jsonify({
@@ -404,15 +366,9 @@ def user_blueprint():
     # ==========================================================
 
     @user.route("/comments/<int:comment_id>", methods=["DELETE"])
+    @require_admin_permission
     def delete_comment(comment_id):
-
-        if not is_admin():
-            return redirect(url_for("index"))
-
-
         comment = Comment.query.get(comment_id)
-
-
         if not comment:
 
             return jsonify({
@@ -436,15 +392,9 @@ def user_blueprint():
     # ==========================================================
 
     @user.route("/<int:id>/warnings", methods=["POST"])
+    @require_admin_permission
     def add_warning(id):
-
-        if not is_admin():
-            return redirect(url_for("index"))
-
-
         user = UserProfile.query.get(id)
-
-
         if not user:
 
             return jsonify({
@@ -489,15 +439,9 @@ def user_blueprint():
     # ==========================================================
 
     @user.route("/warnings/<int:warning_id>", methods=["DELETE"])
+    @require_admin_permission
     def delete_warning(warning_id):
-
-        if not is_admin():
-            return redirect(url_for("index"))
-
-
         warning = Warning.query.get(warning_id)
-
-
         if not warning:
 
             return jsonify({
@@ -521,15 +465,9 @@ def user_blueprint():
     # ==========================================================
 
     @user.route("/<int:id>/group_actions", methods=["POST"])
+    @require_admin_permission
     def add_group_action(id):
-
-        if not is_admin():
-            return redirect(url_for("index"))
-
-
         user = UserProfile.query.get(id)
-
-
         if not user:
 
             return jsonify({
@@ -577,15 +515,9 @@ def user_blueprint():
         "/group_actions/<int:action_id>",
         methods=["DELETE"]
     )
+    @require_admin_permission
     def delete_group_action(action_id):
-
-        if not is_admin():
-            return redirect(url_for("index"))
-
-
         action = GroupAction.query.get(action_id)
-
-
         if not action:
 
             return jsonify({
@@ -612,15 +544,9 @@ def user_blueprint():
         "/reset-payments",
         methods=["PUT"]
     )
+    @require_admin_permission
     def reset_payments():
-
-        if not is_admin():
-            return redirect(url_for("index"))
-
-
         users = UserProfile.query.all()
-
-
         for user in users:
 
             user.has_payed = False
@@ -635,6 +561,99 @@ def user_blueprint():
 
             "message": "Alle Beiträge zurückgesetzt"
 
+        })
+
+
+    @user.route("/action", methods=["POST"])
+    def profile_action():
+        data = request.get_json()
+
+        admin_announcement_hook_url = DataStorage.query.filter_by(
+            key="hooks.admin_announcement_hook_url"
+        ).first()
+
+        if not admin_announcement_hook_url or not admin_announcement_hook_url.data:
+            return jsonify({
+                "error": "Admin-Webhook ist nicht konfiguriert"
+            }), 500
+
+        admin_hook = Webhook(
+            admin_announcement_hook_url.data
+        )
+
+        user_id = session["user"]["id"]
+
+        if not data:
+            return jsonify({
+                "error": "Keine Daten empfangen"
+            }), 400
+
+
+        if "endDate" in data:
+
+            action_type = "Abwesenheit"
+
+            end_date = data.get("endDate")
+
+            admin_hook.send(
+                f"<@{user_id}> hat sich Abwesend gemeldet bis : {end_date}"
+            )
+
+
+        elif "topic" in data and "desiredDate" in data:
+
+            action_type = "Leitungsgespräch"
+
+            topic = data.get("topic")
+
+            desired_date = data.get("desiredDate")
+
+            admin_hook.send(
+                f"<@{user_id}> wünscht ein Leitungsgespräch "
+                f"am {desired_date} zum Thema {topic}"
+            )
+
+
+        elif "trainingName" in data and "trainingDate" in data:
+
+            action_type = "Ausbildung planen"
+
+            training_name = data.get("trainingName")
+
+            training_date = data.get("trainingDate")
+
+            hook = Webhook(DataStorage.query.filter_by(
+            key="hooks.training_hook_url"
+            ).first().data)
+
+            hook.send(
+                f"<@{user_id}> möchte eine Ausbildung planen: "
+                f"{training_name} am {training_date}"
+            )
+
+
+        elif "changeRequest" in data:
+
+            action_type = "Änderung Anfragen"
+
+            change_request = data.get("changeRequest")
+
+            admin_hook.send(
+                f"<@{user_id}> wünscht eine Änderung: "
+                f"{change_request}"
+            )
+
+
+        else:
+
+            return jsonify({
+                "error": "Unbekannter Datentyp"
+            }), 400
+
+
+        return jsonify({
+            "status": "ok",
+            "action": action_type
         })
 
 
