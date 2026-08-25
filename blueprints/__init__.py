@@ -19,12 +19,15 @@ from blueprints.training import training_bp
 
 from blueprints.license_management import license_management
 from blueprints.jetpack import jetpack_blueprint
+from blueprints.legal import legal_blueprint
+
 # Services
 from blueprints.control.grabber_control import grabber_control_bp
 from blueprints.control.market_alert_checker_control import market_alert_checker_control_bp
 from blueprints.control.bot_control import bot_control_bp
 
 def register_blueprints(app):
+    app.register_blueprint(legal_blueprint())
     app.register_blueprint(
     jetpack_blueprint()
     )

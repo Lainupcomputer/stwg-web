@@ -2,7 +2,7 @@ from flask import Flask, redirect, url_for, session, request, render_template, f
 import os
 from database import db
 from dotenv import load_dotenv
-#from flask_session import Session
+from flask_session import Session
 from database.models import UserProfile
 from blueprints import register_blueprints
 from blueprints.error_handler import register_error_handlers
@@ -30,6 +30,10 @@ app.config['SESSION_SQLALCHEMY_TABLE'] = 'sessions'
 app.config['SESSION_PERMANENT'] = True
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
 app.config['SESSION_USE_SIGNER'] = True
+app.config["SESSION_COOKIE_HTTPONLY"] = True
+app.config["SESSION_COOKIE_SECURE"] = True
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+Session(app)
 
 
 ##### Main seie dara
@@ -68,5 +72,3 @@ register_blueprints(app)
 with app.app_context():
     db.create_all()
 
-if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=8080)

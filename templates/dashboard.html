@@ -25,51 +25,296 @@
 
     {% block style_header %}{% endblock %}
 
+
+    <style>
+
+        /* =========================================================
+           SCROLL TO TOP BUTTON
+        ========================================================= */
+
+        .stwg-scroll-top {
+
+            position: fixed;
+
+            right: 24px;
+            bottom: 24px;
+
+            width: 52px;
+            height: 52px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border: 1px solid rgba(153, 45, 34, 0.45);
+            border-radius: 13px;
+
+            background: rgba(32, 34, 37, 0.96);
+
+            color: #ffffff;
+
+            cursor: pointer;
+
+            box-shadow:
+                0 8px 25px rgba(0, 0, 0, 0.35);
+
+            opacity: 0;
+            visibility: hidden;
+
+            transform:
+                translateY(18px)
+                scale(0.9);
+
+            transition:
+                opacity 0.25s ease,
+                visibility 0.25s ease,
+                transform 0.25s ease,
+                background 0.2s ease,
+                border-color 0.2s ease;
+
+            z-index: 9999;
+
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+
+        .stwg-scroll-top.visible {
+
+            opacity: 1;
+
+            visibility: visible;
+
+            transform:
+                translateY(0)
+                scale(1);
+        }
+
+
+        .stwg-scroll-top:hover {
+
+            background: #992d22;
+
+            border-color: #992d22;
+
+            transform:
+                translateY(-3px)
+                scale(1.03);
+
+            box-shadow:
+                0 10px 30px rgba(153, 45, 34, 0.35);
+        }
+
+
+        .stwg-scroll-top:active {
+
+            transform:
+                translateY(0)
+                scale(0.96);
+        }
+
+
+        /* =========================================================
+           BIENE
+        ========================================================= */
+
+        .stwg-scroll-bee {
+
+            display: block;
+
+            font-size: 25px;
+
+            line-height: 1;
+
+            user-select: none;
+
+            transform-origin: center center;
+
+            transition:
+                transform 0.2s ease;
+        }
+
+
+        /*
+         * Biene dreht sich beim Laden.
+         */
+
+        .stwg-scroll-top.loading
+        .stwg-scroll-bee {
+
+            animation:
+                stwgBeeSpin 0.7s linear infinite;
+        }
+
+
+        @keyframes stwgBeeSpin {
+
+            from {
+
+                transform:
+                    rotate(0deg);
+            }
+
+            to {
+
+                transform:
+                    rotate(360deg);
+            }
+        }
+
+
+        /*
+         * Kleine Schwebeanimation beim Hover.
+         */
+
+        .stwg-scroll-top:hover
+        .stwg-scroll-bee {
+
+            transform:
+                translateY(-1px)
+                rotate(-8deg);
+        }
+
+
+        .stwg-scroll-top.loading:hover
+        .stwg-scroll-bee {
+
+            animation:
+                stwgBeeSpin 0.7s linear infinite;
+        }
+
+
+        /* =========================================================
+           MOBILE
+        ========================================================= */
+
+        @media (max-width: 600px) {
+
+            .stwg-scroll-top {
+
+                right: 15px;
+                bottom: 15px;
+
+                width: 46px;
+                height: 46px;
+
+                border-radius: 11px;
+            }
+
+
+            .stwg-scroll-bee {
+
+                font-size: 22px;
+            }
+
+        }
+
+
+        /* =========================================================
+           REDUCED MOTION
+        ========================================================= */
+
+        @media (prefers-reduced-motion: reduce) {
+
+            .stwg-scroll-top {
+
+                transition:
+                    opacity 0.2s ease;
+            }
+
+
+            .stwg-scroll-bee {
+
+                animation: none !important;
+            }
+
+        }
+
+    </style>
+
 </head>
+
+
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-    
-        const tooltipTriggerList = document.querySelectorAll(
-            '[data-bs-toggle="tooltip"]'
-        );
-    
-        tooltipTriggerList.forEach(function (tooltipTriggerEl) {
-    
-            new bootstrap.Tooltip(
-                tooltipTriggerEl,
-                {
-                    delay: {
-                        show: 350,
-                        hide: 100
-                    },
-                    placement: "right"
-                }
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const tooltipTriggerList =
+            document.querySelectorAll(
+                '[data-bs-toggle="tooltip"]'
             );
-    
-        });
-    
-    });
+
+
+        tooltipTriggerList.forEach(
+            function (tooltipTriggerEl) {
+
+                new bootstrap.Tooltip(
+                    tooltipTriggerEl,
+                    {
+                        delay: {
+                            show: 350,
+                            hide: 100
+                        },
+
+                        placement: "right"
+                    }
+                );
+
+            }
+        );
+
+    }
+);
+
 </script>
+
+
 <body>
+
 <div class="d-flex w-100">
+
+
+    <!-- ==========================================================
+         SIDEBAR
+    =========================================================== -->
+
     <nav class="sidebar">
+
+
+        <!-- BRAND -->
+
         <a
             href="{{ url_for('index') }}"
             class="sidebar-brand"
         >
+
             <div class="sidebar-brand-icon">
                 🐝
             </div>
+
             <div class="sidebar-brand-text">
+
                 <span class="sidebar-brand-title">
                     STWG
                 </span>
+
                 <span class="sidebar-brand-subtitle">
                     Management Panel
                 </span>
+
             </div>
+
         </a>
+
+
+        <!-- ======================================================
+             STWG
+        ======================================================= -->
+
         <div class="sidebar-section">
+
             <button
                 class="sidebar-section-title"
                 type="button"
@@ -78,19 +323,30 @@
                 aria-expanded="true"
                 aria-controls="collapse_stwg"
             >
+
                 <span>
                     STWG
                 </span>
+
                 <span class="arrow">
                     ▾
                 </span>
+
             </button>
+
+
             <div
                 class="collapse show"
                 id="collapse_stwg"
             >
-                <ul class="sidebar-nav">  
+
+                <ul class="sidebar-nav">
+
+
+                    <!-- Besprechungen -->
+
                     <li class="sidebar-nav-item">
+
                         <a
                             class="nav-link {% if active=='meeting' %}active{% endif %}"
                             href="{{ url_for('meeting.view') }}"
@@ -98,7 +354,6 @@
                             data-bs-placement="right"
                             title="Zeigt vergangene Besprechungen von STWG"
                         >
-                        
 
                             <span class="nav-icon">
                                 📅
@@ -111,6 +366,8 @@
                         </a>
 
                     </li>
+
+
                     <!-- Regeln -->
 
                     <li class="sidebar-nav-item">
@@ -122,7 +379,6 @@
                             data-bs-placement="right"
                             title="Zeigt dir das Regelwerk von STWG"
                         >
-                        
 
                             <span class="nav-icon">
                                 📜
@@ -136,6 +392,7 @@
 
                     </li>
 
+
                     <!-- Lager -->
 
                     <li class="sidebar-nav-item">
@@ -146,7 +403,6 @@
                             data-bs-toggle="tooltip"
                             data-bs-placement="right"
                             title="Zeigt dir die Lagerhallenverwaltung"
-                        
                         >
 
                             <span class="nav-icon">
@@ -160,9 +416,9 @@
                         </a>
 
                     </li>
-            
-  
-                    <!-- Marktverlauf -->
+
+
+                    <!-- Markt -->
 
                     <li class="sidebar-nav-item">
 
@@ -171,8 +427,7 @@
                             href="{{ url_for('market.index') }}"
                             data-bs-toggle="tooltip"
                             data-bs-placement="right"
-                            title="Zeigt dir den Marktverlaif an"
-                        
+                            title="Zeigt dir den Marktverlauf an"
                         >
 
                             <span class="nav-icon">
@@ -186,6 +441,8 @@
                         </a>
 
                     </li>
+
+
                     <!-- Preisalarm -->
 
                     <li class="sidebar-nav-item">
@@ -196,7 +453,6 @@
                             data-bs-toggle="tooltip"
                             data-bs-placement="right"
                             title="Verwalte Benachrichtigungen bei bestimmten Preisen"
-                        
                         >
 
                             <span class="nav-icon">
@@ -209,25 +465,31 @@
 
                         </a>
 
-                    </li>   
+                    </li>
+
+
+                    <!-- Wespenflug -->
+
                     <li>
 
                         <a
                             class="nav-link {% if active=='wasp_game' %}active{% endif %}"
                             href="{{ url_for('wasp.game') }}"
                         >
-                    
+
                             <span class="nav-icon">
                                 🐝
                             </span>
-                    
+
                             <span class="nav-text">
                                 Wespenflug
                             </span>
-                    
+
                         </a>
-                    
-                    </li>                
+
+                    </li>
+
+
                 </ul>
 
             </div>
@@ -236,84 +498,99 @@
 
 
         <div class="sidebar-divider"></div>
+
+
+        <!-- ======================================================
+             AUSBILDUNGEN
+        ======================================================= -->
+
         {% if session.get('is_trainer') %}
 
-<div class="sidebar-section">
+        <div class="sidebar-section">
 
-    <button
-        class="sidebar-section-title"
-        type="button"
-        data-bs-toggle="collapse"
-        data-bs-target="#collapseTrainings"
-        aria-expanded="true"
-        aria-controls="collapseTrainings"
-    >
-        <span>
-            Ausbildungen
-        </span>
+            <button
+                class="sidebar-section-title"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#collapseTrainings"
+                aria-expanded="true"
+                aria-controls="collapseTrainings"
+            >
 
-        <span class="arrow">
-            ▾
-        </span>
-    </button>
+                <span>
+                    Ausbildungen
+                </span>
+
+                <span class="arrow">
+                    ▾
+                </span>
+
+            </button>
 
 
-    <div
-        class="collapse show"
-        id="collapseTrainings"
-    >
+            <div
+                class="collapse show"
+                id="collapseTrainings"
+            >
 
-        <ul class="sidebar-nav">
+                <ul class="sidebar-nav">
 
-            <li>
 
-                <a
-                    class="nav-link {% if active=='training' %}active{% endif %}"
-                    href="{{ url_for('training.index') }}"
-                >
+                    <li>
 
-                    <span class="nav-icon">
-                        🎓
-                    </span>
+                        <a
+                            class="nav-link {% if active=='training' %}active{% endif %}"
+                            href="{{ url_for('training.index') }}"
+                        >
 
-                    <span class="nav-text">
-                        Übersicht
-                    </span>
+                            <span class="nav-icon">
+                                🎓
+                            </span>
 
-                </a>
+                            <span class="nav-text">
+                                Übersicht
+                            </span>
 
-            </li>
-            <li>
+                        </a>
 
-                <a
-                    class="nav-link {% if active=='training' %}active{% endif %}"
-                    href="{{ url_for('training.trainings') }}"
-                >
+                    </li>
 
-                    <span class="nav-icon">
-                        🎓
-                    </span>
 
-                    <span class="nav-text">
-                        Ausbildungen
-                    </span>
+                    <li>
 
-                </a>
+                        <a
+                            class="nav-link {% if active=='training' %}active{% endif %}"
+                            href="{{ url_for('training.trainings') }}"
+                        >
 
-            </li>
+                            <span class="nav-icon">
+                                🎓
+                            </span>
 
-        </ul>
+                            <span class="nav-text">
+                                Ausbildungen
+                            </span>
 
-    </div>
+                        </a>
 
-</div>
+                    </li>
 
-{% endif %}
+
+                </ul>
+
+            </div>
+
+        </div>
+
+        {% endif %}
+
 
         <!-- ======================================================
              VERWALTUNG
         ======================================================= -->
+
         {% if session.get('is_admin') %}
+
         <div class="sidebar-section">
 
             <button
@@ -366,7 +643,6 @@
                     </li>
 
 
-
                     <!-- Regeln -->
 
                     <li class="sidebar-nav-item">
@@ -415,6 +691,7 @@
 
                             </li>
 
+
                             <li>
 
                                 <a
@@ -425,6 +702,7 @@
                                 </a>
 
                             </li>
+
 
                             <li>
 
@@ -440,7 +718,6 @@
                         </ul>
 
                     </li>
-
 
 
                     <!-- Lager -->
@@ -463,16 +740,23 @@
                         </a>
 
                     </li>
+
+
                 </ul>
 
             </div>
 
         </div>
+
         {% endif %}
+
+
         <!-- ======================================================
              KOMMUNIKATION
         ======================================================= -->
+
         {% if session.get('is_supporter') %}
+
         <div class="sidebar-section">
 
             <button
@@ -548,11 +832,16 @@
             </div>
 
         </div>
+
         {% endif %}
+
+
         <!-- ======================================================
              INTERNES
         ======================================================= -->
+
         {% if session.get('is_admin') %}
+
         <div class="sidebar-section">
 
             <button
@@ -631,6 +920,7 @@
 
                             </li>
 
+
                             <li>
 
                                 <a
@@ -641,6 +931,7 @@
                                 </a>
 
                             </li>
+
 
                             <li>
 
@@ -658,7 +949,6 @@
                     </li>
 
 
-
                     <!-- Dokumente -->
 
                     <li>
@@ -666,7 +956,6 @@
                         <a
                             class="nav-link {% if active=='document' %}active{% endif %}"
                             href="{{ url_for('document.view') }}"
-                                
                         >
 
                             <span class="nav-icon">
@@ -682,7 +971,6 @@
                     </li>
 
 
-
                     <!-- Berechtigungen -->
 
                     <li>
@@ -691,19 +979,18 @@
                             class="nav-link {% if active=='license_management' %}active{% endif %}"
                             href="{{ url_for('license_management.index') }}"
                         >
-                    
+
                             <span class="nav-icon">
                                 🔐
                             </span>
-                    
+
                             <span class="nav-text">
                                 Lizenzen
                             </span>
-                    
-                        </a>
-                    
-                    </li>
 
+                        </a>
+
+                    </li>
 
 
                     <!-- Awards -->
@@ -754,6 +1041,7 @@
 
                             </li>
 
+
                             <li>
 
                                 <a
@@ -775,14 +1063,20 @@
             </div>
 
         </div>
+
         {% endif %}
+
 
         <!-- ======================================================
              EINSTELLUNGEN
         ======================================================= -->
+
         {% if session.get('is_admin') %}
+
         <div class="sidebar-divider"></div>
+
         <div class="sidebar-section">
+
             <button
                 class="sidebar-section-title"
                 type="button"
@@ -833,7 +1127,6 @@
                     </li>
 
 
-
                     <!-- Einstellungen -->
 
                     <li>
@@ -856,7 +1149,6 @@
                     </li>
 
 
-
                     <!-- Voice Credits -->
 
                     <li>
@@ -877,14 +1169,27 @@
                         </a>
 
                     </li>
+
+
                 </ul>
+
             </div>
+
         </div>
+
         {% endif %}
 
+
+        <!-- ======================================================
+             SERVICES & WORKER
+        ======================================================= -->
+
         {% if session.get('is_supporter') %}
+
         <div class="sidebar-divider"></div>
+
         <div class="sidebar-section">
+
             <button
                 class="sidebar-section-title"
                 type="button"
@@ -912,6 +1217,9 @@
 
                 <ul class="sidebar-nav">
 
+
+                    <!-- Discord Bot -->
+
                     <li>
 
                         <a
@@ -930,6 +1238,10 @@
                         </a>
 
                     </li>
+
+
+                    <!-- Grabber -->
+
                     <li>
 
                         <a
@@ -948,6 +1260,10 @@
                         </a>
 
                     </li>
+
+
+                    <!-- Market Alert -->
+
                     <li>
 
                         <a
@@ -960,7 +1276,7 @@
                             </span>
 
                             <span class="nav-text">
-                                Marktalarm 
+                                Marktalarm
                             </span>
 
                         </a>
@@ -973,8 +1289,8 @@
             </div>
 
         </div>
-        {% endif %}
 
+        {% endif %}
 
 
         <!-- ======================================================
@@ -982,7 +1298,9 @@
         ======================================================= -->
 
         {% if session.get('user') %}
+
         <div class="sidebar-divider"></div>
+
         <div class="sidebar-bottom">
 
             <a
@@ -1001,11 +1319,11 @@
             </a>
 
         </div>
+
         {% endif %}
 
 
     </nav>
-
 
 
     <!-- ==========================================================
@@ -1015,29 +1333,216 @@
     <main class="main-content">
 
         {% block content %}{% endblock %}
-    
+
+
+        <!-- ======================================================
+             FOOTER
+        ======================================================= -->
+
         <footer class="dashboard-footer">
-    
-            Mit
-            <span class="footer-heart">♥</span>
-            gemacht von
-            <span class="footer-brand">
-                LainUp
-            </span>
-    
+
+            <div class="footer-left">
+
+                Mit
+
+                <span class="footer-heart">
+                    ♥
+                </span>
+
+                gemacht von
+
+                <span class="footer-brand">
+                    LainUp
+                </span>
+
+            </div>
+
+
+            <div class="footer-links">
+
+                <a
+                    href="{{ url_for('legal.impressum') }}"
+                >
+                    Impressum
+                </a>
+
+                <span class="footer-separator">
+                    ·
+                </span>
+
+                <a
+                    href="{{ url_for('legal.datenschutz') }}"
+                >
+                    Datenschutz
+                </a>
+
+            </div>
+
         </footer>
-    
+
+
     </main>
 
 
 </div>
 
 
+<!-- ==========================================================
+     SCROLL TO TOP BUTTON
+=========================================================== -->
+
+<button
+    type="button"
+    id="stwg-scroll-top"
+    class="stwg-scroll-top"
+    aria-label="Nach oben scrollen"
+    title="Nach oben"
+>
+
+    <span class="stwg-scroll-bee">
+        🐝
+    </span>
+
+</button>
+
+
+<!-- ==========================================================
+     BOOTSTRAP
+=========================================================== -->
 
 <script
     src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
     crossorigin="anonymous"
 ></script>
+
+
+<!-- ==========================================================
+     SCROLL TO TOP SCRIPT
+=========================================================== -->
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const scrollTopButton =
+            document.getElementById(
+                "stwg-scroll-top"
+            );
+
+
+        if (!scrollTopButton) {
+            return;
+        }
+
+
+        /* =====================================================
+           BUTTON EIN-/AUSBLENDEN
+        ===================================================== */
+
+        function updateScrollButton() {
+
+            if (window.scrollY > 350) {
+
+                scrollTopButton.classList.add(
+                    "visible"
+                );
+
+            } else {
+
+                scrollTopButton.classList.remove(
+                    "visible"
+                );
+
+            }
+
+        }
+
+
+        window.addEventListener(
+            "scroll",
+            updateScrollButton,
+            {
+                passive: true
+            }
+        );
+
+
+        updateScrollButton();
+
+
+        /* =====================================================
+           NACH OBEN SCROLLEN
+        ===================================================== */
+
+        scrollTopButton.addEventListener(
+            "click",
+            function () {
+
+                if (
+                    scrollTopButton.classList.contains(
+                        "loading"
+                    )
+                ) {
+                    return;
+                }
+
+
+                /*
+                 * Ladeanimation starten.
+                 */
+
+                scrollTopButton.classList.add(
+                    "loading"
+                );
+
+
+                /*
+                 * Kleine Verzögerung,
+                 * damit man die Drehung sieht.
+                 */
+
+                setTimeout(
+                    function () {
+
+                        window.scrollTo({
+
+                            top: 0,
+
+                            behavior: "smooth"
+
+                        });
+
+
+                        /*
+                         * Animation nach kurzer Zeit
+                         * wieder stoppen.
+                         */
+
+                        setTimeout(
+                            function () {
+
+                                scrollTopButton.classList.remove(
+                                    "loading"
+                                );
+
+                            },
+                            800
+                        );
+
+
+                    },
+                    150
+                );
+
+            }
+        );
+
+    }
+);
+
+</script>
 
 
 </body>

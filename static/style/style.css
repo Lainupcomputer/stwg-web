@@ -891,3 +891,52 @@ body {
         flex: 1;
     }
 }
+
+.dashboard-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.footer-left {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.footer-links {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.footer-links a {
+    color: #8e9297;
+    text-decoration: none;
+    transition: 0.2s ease;
+}
+
+.footer-links a:hover {
+    color: #ffffff;
+}
+
+.footer-separator {
+    color: #4f5155;
+}
+
+@media (max-width: 600px) {
+
+    .dashboard-footer {
+        justify-content: center;
+        text-align: center;
+    }
+
+    .footer-left,
+    .footer-links {
+        width: 100%;
+        justify-content: center;
+    }
+
+}
