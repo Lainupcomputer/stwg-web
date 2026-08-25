@@ -9,7 +9,7 @@ from flask import (
 from database import db
 from database.models import MessagePreset, UserProfile, DataStorage, ActionQueue, DMMessage
 from dhooks import Webhook, Embed
-from helper.perms import require_role_management
+from helper.perms import require_role_management, require_support_permission
 from requests import HTTPError
 
 import json
@@ -25,7 +25,7 @@ messaging_bp = Blueprint(
 # PAGE
 # ---------------------------------------------------
 @messaging_bp.get("/")
-@require_role_management
+@require_support_permission
 def messaging_page():
     # Nutzerliste aus DB
     users = UserProfile.query.order_by(UserProfile.username).all()
@@ -36,6 +36,7 @@ def messaging_page():
 
 
 @messaging_bp.get("/api/messages")
+@require_support_permission
 def get_messages():
     msgs = DMMessage.query.all()
     return jsonify([x.as_dict() for x in msgs])
@@ -44,14 +45,14 @@ def get_messages():
 # PRESETS – API
 # ---------------------------------------------------
 @messaging_bp.get("/api/presets")
-@require_role_management
+@require_support_permission
 def get_presets():
     p = MessagePreset.query.all()
     return jsonify([x.as_dict() for x in p])
 
 
 @messaging_bp.post("/api/presets")
-@require_role_management
+@require_support_permission
 def add_preset():
     data = request.json
     p = MessagePreset(
@@ -65,7 +66,7 @@ def add_preset():
 
 
 @messaging_bp.put("/api/presets/<int:id>")
-@require_role_management
+@require_support_permission
 def update_preset(id):
     p = MessagePreset.query.get(id)
     data = request.json
@@ -79,7 +80,7 @@ def update_preset(id):
 
 
 @messaging_bp.delete("/api/presets/<int:id>")
-@require_role_management
+@require_support_permission
 def delete_preset(id):
     p = MessagePreset.query.get(id)
     db.session.delete(p)
@@ -91,7 +92,7 @@ def delete_preset(id):
 # SENDEN – API
 # ---------------------------------------------------
 @messaging_bp.post("/api/send/announcement")
-@require_role_management
+@require_support_permission
 def send_announcement():
     text = request.json["text"]
     user_announcement_hook_url = DataStorage.query.filter_by(key="hooks.announcement_hook_url").first()
@@ -112,7 +113,7 @@ def send_announcement():
 
 
 @messaging_bp.post("/api/send/user")
-@require_role_management
+@require_support_permission
 def send_user():
 
     data = request.get_json() or {}
