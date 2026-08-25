@@ -1,0 +1,309 @@
+{% extends "dashboard.html" %}
+{% block title %}Besprechungen{% endblock %}
+{% block style_header %}
+
+<style>
+
+    /* ==========================================
+       MEETING CARD
+       ========================================== */
+
+    .meeting-card {
+        background-color: #333 !important;
+        color: #fff !important;
+
+        border: 1px solid #444;
+
+        transition:
+            transform 0.15s ease,
+            border-color 0.15s ease;
+    }
+
+
+    .meeting-card:hover {
+        transform: translateY(-2px);
+
+        border-color: #666;
+    }
+
+
+    /* ==========================================
+       HEADER
+       ========================================== */
+
+    .meeting-header {
+        margin-bottom: 20px;
+    }
+
+
+    .meeting-header h5 {
+        margin: 0;
+
+        color: #fff;
+    }
+
+
+    /* ==========================================
+       DATUM
+       ========================================== */
+
+    .meeting-date {
+        display: inline-block;
+
+        background-color: #992d22;
+
+        color: #fff;
+
+        padding: 5px 10px;
+
+        border-radius: 5px;
+
+        font-size: 14px;
+
+        font-weight: 500;
+    }
+
+
+    /* ==========================================
+       TITEL
+       ========================================== */
+
+    .meeting-title {
+        color: #fff;
+
+        font-size: 20px;
+
+        font-weight: 600;
+
+        margin-bottom: 10px;
+    }
+
+
+    /* ==========================================
+       VORSCHAU
+       ========================================== */
+
+    .meeting-preview {
+        color: #bbb;
+
+        line-height: 1.5;
+
+        margin-bottom: 15px;
+
+        display: -webkit-box;
+
+        -webkit-line-clamp: 3;
+
+        -webkit-box-orient: vertical;
+
+        overflow: hidden;
+    }
+
+
+    /* ==========================================
+       FOOTER
+       ========================================== */
+
+    .meeting-footer {
+        display: flex;
+
+        justify-content: space-between;
+
+        align-items: center;
+
+        border-top: 1px solid #444;
+
+        padding-top: 12px;
+
+        color: #888;
+
+        font-size: 13px;
+    }
+
+
+    /* ==========================================
+       KEINE BESPRECHUNGEN
+       ========================================== */
+
+    .no-meetings {
+        background-color: #333;
+
+        border: 1px solid #444;
+
+        border-radius: 6px;
+
+        padding: 40px;
+
+        text-align: center;
+
+        color: #999;
+    }
+
+
+    .no-meetings-icon {
+        font-size: 40px;
+
+        margin-bottom: 10px;
+    }
+
+</style>
+
+{% endblock %}
+
+
+
+{% block content %}
+
+<div class="card meeting-card mb-4">
+
+    <div class="card-body">
+
+
+        <!-- ======================================
+             HEADER
+             ====================================== -->
+
+        <div class="meeting-header">
+
+            <h5>
+                📋 Vergangene Besprechungen
+            </h5>
+
+        </div>
+
+
+
+        <!-- ======================================
+             BESPRECHUNGEN
+             ====================================== -->
+
+        {% if meetings %}
+
+            <div class="row">
+
+                {% for meeting in meetings %}
+
+                    <div class="col-md-6 col-xl-4 mb-4">
+
+                        <div class="card meeting-card h-100">
+
+                            <div class="card-body">
+
+
+                                <!-- ==================
+                                     DATUM
+                                     ================== -->
+
+                                <div class="mb-3">
+
+                                    <span class="meeting-date">
+
+                                        📅
+
+                                        {{ meeting.meeting_date.strftime("%d.%m.%Y") }}
+
+                                    </span>
+
+                                </div>
+
+
+                                <!-- ==================
+                                     TITEL
+                                     ================== -->
+
+                                <div class="meeting-title">
+
+                                    {{ meeting.title }}
+
+                                </div>
+
+
+                                <!-- ==================
+                                     INHALT
+                                     ================== -->
+
+                                <div class="meeting-preview">
+
+                                    {{ meeting.content | striptags }}
+
+                                </div>
+
+
+                                <!-- ==================
+                                     FOOTER
+                                     ================== -->
+
+                                <div class="meeting-footer">
+
+                                    <span>
+
+                                        {% if meeting.created_at %}
+
+                                            Erstellt am
+                                            {{ meeting.created_at.strftime("%d.%m.%Y %H:%M") }}
+
+                                        {% else %}
+
+                                            Besprechung
+
+                                        {% endif %}
+
+                                    </span>
+
+
+                                    <a
+                                        href="{{ url_for('meeting.detail', meeting_id=meeting.id) }}"
+                                        class="btn btn-sm btn-outline-light"
+                                    >
+                                        Ansehen
+                                    </a>
+
+                                </div>
+
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+
+        {% else %}
+
+
+            <!-- ==================================
+                 KEINE BESPRECHUNGEN
+                 ================================== -->
+
+            <div class="no-meetings">
+
+                <div class="no-meetings-icon">
+                    📋
+                </div>
+
+
+                <h5>
+                    Noch keine Besprechungen
+                </h5>
+
+
+                <p>
+                    Es wurden bisher noch keine
+                    Teambesprechungen angelegt.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+
+    </div>
+
+</div>
+
+{% endblock %}
+

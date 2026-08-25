@@ -1,0 +1,476 @@
+{% extends "dashboard.html" %}
+{% block title %}Wespenflug Leaderboard{% endblock %}
+{% block style_header %}
+<style>
+.leaderboard-wrapper {
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.leaderboard-card {
+    background: #202225;
+    border: 1px solid #111214;
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow:
+        0 8px 25px rgba(0, 0, 0, 0.25);
+}
+
+.leaderboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.leaderboard-title {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.leaderboard-subtitle {
+    margin-top: 4px;
+    color: #8e9297;
+    font-size: 13px;
+}
+
+.back-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 9px 16px;
+    background: #2b2d31;
+    border: 1px solid #444;
+    border-radius: 8px;
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    transition:
+        background 0.18s ease,
+        transform 0.18s ease;
+}
+
+.back-button:hover {
+    background: #36393e;
+    color: #ffffff;
+    text-decoration: none;
+    transform: translateY(-1px);
+}
+
+.leaderboard-table-wrapper {
+    overflow-x: auto;
+    border-radius: 10px;
+    border: 1px solid #111214;
+}
+
+.leaderboard-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px;
+}
+
+.leaderboard-table thead {
+    background: #2b2d31;
+}
+
+.leaderboard-table th {
+    padding: 13px 15px;
+    color: #8e9297;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    text-align: left;
+}
+
+.leaderboard-table td {
+    padding: 13px 15px;
+    border-top: 1px solid #2b2d31;
+    color: #ffffff;
+    font-size: 14px;
+}
+
+.leaderboard-table tbody tr {
+    transition:
+        background 0.15s ease;
+}
+
+.leaderboard-table tbody tr:hover {
+    background: #2b2d31;
+}
+
+.rank {
+    width: 70px;
+    font-weight: 700;
+    color: #8e9297;
+}
+
+.rank-1 {
+    color: #f5c542;
+    font-size: 18px;
+}
+
+.rank-2 {
+    color: #c7c7c7;
+    font-size: 18px;
+}
+
+.rank-3 {
+    color: #cd7f32;
+    font-size: 18px;
+}
+
+.username {
+    font-weight: 600;
+}
+
+.score {
+    font-size: 16px;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.games {
+    color: #8e9297;
+}
+
+.leaderboard-loading {
+    padding: 40px 20px;
+    text-align: center;
+    color: #8e9297;
+    font-size: 14px;
+}
+
+.leaderboard-error {
+    padding: 30px 20px;
+    text-align: center;
+    color: #ed4245;
+    font-size: 14px;
+}
+
+.leaderboard-empty {
+    padding: 40px 20px;
+    text-align: center;
+    color: #8e9297;
+    font-size: 14px;
+}
+
+@media (max-width: 700px) {
+    .leaderboard-card {
+        padding: 12px;
+    }
+
+    .leaderboard-title {
+        font-size: 20px;
+    }
+
+    .leaderboard-header {
+        align-items: stretch;
+    }
+
+    .back-button {
+        width: 100%;
+    }
+}
+</style>
+{% endblock %}
+{% block content %}
+<div class="leaderboard-wrapper">
+    <div class="leaderboard-card">
+        <div class="leaderboard-header">
+            <div>
+                <h1 class="leaderboard-title">
+                    🏆 Wespenflug Leaderboard
+                </h1>
+                <div class="leaderboard-subtitle">
+                    Die besten Piloten der STWG-Wespe
+                </div>
+            </div>
+            <a
+                href="/wasp/"
+                class="back-button"
+            >
+                🐝 Zum Spiel
+            </a>
+        </div>
+        <div
+            class="leaderboard-table-wrapper"
+            id="leaderboardContainer"
+        >
+            <div class="leaderboard-loading">
+                🐝 Leaderboard wird geladen...
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+(() => {
+    "use strict";
+    const container =
+        document.getElementById(
+            "leaderboardContainer"
+        );
+
+    async function loadLeaderboard() {
+
+        try {
+
+            const response =
+                await fetch(
+                    "/wasp/api/leaderboard",
+                    {
+                        method: "GET",
+                        credentials: "same-origin"
+                    }
+                );
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "HTTP " +
+                    response.status
+                );
+
+            }
+
+
+            const players =
+                await response.json();
+
+
+            renderLeaderboard(
+                players
+            );
+
+
+        } catch (error) {
+
+            console.error(
+                "Leaderboard konnte nicht geladen werden:",
+                error
+            );
+
+
+            container.innerHTML = `
+
+                <div class="leaderboard-error">
+
+                    ❌ Das Leaderboard konnte
+                    nicht geladen werden.
+
+                </div>
+
+            `;
+
+        }
+
+    }
+
+    function renderLeaderboard(
+        players
+    ) {
+
+        if (
+            !Array.isArray(players) ||
+            players.length === 0
+        ) {
+
+            container.innerHTML = `
+
+                <div class="leaderboard-empty">
+
+                    🐝 Noch niemand hat
+                    Wespenflug gespielt.
+
+                </div>
+
+            `;
+
+            return;
+
+        }
+
+        let rows = "";
+
+        players.forEach(
+            player => {
+
+                const rank =
+                    Number(
+                        player.rank || 0
+                    );
+
+
+                let rankDisplay =
+                    rank;
+
+
+                if (rank === 1) {
+
+                    rankDisplay = "🥇";
+
+                } else if (rank === 2) {
+
+                    rankDisplay = "🥈";
+
+                } else if (rank === 3) {
+
+                    rankDisplay = "🥉";
+
+                }
+
+
+                let rankClass = "rank";
+
+
+                if (rank === 1) {
+
+                    rankClass += " rank-1";
+
+                } else if (rank === 2) {
+
+                    rankClass += " rank-2";
+
+                } else if (rank === 3) {
+
+                    rankClass += " rank-3";
+
+                }
+
+
+                const username =
+                    escapeHtml(
+                        player.username ||
+                        "Unbekannt"
+                    );
+
+
+                const highscore =
+                    Number(
+                        player.highscore || 0
+                    );
+
+
+                const gamesPlayed =
+                    Number(
+                        player.games_played || 0
+                    );
+
+
+                rows += `
+
+                    <tr>
+
+                        <td class="${rankClass}">
+                            ${rankDisplay}
+                        </td>
+
+                        <td class="username">
+                            ${username}
+                        </td>
+
+                        <td class="score">
+                            ${highscore}
+                        </td>
+
+                        <td class="games">
+                            ${gamesPlayed}
+                        </td>
+
+                    </tr>
+
+                `;
+
+            }
+        );
+
+
+        container.innerHTML = `
+
+            <table class="leaderboard-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Platz
+                        </th>
+
+                        <th>
+                            Spieler
+                        </th>
+
+                        <th>
+                            Highscore
+                        </th>
+
+                        <th>
+                            Spiele
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    ${rows}
+
+                </tbody>
+
+            </table>
+
+        `;
+
+    }
+
+
+    function escapeHtml(
+        value
+    ) {
+
+        return String(value)
+
+            .replace(
+                /&/g,
+                "&amp;"
+            )
+
+            .replace(
+                /</g,
+                "&lt;"
+            )
+
+            .replace(
+                />/g,
+                "&gt;"
+            )
+
+            .replace(
+                /"/g,
+                "&quot;"
+            )
+
+            .replace(
+                /'/g,
+                "&#039;"
+            );
+
+    }
+
+
+    loadLeaderboard();
+
+})();
+</script>
+{% endblock %}

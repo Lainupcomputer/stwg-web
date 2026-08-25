@@ -1,0 +1,197 @@
+{% extends "dashboard.html" %}
+{% block title %}Interne Dokumente{% endblock %}
+{% block style_header %}
+
+
+
+{% endblock %}
+
+
+
+{% block content %}
+
+<div class="card document-card mb-4">
+
+    <div class="card-body">
+
+
+        <!-- ======================================
+             HEADER
+             ====================================== -->
+
+        <div class="document-header">
+
+            <div class="d-flex justify-content-between align-items-center">
+
+                <h5>
+                    📚 Interne Dokumente
+                </h5>
+
+
+                {% if session.get("can_manage_roles") %}
+
+                    <a
+                        href="{{ url_for('document.create') }}"
+                        class="btn btn-sm btn-outline-light document-create-button"
+                    >
+                        ➕ Dokument erstellen
+                    </a>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+
+
+        <!-- ======================================
+             DOKUMENTE
+             ====================================== -->
+
+        {% if documents %}
+
+            <div class="row">
+
+                {% for document in documents %}
+
+                    <div class="col-md-6 col-xl-4 mb-4">
+
+                        <div class="card document-card h-100">
+
+                            <div class="card-body">
+
+
+                                <!-- ==================
+                                     ICON
+                                     ================== -->
+
+                                <div class="document-icon">
+
+                                    📄
+
+                                </div>
+
+
+
+                                <!-- ==================
+                                     TITEL
+                                     ================== -->
+
+                                <div class="document-title">
+
+                                    {{ document.title }}
+
+                                </div>
+
+
+
+                                <!-- ==================
+                                     INHALT
+                                     ================== -->
+
+                                <div class="document-preview">
+
+                                    {{ document.content | striptags }}
+
+                                </div>
+
+
+
+                                <!-- ==================
+                                     FOOTER
+                                     ================== -->
+
+                                <div class="document-footer">
+
+                                    <span>
+
+                                        {% if document.updated_at %}
+
+                                            Aktualisiert am
+                                            {{ document.updated_at.strftime("%d.%m.%Y %H:%M") }}
+
+                                        {% elif document.created_at %}
+
+                                            Erstellt am
+                                            {{ document.created_at.strftime("%d.%m.%Y %H:%M") }}
+
+                                        {% else %}
+
+                                            Internes Dokument
+
+                                        {% endif %}
+
+                                    </span>
+
+
+                                    <a
+                                        href="{{ url_for(
+                                            'document.detail',
+                                            document_id=document.id
+                                        ) }}"
+                                        class="btn btn-sm btn-outline-light"
+                                    >
+                                        Öffnen
+                                    </a>
+
+                                </div>
+
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+
+        {% else %}
+
+
+            <!-- ==================================
+                 KEINE DOKUMENTE
+                 ================================== -->
+
+            <div class="no-documents">
+
+                <div class="no-documents-icon">
+                    📚
+                </div>
+
+
+                <h5>
+                    Noch keine Dokumente
+                </h5>
+
+
+                <p>
+                    Es wurden bisher noch keine
+                    internen Dokumente angelegt.
+                </p>
+
+
+                {% if session.get("can_manage_roles") %}
+
+                    <a
+                        href="{{ url_for('document.create') }}"
+                        class="btn btn-outline-light mt-2"
+                    >
+                        ➕ Erstes Dokument erstellen
+                    </a>
+
+                {% endif %}
+
+            </div>
+
+        {% endif %}
+
+
+    </div>
+
+</div>
+
+{% endblock %}

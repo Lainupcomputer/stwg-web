@@ -1,0 +1,313 @@
+{% extends "dashboard.html" %}
+{% block title %}Dokument erstellen{% endblock %}
+{% block style_header %}
+
+<link
+    href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css"
+    rel="stylesheet"
+>
+{% endblock %}
+{% block content %}
+<div class="card document-card mb-4">
+    <div class="card-body">
+        <h5 class="card-title mb-4">
+            📄 Neues internes Dokument
+        </h5>
+        <form id="documentForm">
+            <div class="mb-4">
+                <label
+                    for="documentTitle"
+                    class="form-label"
+                >
+                    Titel
+                </label>
+                <input
+                    type="text"
+                    id="documentTitle"
+                    name="title"
+                    class="form-control"
+                    required
+                    autocomplete="off"
+                >
+            </div>
+            <div class="mb-3">
+                <label class="form-label">
+                    Inhalt
+                </label>
+                <div class="editor-wrapper">
+                    <div id="toolbar">
+                        <span class="ql-formats">
+                            <select
+                                class="ql-header"
+                                title="Überschrift"
+                            >
+                                <option selected></option>
+                                <option value="1">
+                                    Überschrift 1
+                                </option>
+                                <option value="2">
+                                    Überschrift 2
+                                </option>
+                                <option value="3">
+                                    Überschrift 3
+                                </option>
+                            </select>
+                        </span>
+                        <span class="ql-formats">
+                            <button
+                                type="button"
+                                class="ql-bold"
+                                title="Fett"
+                            ></button>
+                            <button
+                                type="button"
+                                class="ql-italic"
+                                title="Kursiv"
+                            ></button>
+                            <button
+                                type="button"
+                                class="ql-underline"
+                                title="Unterstrichen"
+                            ></button>
+                            <button
+                                type="button"
+                                class="ql-strike"
+                                title="Durchgestrichen"
+                            ></button>
+                        </span>
+                        <span class="ql-formats">
+                            <select
+                                class="ql-size"
+                                title="Schriftgröße"
+                            >
+                                <option value="small">
+                                    Klein
+                                </option>
+                                <option selected>
+                                    Normal
+                                </option>
+                                <option value="large">
+                                    Groß
+                                </option>
+                                <option value="huge">
+                                    Sehr groß
+                                </option>
+                            </select>
+                        </span>
+                        <span class="ql-formats">
+                            <select
+                                class="ql-color"
+                                title="Textfarbe"
+                            >
+                                <option value="#ffffff"></option>
+                                <option value="#ff0000"></option>
+                                <option value="#ff8800"></option>
+                                <option value="#ffff00"></option>
+                                <option value="#00ff00"></option>
+                                <option value="#00aaff"></option>
+                                <option value="#5500ff"></option>
+                                <option value="#ff00aa"></option>
+                            </select>
+                        </span>
+                        <span class="ql-formats">
+                            <select
+                                class="ql-background"
+                                title="Hintergrundfarbe"
+                            >
+                                <option value="#ffff00"></option>
+                                <option value="#ffcccc"></option>
+                                <option value="#ccffcc"></option>
+                                <option value="#cce5ff"></option>
+                            </select>
+                        </span>
+                        <span class="ql-formats">
+                            <button
+                                type="button"
+                                class="ql-list"
+                                value="ordered"
+                                title="Nummerierte Liste"
+                            ></button>
+                            <button
+                                type="button"
+                                class="ql-list"
+                                value="bullet"
+                                title="Aufzählung"
+                            ></button>
+                        </span>
+                        <span class="ql-formats">
+                            <select
+                                class="ql-align"
+                                title="Ausrichtung"
+                            ></select>
+                        </span>
+                        <span class="ql-formats">
+                            <button
+                                type="button"
+                                class="ql-link"
+                                title="Link"
+                            ></button>
+                        </span>
+                        <span class="ql-formats">
+                            <button
+                                type="button"
+                                class="ql-clean"
+                                title="Formatierung entfernen"
+                            ></button>
+                        </span>
+                    </div>
+                    <div id="documentEditor"></div>
+                </div>
+                <input
+                    type="hidden"
+                    id="documentContent"
+                    name="content"
+                >
+            </div>
+            <button
+                type="submit"
+                class="btn btn-primary document-submit"
+                id="documentSubmit"
+            >
+                Dokument erstellen
+            </button>
+        </form>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+<script>
+    const quill = new Quill(
+        '#documentEditor',
+        {
+            theme: 'snow',
+            modules: {
+                toolbar: '#toolbar'
+            }
+        }
+    );
+
+    document
+        .getElementById('documentForm')
+        .addEventListener(
+            'submit',
+            async function(event) {
+
+                event.preventDefault();
+
+                const title =
+                    document
+                        .getElementById('documentTitle')
+                        .value
+                        .trim();
+
+
+                const content =
+                    quill.root.innerHTML;
+
+                if (!title) {
+
+                    alert(
+                        'Bitte einen Titel eingeben.'
+                    );
+
+                    return;
+                }
+
+                const plainText =
+                    quill
+                        .getText()
+                        .trim();
+
+
+                if (!plainText) {
+
+                    alert(
+                        'Bitte einen Dokumentinhalt eingeben.'
+                    );
+
+                    return;
+                }
+
+                const submitButton =
+                    document.getElementById(
+                        'documentSubmit'
+                    );
+
+
+                submitButton.disabled = true;
+
+                submitButton.textContent =
+                    'Wird gespeichert...';
+
+
+                try {
+
+                    const response =
+                        await fetch(
+                            '{{ url_for("document.create") }}',
+                            {
+                                method: 'POST',
+
+                                headers: {
+                                    'Content-Type':
+                                        'application/json'
+                                },
+
+                                body: JSON.stringify({
+
+                                    title:
+                                        title,
+
+                                    content:
+                                        content
+
+                                })
+                            }
+                        );
+
+                    const result =
+                        await response.json();
+
+                    if (
+                        !response.ok ||
+                        !result.success
+                    ) {
+
+                        throw new Error(
+                            result.message ||
+                            'Fehler beim Speichern.'
+                        );
+
+                    }
+
+
+                    window.location.href =
+                        '{{ url_for("document.view") }}';
+
+
+                } catch (error) {
+
+                    console.error(
+                        'Fehler:',
+                        error
+                    );
+
+
+                    alert(
+                        'Fehler beim Speichern: ' +
+                        error.message
+                    );
+
+
+                } finally {
+
+                    submitButton.disabled = false;
+
+                    submitButton.textContent =
+                        'Dokument erstellen';
+
+                }
+
+            }
+        );
+</script>
+{% endblock %}

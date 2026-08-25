@@ -1,0 +1,646 @@
+{% extends "dashboard.html" %}
+
+{% block title %}Besprechung ankündigen{% endblock %}
+
+
+{% block style_header %}
+
+<!-- ==========================================
+     FLATPICKR CSS
+     ========================================== -->
+
+<link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+>
+
+
+<style>
+
+    /* ==========================================
+       CARD
+       ========================================== */
+
+    .announcement-card {
+        background-color: #333 !important;
+        color: #fff !important;
+        border: 1px solid #444;
+    }
+
+
+    .announcement-card .card-title {
+        color: #fff !important;
+    }
+
+
+    /* ==========================================
+       LABELS
+       ========================================== */
+
+    .announcement-card .form-label {
+        color: #fff !important;
+        font-weight: 500;
+    }
+
+
+    /* ==========================================
+       INPUTS
+       ========================================== */
+
+    .announcement-card .form-control {
+        background-color: #444 !important;
+        color: #fff !important;
+        border: 1px solid #666 !important;
+    }
+
+
+    .announcement-card .form-control:focus {
+        background-color: #444 !important;
+        color: #fff !important;
+
+        border-color: #0d6efd !important;
+
+        box-shadow:
+            0 0 0 0.2rem
+            rgba(13, 110, 253, 0.25);
+    }
+
+
+    .announcement-card
+    .form-control::placeholder {
+        color: #999 !important;
+    }
+
+
+    /* ==========================================
+       DATEPICKER INPUT
+       ========================================== */
+
+    #meetingDate {
+        cursor: pointer;
+    }
+
+
+    /* ==========================================
+       FLATPICKR DARK THEME
+       ========================================== */
+
+    .flatpickr-calendar {
+        background: #333 !important;
+        border: 1px solid #555 !important;
+
+        box-shadow:
+            0 8px 25px
+            rgba(0, 0, 0, 0.5);
+    }
+
+
+    /* ==========================================
+       MONAT
+       ========================================== */
+
+    .flatpickr-months {
+        background: #333 !important;
+    }
+
+
+    .flatpickr-month {
+        background: #333 !important;
+        color: #fff !important;
+    }
+
+
+    .flatpickr-current-month {
+        color: #fff !important;
+    }
+
+
+    .flatpickr-current-month
+    input.cur-year {
+        color: #fff !important;
+    }
+
+
+    /* ==========================================
+       WOCHENTAGE
+       ========================================== */
+
+    .flatpickr-weekdays {
+        background: #333 !important;
+    }
+
+
+    span.flatpickr-weekday {
+        background: #333 !important;
+        color: #aaa !important;
+    }
+
+
+    /* ==========================================
+       TAGE
+       ========================================== */
+
+    .flatpickr-day {
+        color: #fff !important;
+    }
+
+
+    .flatpickr-day:hover {
+        background: #555 !important;
+        border-color: #555 !important;
+    }
+
+
+    .flatpickr-day.today {
+        border-color: #0d6efd !important;
+    }
+
+
+    .flatpickr-day.selected {
+        background: #0d6efd !important;
+        border-color: #0d6efd !important;
+        color: #fff !important;
+    }
+
+
+    .flatpickr-day.prevMonthDay,
+    .flatpickr-day.nextMonthDay {
+        color: #666 !important;
+    }
+
+
+    /* ==========================================
+       NAVIGATION
+       ========================================== */
+
+    .flatpickr-prev-month,
+    .flatpickr-next-month {
+        fill: #fff !important;
+    }
+
+
+    .flatpickr-prev-month:hover svg,
+    .flatpickr-next-month:hover svg {
+        fill: #0d6efd !important;
+    }
+
+
+    /* ==========================================
+       INFO BOX
+       ========================================== */
+
+    .announcement-info {
+        background-color: #3a3a3a;
+
+        border-left:
+            4px solid #992d22;
+
+        padding: 15px;
+
+        border-radius: 4px;
+
+        margin-bottom: 20px;
+    }
+
+
+    .announcement-info p {
+        margin: 0;
+        color: #ccc;
+    }
+
+
+    /* ==========================================
+       VORSCHAU
+       ========================================== */
+
+    .announcement-preview {
+        background-color: #2b2b2b;
+
+        border:
+            1px solid #555;
+
+        border-radius: 6px;
+
+        padding: 20px;
+
+        margin-top: 20px;
+    }
+
+
+    .announcement-preview-title {
+        font-size: 18px;
+
+        font-weight: bold;
+
+        margin-bottom: 10px;
+
+        color: #fff;
+    }
+
+
+    .announcement-preview-text {
+        color: #ccc;
+
+        white-space: pre-line;
+
+        line-height: 1.6;
+    }
+
+
+    /* ==========================================
+       BUTTON
+       ========================================== */
+
+    .announcement-submit {
+        margin-top: 20px;
+    }
+
+</style>
+
+{% endblock %}
+
+
+
+{% block content %}
+
+<div class="card announcement-card mb-4">
+
+    <div class="card-body">
+
+
+        <!-- ======================================
+             TITEL
+             ====================================== -->
+
+        <h5 class="card-title mb-4">
+            📢 Besprechung ankündigen
+        </h5>
+
+
+        <!-- ======================================
+             INFORMATION
+             ====================================== -->
+
+        <div class="announcement-info">
+
+            <p>
+                Hier kannst du die nächste
+                Teambesprechung ankündigen.
+                Die Ankündigung wird anschließend
+                über den Discord-Webhook versendet.
+            </p>
+
+        </div>
+
+
+        <!-- ======================================
+             FORMULAR
+             ====================================== -->
+
+        <form
+            method="POST"
+            action="{{ url_for('meeting.announce') }}"
+            id="announcementForm"
+        >
+
+
+            <!-- ==================================
+                 DATUM
+                 ================================== -->
+
+            <div class="mb-3">
+
+                <label
+                    for="meetingDate"
+                    class="form-label"
+                >
+                    Datum der Besprechung
+                </label>
+
+
+                <input
+                    type="text"
+                    class="form-control"
+                    id="meetingDate"
+                    name="meeting_date"
+                    placeholder="TT.MM.JJJJ"
+                    autocomplete="off"
+                    required
+                >
+
+            </div>
+
+
+
+            <!-- ==================================
+                 UHRZEIT
+                 ================================== -->
+
+            <div class="mb-3">
+
+                <label
+                    for="meetingTime"
+                    class="form-label"
+                >
+                    Uhrzeit der Besprechung
+                </label>
+
+
+                <input
+                    type="time"
+                    class="form-control"
+                    id="meetingTime"
+                    name="meeting_time"
+                    required
+                >
+
+            </div>
+
+
+
+            <!-- ==================================
+                 VORSCHAU
+                 ================================== -->
+
+            <div class="announcement-preview">
+
+                <div class="announcement-preview-title">
+
+                    📢 Ankündigung der nächsten
+                    Besprechung
+
+                </div>
+
+
+                <div
+                    class="announcement-preview-text"
+                    id="announcementPreview"
+                >
+
+                    Wir möchten euch informieren,
+                    dass die nächste Besprechung
+                    stattfindet.
+
+                    Anwesenheit ist erwünscht aber
+                    keine Pflicht!
+
+                </div>
+
+            </div>
+
+
+
+            <!-- ==================================
+                 ABSENDEN
+                 ================================== -->
+
+            <button
+                type="submit"
+                class="btn btn-primary announcement-submit"
+                id="announceButton"
+            >
+
+                📢 Besprechung ankündigen
+
+            </button>
+
+
+        </form>
+
+    </div>
+
+</div>
+
+
+
+<!-- ==============================================
+     FLATPICKR JAVASCRIPT
+     ============================================== -->
+
+<script
+    src="https://cdn.jsdelivr.net/npm/flatpickr"
+></script>
+
+
+<script
+    src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/de.js"
+></script>
+
+
+
+<script>
+
+    /* ==========================================
+       ELEMENTE
+       ========================================== */
+
+    const dateInput =
+        document.getElementById(
+            "meetingDate"
+        );
+
+
+    const timeInput =
+        document.getElementById(
+            "meetingTime"
+        );
+
+
+    const preview =
+        document.getElementById(
+            "announcementPreview"
+        );
+
+
+
+    /* ==========================================
+       VORSCHAU AKTUALISIEREN
+       ========================================== */
+
+    function updatePreview() {
+
+        let date =
+            dateInput.value;
+
+
+        let time =
+            timeInput.value;
+
+
+        /* --------------------------------------
+           Datum
+           -------------------------------------- */
+
+        if (!date) {
+
+            date = "TT.MM.JJJJ";
+
+        }
+
+
+        /* --------------------------------------
+           Uhrzeit
+           -------------------------------------- */
+
+        if (!time) {
+
+            time = "--:--";
+
+        }
+
+
+        /* --------------------------------------
+           Text setzen
+           -------------------------------------- */
+
+        preview.textContent =
+            "Wir möchten euch informieren, dass " +
+            "die nächste Besprechung am " +
+            date +
+            " um " +
+            time +
+            " Uhr stattfindet.\n\n" +
+            "Anwesenheit ist erwünscht aber keine Pflicht!";
+
+    }
+
+
+
+    /* ==========================================
+       FLATPICKR
+       ========================================== */
+
+    const datePicker =
+        flatpickr(
+            dateInput,
+            {
+
+                locale: "de",
+
+                dateFormat: "d.m.Y",
+
+                allowInput: true,
+
+                clickOpens: true,
+
+                disableMobile: true,
+
+                minDate: "today",
+
+
+                /* ------------------------------
+                   Kalenderauswahl
+                   ------------------------------ */
+
+                onChange:
+                    function() {
+
+                        updatePreview();
+
+                    },
+
+
+                /* ------------------------------
+                   Eingabe aktualisiert
+                   ------------------------------ */
+
+                onValueUpdate:
+                    function() {
+
+                        updatePreview();
+
+                    }
+
+            }
+        );
+
+
+
+    /* ==========================================
+       HEUTIGES DATUM
+       ========================================== */
+
+    datePicker.setDate(
+        new Date(),
+        false
+    );
+
+
+
+    /* ==========================================
+       STANDARD UHRZEIT
+       ========================================== */
+
+    timeInput.value =
+        "19:00";
+
+
+
+    /* ==========================================
+       UHRZEIT ÄNDERN
+       ========================================== */
+
+    timeInput.addEventListener(
+        "input",
+        updatePreview
+    );
+
+
+    timeInput.addEventListener(
+        "change",
+        updatePreview
+    );
+
+
+
+    /* ==========================================
+       DATUM MANUELL ÄNDERN
+       ========================================== */
+
+    dateInput.addEventListener(
+        "input",
+        updatePreview
+    );
+
+
+
+    /* ==========================================
+       INITIALE VORSCHAU
+       ========================================== */
+
+    updatePreview();
+
+
+
+    /* ==========================================
+       FORMULAR ABSENDEN
+       ========================================== */
+
+    document
+        .getElementById(
+            "announcementForm"
+        )
+        .addEventListener(
+            "submit",
+            function() {
+
+                const button =
+                    document.getElementById(
+                        "announceButton"
+                    );
+
+
+                button.disabled =
+                    true;
+
+
+                button.textContent =
+                    "📢 Wird gesendet...";
+
+            }
+        );
+
+</script>
+
+{% endblock %}
+

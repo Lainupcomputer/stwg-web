@@ -1,0 +1,539 @@
+{% extends "dashboard.html" %}
+
+{% block title %}Regel hinzufügen{% endblock %}
+
+
+{% block style_header %}
+
+<style>
+
+/* ==========================================================
+   PAGE
+========================================================== */
+
+.rule-create-page {
+
+    max-width: 900px;
+
+    margin: 0 auto;
+
+}
+
+
+/* ==========================================================
+   HEADER
+========================================================== */
+
+.rule-create-header {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 14px;
+
+    margin-bottom: 22px;
+
+    padding-bottom: 16px;
+
+    border-bottom: 1px solid #2f3136;
+
+}
+
+
+.rule-create-icon {
+
+    width: 46px;
+
+    height: 46px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background: rgba(153, 45, 34, 0.2);
+
+    border: 1px solid rgba(153, 45, 34, 0.4);
+
+    border-radius: 11px;
+
+    font-size: 21px;
+
+}
+
+
+.rule-create-header h2 {
+
+    margin: 0;
+
+    color: #ffffff;
+
+    font-size: 22px;
+
+    font-weight: 700;
+
+}
+
+
+.rule-create-header p {
+
+    margin: 3px 0 0;
+
+    color: #8e9297;
+
+    font-size: 13px;
+
+}
+
+
+/* ==========================================================
+   CARD
+========================================================== */
+
+.rule-create-card {
+
+    background: #202225;
+
+    border: 1px solid #2f3136;
+
+    border-radius: 12px;
+
+    overflow: hidden;
+
+}
+
+
+.rule-create-card-header {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 16px 20px;
+
+    border-bottom: 1px solid #2f3136;
+
+}
+
+
+.rule-create-card-header h5 {
+
+    margin: 0;
+
+    font-size: 16px;
+
+    font-weight: 600;
+
+    color: #ffffff;
+
+}
+
+
+.rule-create-card-body {
+
+    padding: 20px;
+
+}
+
+
+/* ==========================================================
+   FORM
+========================================================== */
+
+.rule-create-card .form-label {
+
+    color: #b9bbbe;
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    margin-bottom: 6px;
+
+}
+
+
+.rule-create-card .form-control {
+
+    background: #2b2d31 !important;
+
+    border: 1px solid #3a3c41 !important;
+
+    color: #ffffff !important;
+
+    border-radius: 8px;
+
+    padding: 9px 11px;
+
+}
+
+
+.rule-create-card .form-control:focus {
+
+    background: #2b2d31 !important;
+
+    border-color: #992d22 !important;
+
+    color: #ffffff !important;
+
+    box-shadow:
+        0 0 0 2px rgba(153, 45, 34, 0.2) !important;
+
+}
+
+
+.rule-create-card .form-control::placeholder {
+
+    color: #72767d;
+
+}
+
+
+/* ==========================================================
+   TEXTAREA
+========================================================== */
+
+#ruleContent {
+
+    min-height: 150px;
+
+    resize: vertical;
+
+}
+
+
+/* ==========================================================
+   CHECKBOX
+========================================================== */
+
+.rule-inline-container {
+
+    padding: 12px;
+
+    background: #2b2d31;
+
+    border: 1px solid #3a3c41;
+
+    border-radius: 8px;
+
+}
+
+
+.rule-inline-container .form-check {
+
+    margin: 0;
+
+}
+
+
+.rule-inline-container .form-check-label {
+
+    color: #b9bbbe;
+
+    font-size: 13px;
+
+}
+
+
+.rule-inline-container .form-check-input {
+
+    background-color: #202225;
+
+    border-color: #4a4c52;
+
+}
+
+
+.rule-inline-container .form-check-input:checked {
+
+    background-color: #992d22;
+
+    border-color: #992d22;
+
+}
+
+
+/* ==========================================================
+   BUTTON
+========================================================== */
+
+.rule-submit {
+
+    display: flex;
+
+    justify-content: flex-end;
+
+    margin-top: 18px;
+
+}
+
+
+.rule-submit .btn {
+
+    padding: 8px 18px;
+
+    border-radius: 8px;
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+}
+
+
+.btn-stwg {
+
+    background: #992d22;
+
+    border: 1px solid #992d22;
+
+    color: #ffffff;
+
+}
+
+
+.btn-stwg:hover {
+
+    background: #b3372a;
+
+    border-color: #b3372a;
+
+    color: #ffffff;
+
+}
+
+
+/* ==========================================================
+   HINWEIS
+========================================================== */
+
+.rule-info {
+
+    margin-top: 14px;
+
+    padding: 12px 14px;
+
+    background: rgba(255, 255, 255, 0.025);
+
+    border: 1px solid #2f3136;
+
+    border-radius: 8px;
+
+    color: #72767d;
+
+    font-size: 12px;
+
+    line-height: 1.5;
+
+}
+
+
+/* ==========================================================
+   MOBILE
+========================================================== */
+
+@media (max-width: 700px) {
+
+    .rule-create-header {
+
+        align-items: flex-start;
+
+    }
+
+
+    .rule-create-card-body {
+
+        padding: 15px;
+
+    }
+
+
+    .rule-submit {
+
+        justify-content: stretch;
+
+    }
+
+
+    .rule-submit .btn {
+
+        width: 100%;
+
+    }
+
+}
+
+</style>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="rule-create-page">
+
+
+    <!-- ======================================================
+         HEADER
+    ======================================================= -->
+
+    <div class="rule-create-header">
+
+        <div class="rule-create-icon">
+            📜
+        </div>
+
+        <div>
+
+            <h2>
+                Regel hinzufügen
+            </h2>
+
+            <p>
+                Eine neue Regel zum STWG-Regelwerk hinzufügen
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- ======================================================
+         FORM CARD
+    ======================================================= -->
+
+    <div class="rule-create-card">
+
+
+        <div class="rule-create-card-header">
+
+            <span>
+                ✏️
+            </span>
+
+            <h5>
+                Neue Regel
+            </h5>
+
+        </div>
+
+
+        <div class="rule-create-card-body">
+
+            <form
+                id="ruleForm"
+                class="mb-0"
+            >
+
+
+                <!-- TITEL -->
+
+                <div class="mb-3">
+
+                    <label
+                        for="ruleTitle"
+                        class="form-label"
+                    >
+                        Titel
+                    </label>
+
+                    <input
+                        type="text"
+                        id="ruleTitle"
+                        class="form-control"
+                        placeholder="z. B. §1 Verhalten im Funk"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- INHALT -->
+
+                <div class="mb-3">
+
+                    <label
+                        for="ruleContent"
+                        class="form-label"
+                    >
+                        Inhalt
+                    </label>
+
+                    <textarea
+                        id="ruleContent"
+                        class="form-control"
+                        placeholder="Beschreibe hier die Regel..."
+                        rows="5"
+                        required
+                    ></textarea>
+
+                </div>
+
+
+                <!-- INLINE -->
+
+                <div class="rule-inline-container">
+
+                    <div class="form-check">
+
+                        <input
+                            type="checkbox"
+                            id="ruleInline"
+                            class="form-check-input"
+                        >
+
+                        <label
+                            for="ruleInline"
+                            class="form-check-label"
+                        >
+                            <strong>Inline anzeigen</strong>
+                            <br>
+
+                            <span style="font-size: 12px; color: #72767d;">
+                                Die Regel wird beim Senden als Inline-Feld dargestellt.
+                            </span>
+
+                        </label>
+
+                    </div>
+
+                </div>
+
+
+                <!-- BUTTON -->
+
+                <div class="rule-submit">
+
+                    <button
+                        class="btn btn-stwg"
+                        type="submit"
+                    >
+                        📜 Regel hinzufügen
+                    </button>
+
+                </div>
+
+
+            </form>
+
+
+            <div class="rule-info">
+
+                💡 <strong>Hinweis:</strong>
+                Überprüfe Titel und Inhalt vor dem Hinzufügen.
+                Die Regel wird anschließend im Regelwerk angezeigt.
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,592 @@
+{% extends "dashboard.html" %}
+
+{% block title %}Regelwerk{% endblock %}
+
+{% block style_header %}
+
+<style>
+
+    /* ==========================================================
+       REGELWERK
+    ========================================================== */
+
+    .rules-container {
+
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 10px 0 40px 0;
+
+    }
+
+
+    .rules-header {
+
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        margin-bottom: 25px;
+
+        padding: 20px 22px;
+
+        background: #202225;
+
+        border: 1px solid #2f3136;
+
+        border-radius: 12px;
+
+        box-shadow:
+            0 4px 15px rgba(0,0,0,0.20);
+
+    }
+
+
+    .rules-header-content {
+
+        display: flex;
+        align-items: center;
+
+        gap: 15px;
+
+    }
+
+
+    .rules-header-icon {
+
+        width: 48px;
+        height: 48px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        background: rgba(153,45,34,0.20);
+
+        border-radius: 10px;
+
+        font-size: 23px;
+
+    }
+
+
+    .rules-header-title {
+
+        margin: 0;
+
+        font-size: 23px;
+
+        font-weight: 700;
+
+        color: #ffffff;
+
+    }
+
+
+    .rules-header-subtitle {
+
+        margin: 4px 0 0 0;
+
+        color: #8e9297;
+
+        font-size: 13px;
+
+    }
+
+
+
+    /* ==========================================================
+       REGELKARTEN
+    ========================================================== */
+
+    #ruleList {
+
+        display: flex;
+
+        flex-direction: column;
+
+        gap: 12px;
+
+    }
+
+
+    .rule-card {
+
+        position: relative;
+
+        background: #202225;
+
+        border: 1px solid #2f3136;
+
+        border-radius: 11px;
+
+        overflow: hidden;
+
+        transition:
+            transform 0.18s ease,
+            border-color 0.18s ease,
+            box-shadow 0.18s ease;
+
+    }
+
+
+    .rule-card:hover {
+
+        transform: translateY(-2px);
+
+        border-color: #44474d;
+
+        box-shadow:
+            0 6px 18px rgba(0,0,0,0.25);
+
+    }
+
+
+    .rule-card::before {
+
+        content: "";
+
+        position: absolute;
+
+        left: 0;
+        top: 0;
+        bottom: 0;
+
+        width: 3px;
+
+        background: #992d22;
+
+    }
+
+
+    .rule-card-body {
+
+        padding: 18px 20px 18px 23px;
+
+    }
+
+
+    .rule-number {
+
+        display: inline-flex;
+
+        align-items: center;
+        justify-content: center;
+
+        min-width: 28px;
+        height: 28px;
+
+        margin-right: 8px;
+
+        background: rgba(153,45,34,0.18);
+
+        color: #ffffff;
+
+        border-radius: 7px;
+
+        font-size: 12px;
+
+        font-weight: 700;
+
+    }
+
+
+    .rule-title {
+
+        display: flex;
+
+        align-items: center;
+
+        margin: 0 0 10px 0;
+
+        color: #ffffff;
+
+        font-size: 17px;
+
+        font-weight: 600;
+
+    }
+
+
+    .rule-content {
+
+        margin: 0;
+
+        color: #b9bbbe;
+
+        font-size: 14px;
+
+        line-height: 1.65;
+
+        white-space: pre-line;
+
+    }
+
+
+
+    /* ==========================================================
+       LOADING
+    ========================================================== */
+
+    .rules-loading {
+
+        display: flex;
+
+        justify-content: center;
+        align-items: center;
+
+        padding: 40px;
+
+        background: #202225;
+
+        border: 1px solid #2f3136;
+
+        border-radius: 11px;
+
+        color: #8e9297;
+
+    }
+
+
+    .rules-spinner {
+
+        width: 20px;
+        height: 20px;
+
+        margin-right: 10px;
+
+        border: 2px solid #444;
+
+        border-top-color: #992d22;
+
+        border-radius: 50%;
+
+        animation: rules-spin 0.8s linear infinite;
+
+    }
+
+
+    @keyframes rules-spin {
+
+        to {
+            transform: rotate(360deg);
+        }
+
+    }
+
+
+
+    /* ==========================================================
+       FEHLER
+    ========================================================== */
+
+    .rules-error {
+
+        padding: 18px 20px;
+
+        background: rgba(237,66,69,0.10);
+
+        border: 1px solid rgba(237,66,69,0.30);
+
+        border-radius: 10px;
+
+        color: #ed4245;
+
+    }
+
+
+
+    /* ==========================================================
+       KEINE REGELN
+    ========================================================== */
+
+    .rules-empty {
+
+        padding: 40px;
+
+        text-align: center;
+
+        background: #202225;
+
+        border: 1px solid #2f3136;
+
+        border-radius: 11px;
+
+        color: #8e9297;
+
+    }
+
+
+    .rules-empty-icon {
+
+        font-size: 30px;
+
+        margin-bottom: 10px;
+
+    }
+
+
+
+    /* ==========================================================
+       MOBILE
+    ========================================================== */
+
+    @media (max-width: 700px) {
+
+        .rules-container {
+
+            padding: 5px 0 30px 0;
+
+        }
+
+
+        .rules-header {
+
+            padding: 16px;
+
+        }
+
+
+        .rules-header-title {
+
+            font-size: 19px;
+
+        }
+
+
+        .rules-header-subtitle {
+
+            font-size: 12px;
+
+        }
+
+
+        .rule-card-body {
+
+            padding: 15px 16px 15px 19px;
+
+        }
+
+
+        .rule-title {
+
+            font-size: 15px;
+
+        }
+
+
+        .rule-content {
+
+            font-size: 13px;
+
+        }
+
+    }
+
+</style>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="rules-container">
+
+
+    <!-- ======================================================
+         HEADER
+    ======================================================= -->
+
+    <div class="rules-header">
+
+        <div class="rules-header-content">
+
+            <div class="rules-header-icon">
+                📜
+            </div>
+
+            <div>
+
+                <h1 class="rules-header-title">
+                    Regelwerk
+                </h1>
+
+                <p class="rules-header-subtitle">
+                    Das aktuelle Regelwerk der STWG
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ======================================================
+         REGELN
+    ======================================================= -->
+
+    <div id="ruleList">
+
+        <div class="rules-loading">
+
+            <div class="rules-spinner"></div>
+
+            Regeln werden geladen...
+
+        </div>
+
+    </div>
+
+
+</div>
+
+
+<script>
+
+const ruleList =
+    document.getElementById("ruleList");
+
+
+async function loadRules() {
+
+    try {
+
+        const res =
+            await fetch("/rules/");
+
+
+        if (!res.ok) {
+
+            throw new Error(
+                "Fehler beim Laden der Regeln"
+            );
+
+        }
+
+
+        const data =
+            await res.json();
+
+
+        ruleList.innerHTML = "";
+
+
+        if (!data || data.length === 0) {
+
+            ruleList.innerHTML = `
+
+                <div class="rules-empty">
+
+                    <div class="rules-empty-icon">
+                        📜
+                    </div>
+
+                    <div>
+                        Aktuell sind keine Regeln vorhanden.
+                    </div>
+
+                </div>
+
+            `;
+
+            return;
+
+        }
+
+
+        data.forEach((rule, index) => {
+
+            const card =
+                document.createElement("div");
+
+
+            card.className =
+                "rule-card";
+
+
+            card.innerHTML = `
+
+                <div class="rule-card-body">
+
+                    <h5 class="rule-title">
+
+                        <span class="rule-number">
+                            ${index + 1}
+                        </span>
+
+                        ${escapeHtml(rule.title)}
+
+                    </h5>
+
+
+                    <p class="rule-content">
+                        ${escapeHtml(rule.content)}
+                    </p>
+
+                </div>
+
+            `;
+
+
+            ruleList.appendChild(card);
+
+        });
+
+
+    } catch (err) {
+
+        console.error(err);
+
+
+        ruleList.innerHTML = `
+
+            <div class="rules-error">
+
+                ⚠️ Das Regelwerk konnte nicht geladen werden.
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+/* ==========================================================
+   HTML ESCAPING
+========================================================== */
+
+function escapeHtml(value) {
+
+    if (
+        value === null ||
+        value === undefined
+    ) {
+
+        return "";
+
+    }
+
+
+    return String(value)
+
+        .replace(/&/g, "&amp;")
+
+        .replace(/</g, "&lt;")
+
+        .replace(/>/g, "&gt;")
+
+        .replace(/"/g, "&quot;")
+
+        .replace(/'/g, "&#039;");
+
+}
+
+
+loadRules();
+
+</script>
+
+{% endblock %}

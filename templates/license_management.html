@@ -1,0 +1,828 @@
+{% extends "dashboard.html" %}
+
+{% block title %}
+Lizenzverwaltung
+{% endblock %}
+
+
+{% block style_header %}
+
+<style>
+
+/* ==========================================================
+   HEADER
+========================================================== */
+
+.license-header {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 1.5rem;
+
+    flex-wrap: wrap;
+
+    gap: 1rem;
+}
+
+
+.license-header h2 {
+
+    margin: 0;
+
+    color: #fff;
+
+}
+
+
+.license-header p {
+
+    margin: 0.25rem 0 0;
+
+    color: #aaa;
+
+}
+
+
+/* ==========================================================
+   CARD
+========================================================== */
+
+.license-card {
+
+    background-color: #2b2d31;
+
+    border: 1px solid #444;
+
+    border-radius: 8px;
+
+    overflow: hidden;
+
+}
+
+
+.license-card-header {
+
+    background-color: #212327;
+
+    border-bottom: 1px solid #444;
+
+    padding: 1rem 1.25rem;
+
+    color: #fff;
+
+}
+
+
+/* ==========================================================
+   SUCHE
+========================================================== */
+
+.license-search {
+
+    background-color: #36393e !important;
+
+    color: #fff !important;
+
+    border: 1px solid #555 !important;
+
+}
+
+
+.license-search::placeholder {
+
+    color: #888;
+
+}
+
+
+.license-search:focus {
+
+    background-color: #36393e !important;
+
+    color: #fff !important;
+
+    border-color: #992d22 !important;
+
+    box-shadow:
+        0 0 0 0.2rem
+        rgba(153,45,34,.25) !important;
+
+}
+
+
+/* ==========================================================
+   USER
+========================================================== */
+
+.user-name {
+
+    color: #fff;
+
+    font-weight: 600;
+
+}
+
+
+.user-id {
+
+    color: #777;
+
+    font-size: .8rem;
+
+}
+
+
+/* ==========================================================
+   LICENSE BADGES
+========================================================== */
+
+.license-badge {
+
+    display: inline-block;
+
+    padding: 5px 9px;
+
+    border-radius: 5px;
+
+    font-size: .8rem;
+
+    margin: 2px;
+
+}
+
+
+.license-badge.active {
+
+    background-color: #198754;
+
+    color: #fff;
+
+}
+
+
+.license-badge.inactive {
+
+    background-color: #36393e;
+
+    color: #777;
+
+    border: 1px solid #4b4d52;
+
+}
+
+
+/* ==========================================================
+   TABLE
+========================================================== */
+
+.license-table {
+
+    width: 100%;
+
+    color: #ddd;
+
+    margin: 0;
+
+}
+
+
+.license-table th {
+
+    background-color: #212327;
+
+    color: #aaa;
+
+    padding: .85rem;
+
+    border-bottom: 1px solid #444;
+
+    white-space: nowrap;
+
+}
+
+
+.license-table td {
+
+    padding: .85rem;
+
+    border-bottom: 1px solid #3d3f43;
+
+    vertical-align: middle;
+
+}
+
+
+.license-table tr:last-child td {
+
+    border-bottom: none;
+
+}
+
+
+.license-table tbody tr:hover {
+
+    background-color: #323438;
+
+}
+
+
+/* ==========================================================
+   LICENSE SWITCH
+========================================================== */
+
+.license-switch {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+}
+
+
+.license-switch input {
+
+    width: 42px;
+
+    height: 22px;
+
+    cursor: pointer;
+
+    accent-color: #198754;
+
+}
+
+
+/* ==========================================================
+   DESCRIPTION
+========================================================== */
+
+.license-description {
+
+    display: block;
+
+    color: #777;
+
+    font-size: .7rem;
+
+    margin-top: 2px;
+
+}
+
+
+/* ==========================================================
+   STATUS
+========================================================== */
+
+.save-status {
+
+    font-size: .75rem;
+
+    margin-left: 5px;
+
+}
+
+
+.save-status.success {
+
+    color: #198754;
+
+}
+
+
+.save-status.error {
+
+    color: #dc3545;
+
+}
+
+
+/* ==========================================================
+   EMPTY
+========================================================== */
+
+.empty-state {
+
+    text-align: center;
+
+    padding: 3rem;
+
+    color: #888;
+
+}
+
+
+/* ==========================================================
+   MOBILE
+========================================================== */
+
+@media (max-width: 900px) {
+
+    .license-table {
+
+        min-width: 900px;
+
+    }
+
+}
+
+</style>
+
+{% endblock %}
+
+
+
+{% block content %}
+
+<div class="container-fluid px-0">
+
+
+    <!-- ======================================================
+         HEADER
+    ====================================================== -->
+
+    <div class="license-header">
+
+        <div>
+
+            <h2>
+                🔐 Lizenzverwaltung
+            </h2>
+
+            <p>
+                Berechtigungen der Benutzer verwalten
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <span class="badge bg-secondary">
+
+                {{ users|length }}
+                Benutzer
+
+            </span>
+
+            <span class="badge bg-secondary">
+
+                {{ licenses|length }}
+                Lizenzen
+
+            </span>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ======================================================
+         SUCHE
+    ====================================================== -->
+
+    <div class="mb-3">
+
+        <input
+            type="text"
+            id="userSearch"
+            class="form-control license-search"
+            placeholder="🔎 Benutzer suchen..."
+        >
+
+    </div>
+
+
+
+    <!-- ======================================================
+         LIZENZEN
+    ====================================================== -->
+
+    <div class="license-card">
+
+        <div class="license-card-header">
+
+            <strong>
+                👥 Benutzer & Berechtigungen
+            </strong>
+
+        </div>
+
+
+        <div class="table-responsive">
+
+            <table class="license-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Benutzer
+                        </th>
+
+
+                        {% for license in licenses %}
+
+                            <th class="text-center">
+
+                                {{ license.name }}
+
+                                {% if license.description %}
+
+                                    <span
+                                        class="license-description"
+                                        title="{{ license.description }}"
+                                    >
+                                        {{ license.description }}
+                                    </span>
+
+                                {% endif %}
+
+                            </th>
+
+                        {% endfor %}
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+
+                {% for user in users %}
+
+                    <tr
+                        class="user-row"
+                        data-username="{{ user.username|lower }}"
+                        data-user-id="{{ user.user_id }}"
+                    >
+
+
+                        <!-- USER -->
+
+                        <td>
+
+                            <div class="user-name">
+
+                                {{ user.username }}
+
+                            </div>
+
+                            <div class="user-id">
+
+                                DB-ID:
+                                {{ user.id }}
+
+                            </div>
+
+                            <div class="user-id">
+
+                                Discord:
+                                {{ user.user_id }}
+
+                            </div>
+
+                        </td>
+
+
+
+                        <!-- LIZENZEN -->
+
+                        {% for license in licenses %}
+
+                            {% set enabled =
+                                user.licenses.get(
+                                    license.name,
+                                    false
+                                )
+                            %}
+
+                            <td>
+
+                                <div class="license-switch">
+
+                                    <input
+                                        type="checkbox"
+
+                                        class="license-toggle"
+
+                                        data-user-id="{{ user.id }}"
+
+                                        data-license="{{ license.name }}"
+
+                                        {% if enabled %}
+                                            checked
+                                        {% endif %}
+                                    >
+
+                                </div>
+
+
+                                <div class="text-center">
+
+                                    <span
+                                        class="license-badge
+                                        {% if enabled %}
+                                            active
+                                        {% else %}
+                                            inactive
+                                        {% endif %}"
+
+                                        id="badge-{{ user.id }}-{{ loop.index }}"
+                                    >
+
+                                        {% if enabled %}
+
+                                            ✓
+
+                                        {% else %}
+
+                                            —
+
+                                        {% endif %}
+
+                                    </span>
+
+                                </div>
+
+                            </td>
+
+                        {% endfor %}
+
+
+                    </tr>
+
+                {% else %}
+
+                    <tr>
+
+                        <td
+                            colspan="{{ licenses|length + 1 }}"
+                            class="empty-state"
+                        >
+
+                            Keine Benutzer vorhanden.
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<script>
+
+/* ==========================================================
+   BENUTZERSUCHE
+========================================================== */
+
+const searchInput =
+    document.getElementById(
+        "userSearch"
+    );
+
+
+searchInput.addEventListener(
+    "input",
+    function () {
+
+        const search =
+            this.value
+                .toLowerCase()
+                .trim();
+
+
+        document
+            .querySelectorAll(
+                ".user-row"
+            )
+            .forEach(
+                function (row) {
+
+                    const username =
+                        row.dataset.username;
+
+                    const userId =
+                        row.dataset.userId;
+
+
+                    if (
+                        username.includes(search)
+                        ||
+                        userId.includes(search)
+                    ) {
+
+                        row.style.display = "";
+
+                    } else {
+
+                        row.style.display = "none";
+
+                    }
+
+                }
+            );
+
+    }
+);
+
+
+/* ==========================================================
+   LIZENZ ÄNDERN
+========================================================== */
+
+document
+    .querySelectorAll(
+        ".license-toggle"
+    )
+    .forEach(
+        function (checkbox) {
+
+            checkbox.addEventListener(
+                "change",
+                async function () {
+
+                    const userId =
+                        this.dataset.userId;
+
+                    const license =
+                        this.dataset.license;
+
+                    const enabled =
+                        this.checked;
+
+
+                    const originalState =
+                        !enabled;
+
+
+                    this.disabled = true;
+
+
+                    try {
+
+                        const response =
+                            await fetch(
+                                "{{ url_for('license_management.set_license') }}",
+                                {
+                                    method: "POST",
+
+                                    headers: {
+                                        "Content-Type":
+                                            "application/json"
+                                    },
+
+                                    body:
+                                        JSON.stringify(
+                                            {
+                                                user_id:
+                                                    userId,
+
+                                                license:
+                                                    license,
+
+                                                enabled:
+                                                    enabled
+                                            }
+                                        )
+                                }
+                            );
+
+
+                        const result =
+                            await response.json();
+
+
+                        if (!response.ok) {
+
+                            throw new Error(
+                                result.error
+                                ||
+                                "Fehler beim Speichern"
+                            );
+
+                        }
+
+
+                        updateLicenseVisual(
+                            this,
+                            enabled
+                        );
+
+
+                    } catch (error) {
+
+                        /*
+                         * Änderung fehlgeschlagen:
+                         * Checkbox zurücksetzen
+                         */
+
+                        this.checked =
+                            originalState;
+
+
+                        alert(
+                            error.message
+                            ||
+                            "Fehler beim Speichern."
+                        );
+
+                    }
+
+
+                    this.disabled = false;
+
+                }
+            );
+
+        }
+    );
+
+
+
+/* ==========================================================
+   VISUELLES UPDATE
+========================================================== */
+
+function updateLicenseVisual(
+    checkbox,
+    enabled
+) {
+
+    const cell =
+        checkbox.closest("td");
+
+
+    if (!cell) {
+
+        return;
+
+    }
+
+
+    const badge =
+        cell.querySelector(
+            ".license-badge"
+        );
+
+
+    if (!badge) {
+
+        return;
+
+    }
+
+
+    if (enabled) {
+
+        badge.classList.remove(
+            "inactive"
+        );
+
+        badge.classList.add(
+            "active"
+        );
+
+        badge.textContent =
+            "✓";
+
+    } else {
+
+        badge.classList.remove(
+            "active"
+        );
+
+        badge.classList.add(
+            "inactive"
+        );
+
+        badge.textContent =
+            "—";
+
+    }
+
+}
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,1399 @@
+{% extends "dashboard.html" %}
+
+{% block title %}Nachrichtensystem{% endblock %}
+
+
+{% block style_header %}
+
+<script src="{{ url_for('static', filename='script/messaging.js') }}"></script>
+
+<style>
+
+/* ==========================================================
+   NACHRICHTENSYSTEM
+========================================================== */
+
+.messaging-page {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+
+/* ==========================================================
+   HEADER
+========================================================== */
+
+.messaging-header {
+    margin-bottom: 25px;
+}
+
+.messaging-header h1 {
+    font-size: 30px;
+    font-weight: 800;
+    margin-bottom: 5px;
+}
+
+.messaging-header p {
+    color: #8e9297;
+    margin: 0;
+}
+
+
+/* ==========================================================
+   TABS
+========================================================== */
+
+.messaging-tabs-wrapper {
+    background: #202225;
+    border: 1px solid #2f3136;
+    border-radius: 12px;
+    padding: 6px;
+    margin-bottom: 20px;
+}
+
+.messaging-tabs {
+    border: none !important;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.messaging-tabs .nav-item {
+    margin: 0;
+}
+
+.messaging-tabs .nav-link {
+    border: none !important;
+    border-radius: 8px !important;
+
+    color: #8e9297;
+
+    padding: 10px 15px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    background: transparent;
+
+    transition: 0.2s ease;
+}
+
+.messaging-tabs .nav-link:hover {
+    color: #ffffff;
+    background: #2b2d31;
+}
+
+.messaging-tabs .nav-link.active {
+    color: #ffffff;
+    background: #992d22;
+}
+
+
+/* ==========================================================
+   CONTENT CARD
+========================================================== */
+
+.messaging-card {
+    background: #202225;
+    border: 1px solid #2f3136;
+    border-radius: 14px;
+
+    padding: 25px;
+
+    box-shadow:
+        0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+
+.messaging-card-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    font-size: 19px;
+    font-weight: 700;
+
+    margin-bottom: 20px;
+}
+
+.messaging-card-title .icon {
+    width: 38px;
+    height: 38px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 9px;
+
+    background: rgba(153, 45, 34, 0.16);
+
+    font-size: 18px;
+}
+
+
+/* ==========================================================
+   FORM ELEMENTE
+========================================================== */
+
+.messaging-page .form-label {
+    color: #b9bbbe;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.messaging-page .form-control,
+.messaging-page .form-select {
+
+    background: #2b2d31 !important;
+
+    border: 1px solid #3a3c41 !important;
+
+    color: #ffffff !important;
+
+    border-radius: 8px;
+
+    min-height: 42px;
+
+    box-shadow: none !important;
+}
+
+.messaging-page textarea.form-control {
+    min-height: 130px;
+    resize: vertical;
+}
+
+.messaging-page .form-control:focus,
+.messaging-page .form-select:focus {
+
+    border-color: #992d22 !important;
+
+    box-shadow:
+        0 0 0 2px rgba(153,45,34,0.18) !important;
+}
+
+.messaging-page .form-control::placeholder {
+    color: #72767d;
+}
+
+
+/* ==========================================================
+   FORMATIERUNGS INFO
+========================================================== */
+
+.messaging-format-info {
+    margin-top: 10px;
+    margin-bottom: 20px;
+
+    border: 1px solid #3a3c41;
+    border-radius: 9px;
+
+    overflow: hidden;
+}
+
+.messaging-format-toggle {
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 10px 13px;
+
+    background: #2b2d31;
+    border: none;
+
+    color: #b9bbbe;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    text-align: left;
+
+    transition: 0.2s ease;
+}
+
+.messaging-format-toggle:hover {
+    background: #36393e;
+    color: #ffffff;
+}
+
+.messaging-format-toggle .toggle-arrow {
+    transition: transform 0.2s ease;
+}
+
+.messaging-format-toggle[aria-expanded="true"] .toggle-arrow {
+    transform: rotate(180deg);
+}
+
+
+.messaging-format-content {
+    background: #202225;
+    border-top: 1px solid #3a3c41;
+
+    padding: 15px;
+}
+
+
+.messaging-format-content h6 {
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+
+    margin-bottom: 12px;
+}
+
+
+.messaging-format-item {
+    display: flex;
+    align-items: flex-start;
+
+    gap: 12px;
+
+    padding: 9px 0;
+
+    border-bottom: 1px solid #2f3136;
+}
+
+.messaging-format-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.messaging-format-item:first-child {
+    padding-top: 0;
+}
+
+
+.messaging-format-code {
+    flex-shrink: 0;
+
+    background: #111214;
+
+    border: 1px solid #3a3c41;
+
+    border-radius: 6px;
+
+    padding: 5px 8px;
+
+    color: #faa61a;
+
+    font-family: monospace;
+
+    font-size: 12px;
+}
+
+
+.messaging-format-description {
+    color: #b9bbbe;
+
+    font-size: 13px;
+
+    line-height: 1.5;
+}
+
+.messaging-format-description strong {
+    color: #ffffff;
+}
+
+
+/* ==========================================================
+   BUTTONS
+========================================================== */
+
+.messaging-page .btn {
+    border-radius: 8px;
+
+    font-weight: 600;
+
+    transition: 0.2s ease;
+}
+
+.messaging-page .btn-primary {
+    background: #992d22;
+    border-color: #992d22;
+}
+
+.messaging-page .btn-primary:hover {
+    background: #b6382a;
+    border-color: #b6382a;
+    transform: translateY(-1px);
+}
+
+.messaging-page .btn-success {
+    background: #3ba55c;
+    border-color: #3ba55c;
+}
+
+.messaging-page .btn-success:hover {
+    background: #31904e;
+    border-color: #31904e;
+    transform: translateY(-1px);
+}
+
+
+/* ==========================================================
+   CHECKBOXEN
+========================================================== */
+
+.messaging-page .form-check {
+    margin-bottom: 8px;
+}
+
+.messaging-page .form-check:last-child {
+    margin-bottom: 0;
+}
+
+.messaging-page .form-check-input {
+    background-color: #2b2d31;
+
+    border-color: #555;
+
+    cursor: pointer;
+}
+
+.messaging-page .form-check-input:checked {
+    background-color: #992d22;
+    border-color: #992d22;
+}
+
+.messaging-page .form-check-label {
+    color: #b9bbbe;
+
+    font-size: 13px;
+
+    cursor: pointer;
+}
+
+.messaging-page .form-check-label:hover {
+    color: #ffffff;
+}
+
+
+/* ==========================================================
+   TABELLEN
+========================================================== */
+
+.messaging-table-wrapper {
+
+    overflow-x: auto;
+
+    border: 1px solid #2f3136;
+
+    border-radius: 10px;
+}
+
+
+.messaging-page table {
+
+    width: 100%;
+
+    margin: 0;
+
+    border-collapse: collapse;
+
+    color: #ffffff;
+
+    background: #202225;
+}
+
+
+.messaging-page table thead {
+    background: #2b2d31;
+}
+
+
+.messaging-page table th {
+
+    color: #b9bbbe;
+
+    font-size: 12px;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.05em;
+
+    font-weight: 700;
+
+    padding: 13px;
+
+    border-bottom: 1px solid #3a3c41;
+
+    white-space: nowrap;
+}
+
+
+.messaging-page table td {
+
+    padding: 13px;
+
+    color: #dcddde;
+
+    border-bottom: 1px solid #2f3136;
+
+    vertical-align: middle;
+}
+
+
+.messaging-page table tbody tr {
+
+    transition: 0.15s ease;
+}
+
+
+.messaging-page table tbody tr:hover {
+
+    background: #2b2d31;
+}
+
+
+.messaging-page table tbody tr:last-child td {
+
+    border-bottom: none;
+}
+
+
+/* ==========================================================
+   PRESET BUTTON
+========================================================== */
+
+.preset-actions {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+
+/* ==========================================================
+   MODAL
+========================================================== */
+
+.messaging-page .modal-content {
+
+    background: #202225 !important;
+
+    color: #ffffff;
+
+    border: 1px solid #3a3c41;
+
+    border-radius: 12px;
+}
+
+.messaging-page .modal-header {
+
+    border-bottom: 1px solid #2f3136;
+}
+
+.messaging-page .modal-footer {
+
+    border-top: 1px solid #2f3136;
+}
+
+.messaging-page .btn-close {
+
+    filter: invert(1);
+}
+
+
+/* ==========================================================
+   EMPTY / INFO
+========================================================== */
+
+.messaging-info {
+
+    padding: 35px 20px;
+
+    text-align: center;
+
+    color: #72767d;
+}
+
+
+/* ==========================================================
+   RESPONSIVE
+========================================================== */
+
+@media (max-width: 700px) {
+
+    .messaging-card {
+        padding: 17px;
+    }
+
+    .messaging-header h1 {
+        font-size: 25px;
+    }
+
+    .messaging-tabs {
+        flex-direction: column;
+    }
+
+    .messaging-tabs .nav-link {
+        width: 100%;
+        text-align: left;
+    }
+
+    .messaging-format-item {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+}
+
+</style>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="messaging-page">
+
+
+    <!-- ======================================================
+         HEADER
+    ======================================================= -->
+
+    <div class="messaging-header">
+
+        <h1>
+            💬 Nachrichtensystem
+        </h1>
+
+        <p>
+            Nachrichten, Announcements und Vorlagen verwalten
+        </p>
+
+    </div>
+
+
+
+    <!-- ======================================================
+         TABS
+    ======================================================= -->
+
+    <div class="messaging-tabs-wrapper">
+
+        <ul class="nav nav-tabs messaging-tabs">
+
+            <li class="nav-item">
+
+                <button
+                    class="nav-link active"
+                    data-bs-toggle="tab"
+                    data-bs-target="#tab-ann"
+                >
+                    📢 Announcement senden
+                </button>
+
+            </li>
+
+
+            <li class="nav-item">
+
+                <button
+                    class="nav-link"
+                    data-bs-toggle="tab"
+                    data-bs-target="#tab-user"
+                >
+                    👤 Nachricht an Nutzer
+                </button>
+
+            </li>
+
+
+            <li class="nav-item">
+
+                <button
+                    class="nav-link"
+                    data-bs-toggle="tab"
+                    data-bs-target="#tab-history"
+                >
+                    🕒 Nachrichtenverlauf
+                </button>
+
+            </li>
+
+
+            <li class="nav-item">
+
+                <button
+                    class="nav-link"
+                    data-bs-toggle="tab"
+                    data-bs-target="#tab-presets"
+                >
+                    📝 Presets verwalten
+                </button>
+
+            </li>
+
+        </ul>
+
+    </div>
+
+
+
+    <!-- ======================================================
+         TAB CONTENT
+    ======================================================= -->
+
+    <div class="tab-content">
+
+
+        <!-- ==================================================
+             ANNOUNCEMENT
+        =================================================== -->
+
+        <div
+            class="tab-pane fade show active"
+            id="tab-ann"
+        >
+
+            <div class="messaging-card">
+
+                <div class="messaging-card-title">
+
+                    <div class="icon">
+                        📢
+                    </div>
+
+                    <span>
+                        Announcement senden
+                    </span>
+
+                </div>
+
+
+                <div class="mb-3">
+
+                    <label
+                        class="form-label"
+                        for="annPresetSelect"
+                    >
+                        Vorlage
+                    </label>
+
+                    <select
+                        class="form-select"
+                        id="annPresetSelect"
+                        onchange="updateTextFromPreset('ann')"
+                    ></select>
+
+                </div>
+
+
+                <div class="mb-3">
+
+                    <label
+                        class="form-label"
+                        for="annText"
+                    >
+                        Nachricht
+                    </label>
+
+                    <textarea
+                        class="form-control"
+                        id="annText"
+                        rows="6"
+                        placeholder="Announcement eingeben..."
+                    ></textarea>
+
+                </div>
+
+
+                <button
+                    class="btn btn-success"
+                    onclick="sendAnnouncement()"
+                >
+                    📢 Announcement senden
+                </button>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- ==================================================
+             USER MESSAGE
+        =================================================== -->
+
+        <div
+            class="tab-pane fade"
+            id="tab-user"
+        >
+
+            <div class="messaging-card">
+
+                <div class="messaging-card-title">
+
+                    <div class="icon">
+                        👤
+                    </div>
+
+                    <span>
+                        Nachricht an Nutzer
+                    </span>
+
+                </div>
+
+
+                <!-- NUTZER -->
+
+                <div class="mb-3">
+
+                    <label
+                        class="form-label"
+                        for="userSelect"
+                    >
+                        Nutzer auswählen
+                    </label>
+
+                    <select
+                        class="form-select"
+                        id="userSelect"
+                    >
+
+                        {% for u in users %}
+
+                        <option value="{{ u.id }}">
+                            {{ u.username }}
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+
+                <!-- PRESET -->
+
+                <div class="mb-3">
+
+                    <label
+                        class="form-label"
+                        for="msgPresetSelect"
+                    >
+                        Vorlage
+                    </label>
+
+                    <select
+                        class="form-select"
+                        id="msgPresetSelect"
+                        onchange="updateTextFromPreset('msg')"
+                    ></select>
+
+                </div>
+
+
+                <!-- NACHRICHT -->
+
+                <div class="mb-2">
+
+                    <label
+                        class="form-label"
+                        for="msgText"
+                    >
+                        Nachricht
+                    </label>
+
+                    <textarea
+                        class="form-control"
+                        id="msgText"
+                        rows="6"
+                        placeholder="Nachricht eingeben..."
+                    ></textarea>
+
+                </div>
+
+
+
+                <!-- ==================================================
+                     FORMATIERUNGS-HINWEISE
+                =================================================== -->
+
+                <div class="messaging-format-info">
+
+                    <button
+                        class="messaging-format-toggle"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#messageFormatHelp"
+                        aria-expanded="false"
+                        aria-controls="messageFormatHelp"
+                    >
+
+                        <span>
+                            ℹ️ Hinweise zur Nachrichten-Formatierung
+                        </span>
+
+                        <span class="toggle-arrow">
+                            ▼
+                        </span>
+
+                    </button>
+
+
+                    <div
+                        class="collapse"
+                        id="messageFormatHelp"
+                    >
+
+                        <div class="messaging-format-content">
+
+                            <h6>
+                                Discord-Formatierung
+                            </h6>
+
+
+                            <div class="messaging-format-item">
+
+                                <code class="messaging-format-code">
+                                    &lt;@ID&gt;
+                                </code>
+
+                                <div class="messaging-format-description">
+
+                                    <strong>Nutzer erwähnen</strong><br>
+
+                                    Ersetzt <code>&lt;@ID&gt;</code> durch eine
+                                    Discord-Nutzer-ID, um diese Person zu erwähnen.
+
+                                    <br>
+
+                                    Beispiel:
+                                    <code>&lt;@366945236863287297&gt;</code>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="messaging-format-item">
+
+                                <code class="messaging-format-code">
+                                    &lt;#CHANNEL_ID&gt;
+                                </code>
+
+                                <div class="messaging-format-description">
+
+                                    <strong>Channel verlinken</strong><br>
+
+                                    Mit <code>&lt;#CHANNEL_ID&gt;</code> kannst du
+                                    direkt auf einen Discord-Channel verweisen.
+
+                                    <br>
+
+                                    Beispiel:
+                                    <code>&lt;#123456789012345678&gt;</code>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="messaging-format-item">
+
+                                <code class="messaging-format-code">
+                                    **Text**
+                                </code>
+
+                                <div class="messaging-format-description">
+
+                                    <strong>Fett schreiben</strong><br>
+
+                                    Alles zwischen zwei <code>**</code> wird in
+                                    Discord <strong>fett</strong> dargestellt.
+
+                                    <br>
+
+                                    Beispiel:
+                                    <code>**Wichtige Information**</code>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="messaging-format-item">
+
+                                <code class="messaging-format-code">
+                                    *Text*
+                                </code>
+
+                                <div class="messaging-format-description">
+
+                                    <strong>Kursiv schreiben</strong><br>
+
+                                    Alles zwischen einzelnen <code>*</code> wird
+                                    in Discord <em>kursiv</em> dargestellt.
+
+                                    <br>
+
+                                    Beispiel:
+                                    <code>*Bitte beachten*</code>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="messaging-format-item">
+
+                                <code class="messaging-format-code">
+                                    __Text__
+                                </code>
+
+                                <div class="messaging-format-description">
+
+                                    <strong>Unterstrichen</strong><br>
+
+                                    Mit <code>__Text__</code> kannst du Text
+                                    unterstreichen.
+
+                                    <br>
+
+                                    Beispiel:
+                                    <code>__Wichtig__</code>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="messaging-format-item">
+
+                                <code class="messaging-format-code">
+                                    ~~Text~~
+                                </code>
+
+                                <div class="messaging-format-description">
+
+                                    <strong>Durchgestrichen</strong><br>
+
+                                    Mit <code>~~Text~~</code> wird Text
+                                    durchgestrichen dargestellt.
+
+                                    <br>
+
+                                    Beispiel:
+                                    <code>~~Veraltet~~</code>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="messaging-format-item">
+
+                                <code class="messaging-format-code">
+                                    `Text`
+                                </code>
+
+                                <div class="messaging-format-description">
+
+                                    <strong>Code</strong><br>
+
+                                    Einzelne Begriffe oder kurze Texte können
+                                    als Code dargestellt werden.
+
+                                    <br>
+
+                                    Beispiel:
+                                    <code>`/help`</code>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="messaging-format-item">
+
+                                <code class="messaging-format-code">
+                                    ```Text```
+                                </code>
+
+                                <div class="messaging-format-description">
+
+                                    <strong>Codeblock</strong><br>
+
+                                    Für mehrere Zeilen kannst du einen
+                                    Discord-Codeblock verwenden.
+
+                                    <br>
+
+                                    Beispiel:
+                                    <code>```Text```</code>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="messaging-format-item">
+
+                                <code class="messaging-format-code">
+                                    Zeile 1<br>Zeile 2
+                                </code>
+
+                                <div class="messaging-format-description">
+
+                                    <strong>Neue Zeile</strong><br>
+
+                                    Mit einem normalen Zeilenumbruch kannst du
+                                    deine Nachricht übersichtlich strukturieren.
+
+                                </div>
+
+                            </div>
+
+                            <div class="messaging-format-item">
+
+                                <code class="messaging-format-code">
+                                    !USERNAME!
+                                </code>
+
+                                <div class="messaging-format-description">
+
+                                    <strong>Addressant ersetzen</strong><br>
+
+                                    Ersetzt !USERNAME! durch den Namen des Addressanten 
+
+                                </div>
+
+                            </div>
+
+                        </div>
+                        
+                    </div>
+
+                </div>
+
+
+
+                <!-- ==================================================
+                     ZUSÄTZLICHE OPTIONEN
+                =================================================== -->
+
+                <div class="mb-4">
+
+                    <label class="form-label">
+                        Optionen
+                    </label>
+
+
+                    <div class="form-check">
+
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            id="appendSender"
+                        >
+
+                        <label
+                            class="form-check-label"
+                            for="appendSender"
+                        >
+                            Absender anhängen
+                        </label>
+
+                    </div>
+
+
+                    <div class="form-check">
+
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            id="appendLeadership"
+                        >
+
+                        <label
+                            class="form-check-label"
+                            for="appendLeadership"
+                        >
+                            Leitung anhängen
+                        </label>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- SENDEN -->
+
+                <button
+                    class="btn btn-primary"
+                    onclick="sendUserMessage()"
+                >
+                    ✉️ Nachricht senden
+                </button>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- ==================================================
+             HISTORY
+        =================================================== -->
+
+        <div
+            class="tab-pane fade"
+            id="tab-history"
+        >
+
+            <div class="messaging-card">
+
+                <div class="messaging-card-title">
+
+                    <div class="icon">
+                        🕒
+                    </div>
+
+                    <span>
+                        Nachrichtenverlauf
+                    </span>
+
+                </div>
+
+
+                <div class="messaging-table-wrapper">
+
+                    <table
+                        class="table-dark-custom"
+                        id="msgTable"
+                    >
+
+                        <thead>
+
+                            <tr>
+
+                                <th style="width: 10%;">
+                                    ID
+                                </th>
+
+                                <th style="width: 20%;">
+                                    Username
+                                </th>
+
+                                <th style="width: 60%;">
+                                    Text
+                                </th>
+
+                                <th style="width: 10%;">
+                                    Datum
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody></tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- ==================================================
+             PRESETS
+        =================================================== -->
+
+        <div
+            class="tab-pane fade"
+            id="tab-presets"
+        >
+
+            <div class="messaging-card">
+
+                <div
+                    class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4"
+                >
+
+                    <div class="messaging-card-title mb-0">
+
+                        <div class="icon">
+                            📝
+                        </div>
+
+                        <span>
+                            Presets verwalten
+                        </span>
+
+                    </div>
+
+
+                    <button
+                        class="btn btn-success"
+                        onclick="showAddPreset()"
+                    >
+                        + Neues Preset
+                    </button>
+
+                </div>
+
+
+                <div class="messaging-table-wrapper">
+
+                    <table
+                        class="table-dark-custom"
+                        id="presetTable"
+                    >
+
+                        <thead>
+
+                            <tr>
+
+                                <th style="width: 10%;">
+                                    Typ
+                                </th>
+
+                                <th style="width: 20%;">
+                                    Titel
+                                </th>
+
+                                <th style="width: 60%;">
+                                    Text
+                                </th>
+
+                                <th style="width: 10%;">
+                                    Aktion
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody></tbody>
+
+                    </table>
+
+                </div>
+
+
+
+                <!-- ==========================================
+                     PRESET MODAL
+                =========================================== -->
+
+                <div
+                    class="modal fade"
+                    id="presetModal"
+                    tabindex="-1"
+                    aria-hidden="true"
+                >
+
+                    <div class="modal-dialog">
+
+                        <div class="modal-content">
+
+                            <div class="modal-header">
+
+                                <h5
+                                    class="modal-title"
+                                    id="presetModalTitle"
+                                >
+                                    Preset bearbeiten
+                                </h5>
+
+                                <button
+                                    type="button"
+                                    class="btn-close"
+                                    data-bs-dismiss="modal"
+                                    aria-label="Schließen"
+                                ></button>
+
+                            </div>
+
+
+                            <div class="modal-body">
+
+                                <label class="form-label">
+                                    Typ
+                                </label>
+
+                                <select
+                                    class="form-select"
+                                    id="modalType"
+                                >
+
+                                    <option value="announcement">
+                                        Announcement
+                                    </option>
+
+                                    <option value="user">
+                                        User
+                                    </option>
+
+                                </select>
+
+
+                                <label class="form-label mt-3">
+                                    Titel
+                                </label>
+
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    id="modalTitle"
+                                    placeholder="Titel"
+                                >
+
+
+                                <label class="form-label mt-3">
+                                    Text
+                                </label>
+
+                                <textarea
+                                    class="form-control"
+                                    id="modalText"
+                                    rows="5"
+                                    placeholder="Preset Text..."
+                                ></textarea>
+
+                            </div>
+
+
+                            <div class="modal-footer">
+
+                                <button
+                                    type="button"
+                                    class="btn btn-secondary"
+                                    data-bs-dismiss="modal"
+                                >
+                                    Abbrechen
+                                </button>
+
+                                <button
+                                    class="btn btn-primary"
+                                    id="modalSaveBtn"
+                                >
+                                    Speichern
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

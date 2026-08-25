@@ -1,0 +1,224 @@
+{% extends "dashboard.html" %}
+
+{% block title %}
+    {{ meeting.title }}
+{% endblock %}
+
+
+{% block style_header %}
+
+<style>
+
+    /* ==========================================
+       CARD
+       ========================================== */
+
+    .meeting-detail-card {
+        background-color: #333 !important;
+        color: #fff !important;
+        border: 1px solid #444;
+    }
+
+
+    /* ==========================================
+       NAVIGATION
+       ========================================== */
+
+    .meeting-navigation {
+        margin-bottom: 20px;
+    }
+
+
+    /* ==========================================
+       HEADER
+       ========================================== */
+
+    .meeting-detail-header {
+        border-bottom: 1px solid #555;
+
+        padding-bottom: 20px;
+
+        margin-bottom: 25px;
+    }
+
+
+    .meeting-detail-title {
+        color: #fff;
+
+        font-size: 28px;
+
+        font-weight: 600;
+
+        margin-bottom: 12px;
+    }
+
+
+    .meeting-detail-date {
+        color: #aaa;
+
+        font-size: 15px;
+    }
+
+
+    /* ==========================================
+       CONTENT
+       ========================================== */
+
+    .meeting-content {
+        color: #fff;
+
+        line-height: 1.7;
+
+        font-size: 16px;
+    }
+
+
+    /* ==========================================
+       QUILL CONTENT
+       ========================================== */
+
+    .meeting-content h1 {
+        font-size: 32px;
+        color: #fff;
+    }
+
+
+    .meeting-content h2 {
+        font-size: 26px;
+        color: #fff;
+    }
+
+
+    .meeting-content h3 {
+        font-size: 22px;
+        color: #fff;
+    }
+
+
+    .meeting-content p {
+        margin-bottom: 12px;
+    }
+
+
+    .meeting-content strong {
+        font-weight: bold;
+    }
+
+
+    .meeting-content u {
+        text-decoration: underline;
+    }
+
+
+    .meeting-content ul,
+    .meeting-content ol {
+        margin-bottom: 15px;
+
+        padding-left: 30px;
+    }
+
+
+    /* ==========================================
+       FOOTER
+       ========================================== */
+
+    .meeting-detail-footer {
+        border-top: 1px solid #555;
+
+        margin-top: 30px;
+
+        padding-top: 15px;
+
+        color: #888;
+
+        font-size: 13px;
+    }
+
+</style>
+
+{% endblock %}
+
+
+
+{% block content %}
+
+<div class="meeting-navigation">
+
+    <a
+        href="{{ url_for('meeting.view') }}"
+        class="btn btn-outline-light"
+    >
+        ← Zurück zur Übersicht
+    </a>
+
+</div>
+
+
+<div class="card meeting-detail-card">
+
+    <div class="card-body">
+
+
+        <!-- ======================================
+             HEADER
+             ====================================== -->
+
+        <div class="meeting-detail-header">
+
+            <div class="meeting-detail-title">
+
+                {{ meeting.title }}
+
+            </div>
+
+
+            <div class="meeting-detail-date">
+
+                📅
+
+                {{ meeting.meeting_date.strftime(
+                    "%d.%m.%Y"
+                ) }}
+
+            </div>
+
+        </div>
+
+
+
+        <!-- ======================================
+             BESPRECHUNGSINHALT
+             ====================================== -->
+
+        <div class="meeting-content">
+
+            {{ meeting.content | safe }}
+
+        </div>
+
+
+
+        <!-- ======================================
+             FOOTER
+             ====================================== -->
+
+        <div class="meeting-detail-footer">
+
+            {% if meeting.created_at %}
+
+                Erstellt am
+                {{ meeting.created_at.strftime(
+                    "%d.%m.%Y um %H:%M Uhr"
+                ) }}
+
+            {% endif %}
+
+        </div>
+
+
+    </div>
+
+</div>
+
+{% endblock %}
+

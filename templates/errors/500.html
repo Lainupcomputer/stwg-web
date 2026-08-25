@@ -1,0 +1,19 @@
+{% extends "errors/base.html" %}
+
+{% block title %}
+    Fehler 500
+{% endblock %}
+
+{% block error_code %}
+    500
+{% endblock %}
+
+{% block error_title %}
+    Da ist etwas schiefgelaufen
+{% endblock %}
+
+{% block error_message %}
+    Auf dem Server ist ein unerwarteter Fehler aufgetreten.
+    Die Verantwortlichen wurden darüber informiert.
+    Bitte versuche es später erneut.
+{% endblock %}

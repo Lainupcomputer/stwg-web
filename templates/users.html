@@ -1,0 +1,773 @@
+{% extends "dashboard.html" %}
+
+{% block title %}Benutzerverwaltung{% endblock %}
+
+{% block style_header %}
+
+<link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='style/global_dark.css') }}"
+>
+
+<style>
+
+    /* ==========================================================
+       USER MANAGEMENT
+       ========================================================== */
+
+    .users-page {
+        padding: 10px 0 30px;
+    }
+
+
+    /* ==========================================================
+       TOOLBAR
+       ========================================================== */
+
+    .users-toolbar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+        padding: 15px;
+
+        margin-bottom: 15px;
+
+        background: #1e1f22;
+
+        border: 1px solid #303238;
+        border-radius: 10px;
+
+        box-shadow: 0 4px 15px rgba(0, 0, 0, .15);
+    }
+
+    .users-toolbar .form-control,
+    .users-toolbar .form-select {
+        background-color: #18191c !important;
+        color: #e4e4e4 !important;
+
+        border: 1px solid #34363d !important;
+
+        border-radius: 7px;
+
+        height: 40px;
+    }
+
+    .users-toolbar .form-control:focus,
+    .users-toolbar .form-select:focus {
+        border-color: #5865f2 !important;
+
+        box-shadow:
+            0 0 0 2px rgba(88, 101, 242, .15);
+    }
+
+    .users-toolbar .form-control::placeholder {
+        color: #777b84 !important;
+    }
+
+
+    /* ==========================================================
+       ACTION BAR
+       ========================================================== */
+
+    .users-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        margin-bottom: 15px;
+    }
+
+    .users-actions .btn {
+        border-radius: 7px;
+
+        font-size: .85rem;
+
+        padding: 7px 13px;
+    }
+
+
+    /* ==========================================================
+       USER CARD
+       ========================================================== */
+
+    #userList {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+
+    .user-card {
+        background: #1e1f22 !important;
+
+        border: 1px solid #303238 !important;
+
+        border-radius: 10px;
+
+        color: #e4e4e4;
+
+        overflow: hidden;
+
+        transition:
+            border-color .15s ease,
+            box-shadow .15s ease;
+    }
+
+    .user-card:hover {
+        border-color: #41444b !important;
+
+        box-shadow:
+            0 5px 20px rgba(0, 0, 0, .2);
+    }
+
+
+    .user-card .card-body {
+        padding: 18px;
+    }
+
+
+    /* ==========================================================
+       USER HEADER
+       ========================================================== */
+
+    .user-header {
+        display: flex;
+
+        align-items: center;
+        justify-content: space-between;
+
+        gap: 15px;
+
+        padding-bottom: 14px;
+
+        border-bottom: 1px solid #303238;
+    }
+
+    .text-muted {
+    color: #b8b8b8 !important;
+}
+    .user-info {
+        display: flex;
+
+        align-items: center;
+
+        gap: 10px;
+
+        flex-wrap: wrap;
+    }
+
+
+    .user-id {
+        color: #777b84;
+
+        font-size: .8rem;
+    }
+
+
+    .user-name {
+        color: #fff;
+
+        font-size: 1rem;
+
+        font-weight: 600;
+    }
+
+
+    .discord-id {
+        color: #8b8f98;
+
+        font-size: .8rem;
+    }
+
+
+    /* ==========================================================
+       USER ACTIONS
+       ========================================================== */
+
+    .user-actions {
+        display: flex;
+
+        gap: 6px;
+
+        margin-left: auto;
+    }
+
+    .user-actions .btn {
+        border-radius: 6px;
+
+        font-size: .8rem;
+    }
+
+
+    /* ==========================================================
+       USER META
+       ========================================================== */
+
+    .user-meta {
+        display: flex;
+
+        align-items: center;
+
+        flex-wrap: wrap;
+
+        gap: 10px;
+
+        padding: 14px 0;
+    }
+
+
+    .user-meta-item {
+        display: flex;
+
+        align-items: center;
+
+        gap: 7px;
+
+        min-height: 34px;
+
+        padding: 6px 10px;
+
+        background: #18191c;
+
+        border: 1px solid #303238;
+
+        border-radius: 6px;
+
+        font-size: .82rem;
+    }
+
+
+    .user-meta-label {
+        color: #777b84;
+    }
+
+
+    .user-meta-value {
+        color: #e4e4e4;
+
+        font-weight: 500;
+    }
+
+
+    /* ==========================================================
+       SECTIONS
+       ========================================================== */
+
+    .user-section {
+        margin-top: 15px;
+
+        padding-top: 15px;
+
+        border-top: 1px solid #303238;
+    }
+
+
+    .user-section-title {
+        display: flex;
+
+        align-items: center;
+
+        justify-content: space-between;
+
+        margin-bottom: 8px;
+
+        color: #c9cdd3;
+
+        font-size: .85rem;
+
+        font-weight: 600;
+    }
+
+
+    /* ==========================================================
+       COMMENT / WARNING / ACTION ENTRIES
+       ========================================================== */
+
+    .user-entry {
+        display: flex;
+
+        align-items: center;
+
+        justify-content: space-between;
+
+        gap: 10px;
+
+        padding: 8px 10px;
+
+        margin-bottom: 5px;
+
+        background: #18191c;
+
+        border: 1px solid #292b30;
+
+        border-radius: 6px;
+
+        font-size: .82rem;
+    }
+
+
+    .user-entry-content {
+        min-width: 0;
+
+        color: #b9bbc1;
+
+        word-break: break-word;
+    }
+
+
+    .user-entry-author {
+        color: #fff;
+
+        font-weight: 600;
+    }
+
+
+    .user-entry-time {
+        color: #777b84;
+    }
+
+
+    .user-entry .btn {
+        flex-shrink: 0;
+
+        font-size: .7rem;
+
+        padding: 3px 7px;
+    }
+
+
+    /* ==========================================================
+       INPUTS
+       ========================================================== */
+
+    .user-input {
+        display: flex;
+
+        gap: 6px;
+
+        margin-top: 7px;
+    }
+
+
+    .user-input .form-control {
+        background: #18191c !important;
+
+        color: #e4e4e4 !important;
+
+        border: 1px solid #303238 !important;
+
+        border-radius: 6px;
+    }
+
+
+    .user-input .form-control:focus {
+        border-color: #5865f2 !important;
+
+        box-shadow:
+            0 0 0 2px rgba(88, 101, 242, .15);
+    }
+
+
+    .user-input .form-control::placeholder {
+        color: #686c74 !important;
+    }
+
+
+    /* ==========================================================
+       STATUS
+       ========================================================== */
+
+    .status-badge {
+        display: inline-flex;
+
+        align-items: center;
+
+        gap: 5px;
+
+        padding: 4px 8px;
+
+        border-radius: 5px;
+
+        font-size: .75rem;
+
+        font-weight: 600;
+    }
+
+
+    .status-active {
+        background: rgba(46, 204, 113, .12);
+
+        color: #4ade80;
+    }
+
+
+    .status-away {
+        background: rgba(241, 196, 15, .12);
+
+        color: #facc15;
+    }
+
+
+    .status-vacation {
+        background: rgba(59, 130, 246, .12);
+
+        color: #60a5fa;
+    }
+
+
+    /* ==========================================================
+       MODAL
+       ========================================================== */
+
+    .modal-content {
+        background: #1e1f22 !important;
+
+        color: #e4e4e4 !important;
+
+        border: 1px solid #34363d !important;
+
+        border-radius: 10px;
+    }
+
+
+    .modal-header {
+        border-bottom: 1px solid #303238;
+    }
+
+
+    .modal-footer {
+        border-top: 1px solid #303238;
+    }
+
+
+    .modal .form-control,
+    .modal .form-select {
+        background: #18191c !important;
+
+        color: #e4e4e4 !important;
+
+        border: 1px solid #34363d !important;
+    }
+
+
+    .modal .form-control::placeholder {
+        color: #777b84 !important;
+    }
+
+
+    /* ==========================================================
+       UNPAID MODAL
+       ========================================================== */
+
+    #unpaidMembersModal .modal-content {
+        background: #1e1f22;
+    }
+
+
+    #unpaidMembersList .list-group-item {
+        background: #18191c;
+
+        color: #e4e4e4;
+
+        border-color: #303238;
+    }
+
+
+    /* ==========================================================
+       RESPONSIVE
+       ========================================================== */
+
+    @media (max-width: 768px) {
+
+        .users-toolbar {
+            flex-direction: column;
+
+            align-items: stretch;
+        }
+
+
+        .user-header {
+            align-items: flex-start;
+
+            flex-direction: column;
+        }
+
+
+        .user-actions {
+            margin-left: 0;
+        }
+
+
+        .user-meta {
+            flex-direction: column;
+
+            align-items: stretch;
+        }
+
+
+        .user-input {
+            flex-direction: column;
+        }
+
+    }
+
+</style>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="container-fluid users-page">
+
+    <!-- ======================================================
+         SUCHEN / FILTERN
+         ====================================================== -->
+
+    <div class="users-toolbar">
+
+        <input
+            type="text"
+            id="searchInput"
+            class="form-control"
+            placeholder="Name oder Discord-ID suchen"
+        >
+
+        <select
+            id="filterSelect"
+            class="form-select"
+        >
+
+            <option value="all">
+                Alle Benutzer
+            </option>
+
+            <option value="comments">
+                Mit Kommentar
+            </option>
+
+            <option value="warnings">
+                Mit Warning
+            </option>
+
+            <option value="actions">
+                Mit Aktion
+            </option>
+
+            <option value="members">
+                Nur Mitglieder
+            </option>
+
+        </select>
+
+    </div>
+
+
+    <!-- ======================================================
+         AKTIONEN
+         ====================================================== -->
+
+    <div class="users-actions">
+
+        <button
+            class="btn btn-danger"
+            onclick="resetAllPayments()"
+        >
+            💰 Beiträge zurücksetzen
+        </button>
+
+        <button
+            class="btn btn-warning"
+            onclick="showUnpaidMembers()"
+        >
+            ⚠️ Offene Beiträge
+        </button>
+
+    </div>
+
+
+    <!-- ======================================================
+         USER LIST
+         ====================================================== -->
+
+    <div id="userList"></div>
+
+</div>
+
+
+<!-- ==========================================================
+     USER BEARBEITEN
+     ========================================================== -->
+
+<div
+    class="modal fade"
+    id="editUserModal"
+    tabindex="-1"
+    aria-hidden="true"
+>
+
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title">
+                    Benutzer bearbeiten
+                </h5>
+
+                <button
+                    type="button"
+                    class="btn-close btn-close-white"
+                    data-bs-dismiss="modal"
+                ></button>
+
+            </div>
+
+
+            <div class="modal-body">
+
+                <label class="form-label">
+                    Benutzername
+                </label>
+
+                <input
+                    type="text"
+                    id="editUsername"
+                    class="form-control mb-3"
+                    placeholder="Benutzername"
+                >
+
+
+                <label class="form-label">
+                    Beitrittsdatum
+                </label>
+
+                <input
+                    type="text"
+                    id="editJoinDate"
+                    class="form-control mb-3"
+                    placeholder="Join Date"
+                >
+
+
+                <label class="form-label">
+                    Status
+                </label>
+
+                <select
+                    id="statusSelect"
+                    class="form-select"
+                >
+
+                    <option value="active">
+                        🟢 Aktiv
+                    </option>
+
+                    <option value="away7">
+                        🟡 7 Tage Warnung
+                    </option>
+
+                    <option value="away14">
+                        🟠 14 Tage Warnung
+                    </option>
+
+                    <option value="vacation">
+                        🔵 Urlaub
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="modal-footer">
+
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-bs-dismiss="modal"
+                >
+                    Abbrechen
+                </button>
+
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    id="saveEditBtn"
+                >
+                    Speichern
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ==========================================================
+     OFFENE BEITRÄGE
+     ========================================================== -->
+
+<div
+    class="modal fade"
+    id="unpaidMembersModal"
+    tabindex="-1"
+>
+
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title">
+                    Offene Gangbeiträge
+                </h5>
+
+                <button
+                    type="button"
+                    class="btn-close btn-close-white"
+                    data-bs-dismiss="modal"
+                ></button>
+
+            </div>
+
+
+            <div class="modal-body">
+
+                <ul
+                    id="unpaidMembersList"
+                    class="list-group"
+                ></ul>
+
+            </div>
+
+
+            <div class="modal-footer">
+
+                <button
+                    class="btn btn-secondary"
+                    data-bs-dismiss="modal"
+                >
+                    Schließen
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script
+    src="{{ url_for('static', filename='script/user.js') }}"
+></script>
+
+{% endblock %}

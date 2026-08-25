@@ -1,0 +1,13 @@
+{% extends "dashboard.html" %}
+{% block title %}Einstellungen{% endblock %}
+{% block style_header %}
+<link rel="stylesheet" href="{{ url_for('static', filename='style/global_dark.css') }}">
+{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <ul class="nav nav-tabs" id="settingsTabs"></ul>
+    <div class="tab-content mt-3" id="settingsTabContent"></div>
+    <button class="btn btn-primary mt-4" onclick="saveSettings()">Speichern</button>
+</div>
+<script src="{{ url_for('static', filename='script/settings.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,1032 @@
+{% extends "dashboard.html" %}
+
+{% block title %}Regelwerk verwalten{% endblock %}
+
+{% block style_header %}
+
+<link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='style/base_style.css') }}"
+>
+
+<style>
+
+/* ==========================================================
+   REGELWERK
+========================================================== */
+
+.rules-page {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+
+/* ==========================================================
+   HEADER
+========================================================== */
+
+.rules-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 22px;
+    padding-bottom: 16px;
+
+    border-bottom: 1px solid #2f3136;
+}
+
+
+.rules-header-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+
+.rules-header-icon {
+
+    width: 46px;
+    height: 46px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(153, 45, 34, 0.2);
+
+    border: 1px solid rgba(153, 45, 34, 0.4);
+
+    border-radius: 11px;
+
+    font-size: 21px;
+}
+
+
+.rules-header h2 {
+
+    margin: 0;
+
+    font-size: 22px;
+    font-weight: 700;
+
+    color: #ffffff;
+}
+
+
+.rules-header p {
+
+    margin: 3px 0 0;
+
+    color: #8e9297;
+
+    font-size: 13px;
+}
+
+
+/* ==========================================================
+   REGEL CARD
+========================================================== */
+
+.rule-card {
+
+    background: #202225;
+
+    border: 1px solid #2f3136;
+
+    border-radius: 12px;
+
+    margin-bottom: 12px;
+
+    overflow: hidden;
+
+    transition:
+        border-color 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+
+.rule-card:hover {
+
+    border-color: #45474c;
+
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 6px 18px rgba(0, 0, 0, 0.2);
+}
+
+
+.rule-card-body {
+
+    padding: 18px 20px;
+}
+
+
+/* ==========================================================
+   TITEL
+========================================================== */
+
+.rule-title-row {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 15px;
+
+    margin-bottom: 10px;
+}
+
+
+.rule-title {
+
+    margin: 0;
+
+    font-size: 17px;
+
+    font-weight: 600;
+
+    color: #ffffff;
+}
+
+
+.rule-inline-badge {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 5px;
+
+    padding: 4px 8px;
+
+    border-radius: 6px;
+
+    background: rgba(153, 45, 34, 0.18);
+
+    border: 1px solid rgba(153, 45, 34, 0.3);
+
+    color: #d8a19b;
+
+    font-size: 11px;
+
+    white-space: nowrap;
+}
+
+
+/* ==========================================================
+   INHALT
+========================================================== */
+
+.rule-content {
+
+    margin: 0 0 15px;
+
+    color: #b9bbbe;
+
+    font-size: 14px;
+
+    line-height: 1.6;
+
+    white-space: pre-wrap;
+}
+
+
+/* ==========================================================
+   BUTTONS
+========================================================== */
+
+.rule-actions {
+
+    display: flex;
+
+    gap: 8px;
+}
+
+
+.rule-actions .btn {
+
+    border-radius: 7px;
+
+    font-size: 13px;
+
+    padding: 6px 11px;
+}
+
+
+.btn-stwg {
+
+    background: #992d22;
+
+    border: 1px solid #992d22;
+
+    color: #ffffff;
+}
+
+
+.btn-stwg:hover {
+
+    background: #b3372a;
+
+    border-color: #b3372a;
+
+    color: #ffffff;
+}
+
+
+.btn-edit {
+
+    background: #2b2d31;
+
+    border: 1px solid #3a3c41;
+
+    color: #ffffff;
+}
+
+
+.btn-edit:hover {
+
+    background: #35373c;
+
+    border-color: #4a4c52;
+
+    color: #ffffff;
+}
+
+
+.btn-delete {
+
+    background: rgba(237, 66, 69, 0.1);
+
+    border: 1px solid rgba(237, 66, 69, 0.25);
+
+    color: #ed4245;
+}
+
+
+.btn-delete:hover {
+
+    background: rgba(237, 66, 69, 0.2);
+
+    color: #ff6b6b;
+}
+
+
+/* ==========================================================
+   EMPTY STATE
+========================================================== */
+
+.rules-empty {
+
+    padding: 45px 20px;
+
+    text-align: center;
+
+    background: #202225;
+
+    border: 1px solid #2f3136;
+
+    border-radius: 12px;
+
+    color: #8e9297;
+}
+
+
+.rules-empty-icon {
+
+    font-size: 32px;
+
+    margin-bottom: 10px;
+
+}
+
+
+/* ==========================================================
+   MODAL
+========================================================== */
+
+#editRuleModal .modal-content {
+
+    background: #202225 !important;
+
+    border: 1px solid #2f3136;
+
+    border-radius: 12px;
+
+    color: #ffffff;
+}
+
+
+#editRuleModal .modal-header {
+
+    border-bottom: 1px solid #2f3136;
+}
+
+
+#editRuleModal .modal-footer {
+
+    border-top: 1px solid #2f3136;
+}
+
+
+#editRuleModal .modal-title {
+
+    font-size: 17px;
+
+    font-weight: 600;
+}
+
+
+#editRuleModal .form-control {
+
+    background: #2b2d31 !important;
+
+    border: 1px solid #3a3c41 !important;
+
+    color: #ffffff !important;
+
+    border-radius: 8px;
+}
+
+
+#editRuleModal .form-control:focus {
+
+    background: #2b2d31 !important;
+
+    border-color: #992d22 !important;
+
+    box-shadow:
+        0 0 0 2px rgba(153, 45, 34, 0.2) !important;
+
+    color: #ffffff !important;
+}
+
+
+#editRuleModal .form-control::placeholder {
+
+    color: #72767d;
+}
+
+
+#editRuleModal .form-check-label {
+
+    color: #b9bbbe;
+}
+
+
+#editRuleModal .form-check-input {
+
+    background-color: #2b2d31;
+
+    border-color: #4a4c52;
+}
+
+
+#editRuleModal .form-check-input:checked {
+
+    background-color: #992d22;
+
+    border-color: #992d22;
+}
+
+
+/* ==========================================================
+   RESPONSIVE
+========================================================== */
+
+@media (max-width: 700px) {
+
+    .rules-header {
+
+        align-items: flex-start;
+
+        flex-direction: column;
+
+        gap: 12px;
+
+    }
+
+
+    .rule-title-row {
+
+        align-items: flex-start;
+
+        flex-direction: column;
+
+    }
+
+
+    .rule-actions {
+
+        flex-wrap: wrap;
+
+    }
+
+}
+
+</style>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="rules-page">
+
+
+    <!-- ======================================================
+         HEADER
+    ======================================================= -->
+
+    <div class="rules-header">
+
+        <div class="rules-header-left">
+
+            <div class="rules-header-icon">
+                📜
+            </div>
+
+            <div>
+
+                <h2>
+                    Regelwerk
+                </h2>
+
+                <p>
+                    Regeln anzeigen und verwalten
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ======================================================
+         REGELN
+    ======================================================= -->
+
+    <div id="ruleList">
+
+        <div class="rules-empty">
+
+            <div class="rules-empty-icon">
+                📜
+            </div>
+
+            Regeln werden geladen...
+
+        </div>
+
+    </div>
+
+
+</div>
+
+
+<!-- ==========================================================
+     EDIT MODAL
+========================================================== -->
+
+<div
+    class="modal fade"
+    id="editRuleModal"
+    tabindex="-1"
+    aria-hidden="true"
+>
+
+    <div class="modal-dialog modal-lg">
+
+        <div class="modal-content">
+
+
+            <div class="modal-header">
+
+                <h5 class="modal-title">
+                    📜 Regel bearbeiten
+                </h5>
+
+                <button
+                    type="button"
+                    class="btn-close btn-close-white"
+                    data-bs-dismiss="modal"
+                ></button>
+
+            </div>
+
+
+            <div class="modal-body">
+
+                <input
+                    type="hidden"
+                    id="editRuleId"
+                >
+
+
+                <div class="mb-3">
+
+                    <label
+                        for="editRuleTitle"
+                        class="form-label"
+                    >
+                        Titel
+                    </label>
+
+                    <input
+                        type="text"
+                        id="editRuleTitle"
+                        class="form-control"
+                        placeholder="Titel der Regel"
+                    >
+
+                </div>
+
+
+                <div class="mb-3">
+
+                    <label
+                        for="editRuleContent"
+                        class="form-label"
+                    >
+                        Inhalt
+                    </label>
+
+                    <textarea
+                        id="editRuleContent"
+                        class="form-control"
+                        placeholder="Inhalt der Regel"
+                        rows="6"
+                    ></textarea>
+
+                </div>
+
+
+                <div class="form-check">
+
+                    <input
+                        type="checkbox"
+                        id="editRuleInline"
+                        class="form-check-input"
+                    >
+
+                    <label
+                        for="editRuleInline"
+                        class="form-check-label"
+                    >
+                        Inline anzeigen
+                    </label>
+
+                </div>
+
+            </div>
+
+
+            <div class="modal-footer">
+
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-bs-dismiss="modal"
+                >
+                    Abbrechen
+                </button>
+
+                <button
+                    type="button"
+                    class="btn btn-stwg"
+                    id="saveEditBtn"
+                >
+                    Speichern
+                </button>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+const ruleList =
+    document.getElementById("ruleList");
+
+
+    let editModal;
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    editModal = new bootstrap.Modal(
+        document.getElementById("editRuleModal")
+    );
+
+});
+
+
+const editRuleId =
+    document.getElementById("editRuleId");
+
+
+const editRuleTitle =
+    document.getElementById("editRuleTitle");
+
+
+const editRuleContent =
+    document.getElementById("editRuleContent");
+
+
+const editRuleInline =
+    document.getElementById("editRuleInline");
+
+
+const saveEditBtn =
+    document.getElementById("saveEditBtn");
+
+
+
+/* ==========================================================
+   REGELN LADEN
+========================================================== */
+
+async function loadRules() {
+
+    try {
+
+        const res =
+            await fetch("/rules/");
+
+
+        if (!res.ok) {
+
+            throw new Error(
+                "Fehler beim Laden der Regeln"
+            );
+
+        }
+
+
+        const data =
+            await res.json();
+
+
+        ruleList.innerHTML = "";
+
+
+        if (!data.length) {
+
+            ruleList.innerHTML = `
+
+                <div class="rules-empty">
+
+                    <div class="rules-empty-icon">
+                        📜
+                    </div>
+
+                    <div>
+                        Keine Regeln vorhanden
+                    </div>
+
+                </div>
+
+            `;
+
+            return;
+
+        }
+
+
+        data.forEach(rule => {
+
+
+            const card =
+                document.createElement("div");
+
+
+            card.className =
+                "rule-card";
+
+
+            const body =
+                document.createElement("div");
+
+
+            body.className =
+                "rule-card-body";
+
+
+            const titleRow =
+                document.createElement("div");
+
+
+            titleRow.className =
+                "rule-title-row";
+
+
+            const title =
+                document.createElement("h5");
+
+
+            title.className =
+                "rule-title";
+
+
+            title.textContent =
+                rule.title;
+
+
+            titleRow.appendChild(title);
+
+
+            if (rule.inline) {
+
+                const badge =
+                    document.createElement("span");
+
+
+                badge.className =
+                    "rule-inline-badge";
+
+
+                badge.innerHTML =
+                    "⚡ Inline";
+
+
+                titleRow.appendChild(badge);
+
+            }
+
+
+            const content =
+                document.createElement("p");
+
+
+            content.className =
+                "rule-content";
+
+
+            content.textContent =
+                rule.content;
+
+
+            const actions =
+                document.createElement("div");
+
+
+            actions.className =
+                "rule-actions";
+
+
+            const editBtn =
+                document.createElement("button");
+
+
+            editBtn.className =
+                "btn btn-edit";
+
+
+            editBtn.textContent =
+                "✏️ Bearbeiten";
+
+
+            editBtn.addEventListener(
+                "click",
+                () => openEditModal(rule)
+            );
+
+
+            const deleteBtn =
+                document.createElement("button");
+
+
+            deleteBtn.className =
+                "btn btn-delete";
+
+
+            deleteBtn.textContent =
+                "🗑️ Löschen";
+
+
+            deleteBtn.addEventListener(
+                "click",
+                () => deleteRule(rule.id)
+            );
+
+
+            actions.appendChild(editBtn);
+
+            actions.appendChild(deleteBtn);
+
+
+            body.appendChild(titleRow);
+
+            body.appendChild(content);
+
+            body.appendChild(actions);
+
+
+            card.appendChild(body);
+
+
+            ruleList.appendChild(card);
+
+        });
+
+
+    } catch (err) {
+
+        console.error(err);
+
+        ruleList.innerHTML = `
+
+            <div class="rules-empty">
+
+                <div class="rules-empty-icon">
+                    ⚠️
+                </div>
+
+                Fehler beim Laden des Regelwerks
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+
+/* ==========================================================
+   EDIT MODAL ÖFFNEN
+========================================================== */
+
+function openEditModal(rule) {
+
+    editRuleId.value =
+        rule.id;
+
+
+    editRuleTitle.value =
+        rule.title;
+
+
+    editRuleContent.value =
+        rule.content;
+
+
+    editRuleInline.checked =
+        rule.inline;
+
+
+    editModal.show();
+
+}
+
+
+
+/* ==========================================================
+   REGEL SPEICHERN
+========================================================== */
+
+saveEditBtn.addEventListener(
+    "click",
+    async () => {
+
+        const id =
+            editRuleId.value;
+
+
+        const payload = {
+
+            title:
+                editRuleTitle.value.trim(),
+
+            content:
+                editRuleContent.value.trim(),
+
+            inline:
+                editRuleInline.checked
+
+        };
+
+
+        if (
+            !payload.title ||
+            !payload.content
+        ) {
+
+            return;
+
+        }
+
+
+        try {
+
+            const res =
+                await fetch(
+                    `/rules/${id}`,
+                    {
+                        method: "PUT",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body:
+                            JSON.stringify(payload)
+                    }
+                );
+
+
+            if (!res.ok) {
+
+                throw new Error(
+                    "Fehler beim Speichern"
+                );
+
+            }
+
+
+            editModal.hide();
+
+            loadRules();
+
+
+        } catch (err) {
+
+            console.error(err);
+
+        }
+
+    }
+);
+
+
+
+/* ==========================================================
+   REGEL LÖSCHEN
+========================================================== */
+
+async function deleteRule(id) {
+
+    if (
+        !confirm(
+            "Soll diese Regel wirklich gelöscht werden?"
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    try {
+
+        const res =
+            await fetch(
+                `/rules/${id}`,
+                {
+                    method: "DELETE"
+                }
+            );
+
+
+        if (!res.ok) {
+
+            throw new Error(
+                "Fehler beim Löschen"
+            );
+
+        }
+
+
+        loadRules();
+
+
+    } catch (err) {
+
+        console.error(err);
+
+    }
+
+}
+
+
+
+loadRules();
+
+</script>
+
+{% endblock %}const editModal =
+    new bootstrap.Modal(
+        document.getElementById("editRuleModal")
+    );

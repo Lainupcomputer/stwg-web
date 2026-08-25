@@ -1,0 +1,1059 @@
+{% extends "dashboard.html" %}
+
+{% block title %}Mein Profil{% endblock %}
+
+
+{% block style_header %}
+
+<style>
+
+/* ==========================================
+   PROFIL
+========================================== */
+
+.profile-card {
+    background-color: #2b2d31 !important;
+    border: 1px solid #444 !important;
+    color: #fff !important;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    overflow: hidden;
+}
+
+.profile-card .card-header {
+    background-color: #212327 !important;
+    border-bottom: 1px solid #444 !important;
+    color: #fff !important;
+}
+
+.profile-card .card-body {
+    background-color: #2b2d31 !important;
+    color: #fff !important;
+}
+
+
+/* ==========================================
+   PROFIL HEADER
+========================================== */
+
+.profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.profile-header h2 {
+    margin-bottom: 0.25rem;
+    color: #fff;
+}
+
+.profile-header p {
+    margin: 0;
+    color: #aaa;
+}
+
+
+/* ==========================================
+   PROFIL CARD
+========================================== */
+
+.profile-main {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.profile-avatar {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #444;
+    flex-shrink: 0;
+}
+
+.profile-info h3 {
+    margin-bottom: 0.75rem;
+    color: #fff;
+}
+
+.profile-info h5 {
+    margin-bottom: 0.4rem;
+    color: #ccc;
+    font-weight: normal;
+}
+
+.profile-info strong {
+    color: #fff;
+}
+
+
+/* ==========================================
+   BADGES
+========================================== */
+
+.profile-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.profile-badge {
+    background-color: #36393e;
+    border: 1px solid #444;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    color: #bbb;
+    cursor: default;
+    transition: 0.15s ease;
+}
+
+.profile-badge:hover {
+    background-color: #41444a;
+    color: #fff;
+}
+
+.profile-badge.active {
+    background-color: #992d22;
+    border-color: #992d22;
+    color: #fff;
+}
+
+.profile-badge.active:hover {
+    background-color: #b33628;
+}
+
+
+/* ==========================================
+   EINTRÄGE
+========================================== */
+
+.profile-entry {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #444;
+    color: #ddd;
+}
+
+.profile-entry:first-child {
+    padding-top: 0;
+}
+
+.profile-entry:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.profile-entry-time {
+    color: #999;
+}
+
+.profile-empty {
+    color: #888;
+    text-align: center;
+    padding: 1rem 0;
+}
+
+
+/* ==========================================
+   MODAL
+========================================== */
+
+.profile-modal .modal-content {
+    background-color: #2b2d31 !important;
+    color: #fff !important;
+    border: 1px solid #444 !important;
+}
+
+.profile-modal .modal-header {
+    background-color: #212327 !important;
+    border-bottom: 1px solid #444 !important;
+    color: #fff !important;
+}
+
+.profile-modal .modal-title {
+    color: #fff !important;
+}
+
+.profile-modal .modal-body {
+    background-color: #2b2d31 !important;
+    color: #fff !important;
+}
+
+.profile-modal .modal-footer {
+    background-color: #212327 !important;
+    border-top: 1px solid #444 !important;
+}
+
+.profile-modal .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+
+/* ==========================================
+   INPUTS
+========================================== */
+
+.profile-modal .form-control,
+.profile-modal .form-select {
+    background-color: #36393e !important;
+    color: #fff !important;
+    border: 1px solid #555 !important;
+}
+
+.profile-modal .form-control::placeholder {
+    color: #888;
+}
+
+.profile-modal .form-control:focus,
+.profile-modal .form-select:focus {
+    background-color: #36393e !important;
+    color: #fff !important;
+    border-color: #992d22 !important;
+    box-shadow: 0 0 0 0.2rem rgba(153, 45, 34, 0.25) !important;
+}
+
+
+/* ==========================================
+   RESPONSIVE
+========================================== */
+
+@media (max-width: 768px) {
+
+    .profile-main {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .profile-avatar {
+        width: 110px;
+        height: 110px;
+    }
+
+    .profile-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .profile-actions {
+        width: 100%;
+    }
+
+}
+
+</style>
+
+{% endblock %}
+
+
+
+{% block content %}
+
+<div class="container-fluid px-0">
+
+
+    <!-- ==========================================
+         HEADER
+    ========================================== -->
+
+    <div class="profile-header">
+
+        <div>
+
+            <h2>
+                👤 Mein Profil
+            </h2>
+
+            <p>
+                Übersicht über dein Profil und deine Mitgliedschaft
+            </p>
+
+        </div>
+
+
+        <div class="d-flex gap-2 flex-wrap">
+
+            <button
+                type="button"
+                class="btn btn-primary"
+                data-bs-toggle="modal"
+                data-bs-target="#profileActionModal"
+                data-action="änderung"
+            >
+                Änderung anfragen
+            </button>
+
+
+            <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-toggle="modal"
+                data-bs-target="#profileActionModal"
+                data-action="abwesenheit"
+            >
+                Abwesenheit melden
+            </button>
+
+
+            <button
+                type="button"
+                class="btn btn-danger"
+                data-bs-toggle="modal"
+                data-bs-target="#profileActionModal"
+                data-action="leitungsgespräch"
+            >
+                Leitungsgespräch
+            </button>
+
+
+            <button
+                type="button"
+                class="btn btn-success"
+                data-bs-toggle="modal"
+                data-bs-target="#profileActionModal"
+                data-action="ausbildung"
+            >
+                🎓 Ausbildung planen
+            </button>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ==========================================
+         PROFIL
+    ========================================== -->
+
+    <div class="card profile-card">
+
+        <div class="card-header">
+
+            <strong>
+                Profilinformationen
+            </strong>
+
+        </div>
+
+
+        <div class="card-body">
+
+            <div class="profile-main">
+
+
+                <img
+                    src="{{ avatar_url }}"
+                    alt="Avatar"
+                    class="profile-avatar"
+                >
+
+
+                <div class="profile-info">
+
+                    <h3>
+                        {{ user.username }}
+                    </h3>
+
+
+                    <h5>
+                        <strong>ID:</strong>
+                        {{ user.user_id }}
+                    </h5>
+
+
+                    <h5>
+                        <strong>Beigetreten:</strong>
+                        {{ user.join_date }}
+                    </h5>
+
+
+                    <h5>
+                        <strong>Letzter Aufstieg:</strong>
+                        {{ user.last_uprank }}
+                    </h5>
+
+
+                    <h5>
+
+                        <strong>Status:</strong>
+
+                        {% if user.status == "active" %}
+
+                            🟢 Aktiv
+
+                        {% elif user.status == "vacation" %}
+
+                            🏝️ Abgemeldet
+
+                        {% elif user.status == "away7" %}
+
+                            🟡 7 Tage weg
+
+                        {% elif user.status == "away14" %}
+
+                            🔴 14 Tage weg
+
+                        {% else %}
+
+                            ⚪ Unbekannt
+
+                        {% endif %}
+
+                    </h5>
+
+
+                    <h5>
+
+                        <strong>Beitrag:</strong>
+
+                        {% if user.has_payed %}
+
+                            <span class="text-success">
+                                Bezahlt
+                            </span>
+
+                        {% else %}
+
+                            <span class="text-warning">
+                                Ausstehend
+                            </span>
+
+                        {% endif %}
+
+                    </h5>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ==========================================
+         BERECHTIGUNGEN
+    ========================================== -->
+
+    <div class="card profile-card">
+
+        <div class="card-header">
+
+            <strong>
+                🔐 Berechtigungen
+            </strong>
+
+        </div>
+
+
+        <div class="card-body">
+
+            <div class="profile-badges">
+
+                {% for perm in permissions %}
+
+                    {% if perm.has %}
+
+                        <span class="profile-badge active">
+                            {{ perm.name }}
+                        </span>
+
+                    {% else %}
+
+                        <span class="profile-badge">
+                            {{ perm.name }}
+                        </span>
+
+                    {% endif %}
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ==========================================
+         ABZEICHEN
+    ========================================== -->
+
+    <div class="card profile-card">
+
+        <div class="card-header">
+
+            <strong>
+                🏅 Abzeichen
+            </strong>
+
+        </div>
+
+
+        <div class="card-body">
+
+            <div class="profile-badges">
+
+                {% for award in awards %}
+
+                    <span
+                        class="profile-badge {% if award.has %}active{% endif %}"
+                        title="{{ award.description }}"
+                    >
+                        {{ award.name }}
+                    </span>
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ==========================================
+         KOMMENTARE
+    ========================================== -->
+
+    <div class="card profile-card">
+
+        <div class="card-header">
+
+            <strong>
+                💬 Kommentare
+            </strong>
+
+        </div>
+
+
+        <div class="card-body">
+
+            {% if user.comments %}
+
+                {% for c in user.comments %}
+
+                    <div class="profile-entry">
+
+                        "{{ c.comment }}"
+
+                        <span class="profile-entry-time">
+                            — {{ c.author }}
+                        </span>
+
+                    </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <div class="profile-empty">
+                    Keine Kommentare
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ==========================================
+         VERWARNUNGEN
+    ========================================== -->
+
+    <div class="card profile-card">
+
+        <div class="card-header">
+
+            <strong>
+                ⚠️ Verwarnungen
+            </strong>
+
+        </div>
+
+
+        <div class="card-body">
+
+            {% if user.warnings %}
+
+                {% for w in user.warnings %}
+
+                    <div class="profile-entry">
+
+                        <span class="profile-entry-time">
+                            {{ w.time }}:
+                        </span>
+
+                        {{ w.comment }}
+
+                    </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <div class="profile-empty">
+                    Keine Verwarnungen
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+
+    <!-- ==========================================
+         GRUPPENAKTIONEN
+    ========================================== -->
+
+    <div class="card profile-card">
+
+        <div class="card-header">
+
+            <strong>
+                📋 Gruppenaktionen
+            </strong>
+
+        </div>
+
+
+        <div class="card-body">
+
+            {% if user.group_actions %}
+
+                {% for a in user.group_actions %}
+
+                    <div class="profile-entry">
+
+                        <span class="profile-entry-time">
+                            {{ a.time }}:
+                        </span>
+
+                        {{ a.action }}
+
+                    </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <div class="profile-empty">
+                    Keine Aktionen
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<!-- ==========================================
+     AKTIONS MODAL
+========================================== -->
+
+<div
+    class="modal fade profile-modal"
+    id="profileActionModal"
+    tabindex="-1"
+    aria-hidden="true"
+>
+
+    <div class="modal-dialog modal-lg">
+
+        <div class="modal-content">
+
+            <form id="profileActionForm">
+
+
+                <div class="modal-header">
+
+                    <h5
+                        class="modal-title"
+                        id="profileActionModalLabel"
+                    >
+                        Aktion
+                    </h5>
+
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                    ></button>
+
+                </div>
+
+
+                <div
+                    class="modal-body"
+                    id="profileModalContent"
+                ></div>
+
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal"
+                    >
+                        Abbrechen
+                    </button>
+
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+                        Absenden
+                    </button>
+
+                </div>
+
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+<script>
+
+/* ==========================================
+   MODAL
+========================================== */
+
+const profileModal =
+    document.getElementById(
+        "profileActionModal"
+    );
+
+const profileModalTitle =
+    document.getElementById(
+        "profileActionModalLabel"
+    );
+
+const profileModalContent =
+    document.getElementById(
+        "profileModalContent"
+    );
+
+const profileActionForm =
+    document.getElementById(
+        "profileActionForm"
+    );
+
+
+profileModal.addEventListener(
+    "show.bs.modal",
+    function (event) {
+
+        const button =
+            event.relatedTarget;
+
+        const action =
+            button.getAttribute(
+                "data-action"
+            );
+
+
+        profileModalContent.innerHTML = "";
+
+
+        /* ==========================================
+           ABWESENHEIT
+        ========================================== */
+
+        if (action === "abwesenheit") {
+
+            profileModalTitle.textContent =
+                "Abwesenheit melden";
+
+
+            profileModalContent.innerHTML = `
+
+                <div class="mb-3">
+
+                    <label
+                        for="endDate"
+                        class="form-label"
+                    >
+                        Bis wann bist du weg?
+                    </label>
+
+                    <input
+                        type="date"
+                        class="form-control"
+                        id="endDate"
+                        name="endDate"
+                        required
+                    >
+
+                </div>
+
+            `;
+
+        }
+
+
+        /* ==========================================
+           LEITUNGSGESPRÄCH
+        ========================================== */
+
+        else if (
+            action === "leitungsgespräch"
+        ) {
+
+            profileModalTitle.textContent =
+                "Leitungsgespräch";
+
+
+            profileModalContent.innerHTML = `
+
+                <div class="mb-3">
+
+                    <label
+                        for="topic"
+                        class="form-label"
+                    >
+                        Thema
+                    </label>
+
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="topic"
+                        name="topic"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="mb-3">
+
+                    <label
+                        for="desiredDate"
+                        class="form-label"
+                    >
+                        Gewünschtes Datum
+                    </label>
+
+                    <input
+                        type="date"
+                        class="form-control"
+                        id="desiredDate"
+                        name="desiredDate"
+                        required
+                    >
+
+                </div>
+
+            `;
+
+        }
+
+
+        /* ==========================================
+           AUSBILDUNG PLANEN
+        ========================================== */
+
+        else if (
+            action === "ausbildung"
+        ) {
+
+            profileModalTitle.textContent =
+                "Ausbildung planen";
+
+
+            profileModalContent.innerHTML = `
+
+                <div class="mb-3">
+
+                    <label
+                        for="trainingName"
+                        class="form-label"
+                    >
+                        Ausbildung
+                    </label>
+
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="trainingName"
+                        name="trainingName"
+                        placeholder="z. B. Flugausbildung"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="mb-3">
+
+                    <label
+                        for="trainingDate"
+                        class="form-label"
+                    >
+                        Gewünschtes Datum
+                    </label>
+
+                    <input
+                        type="date"
+                        class="form-control"
+                        id="trainingDate"
+                        name="trainingDate"
+                        required
+                    >
+
+                </div>
+
+            `;
+
+        }
+
+
+        /* ==========================================
+           ÄNDERUNG
+        ========================================== */
+
+        else if (action === "änderung") {
+
+            profileModalTitle.textContent =
+                "Änderung anfragen";
+
+
+            profileModalContent.innerHTML = `
+
+                <div class="mb-3">
+
+                    <label
+                        for="changeRequest"
+                        class="form-label"
+                    >
+                        Was möchtest du ändern?
+                    </label>
+
+                    <textarea
+                        class="form-control"
+                        id="changeRequest"
+                        name="changeRequest"
+                        rows="4"
+                        required
+                    ></textarea>
+
+                </div>
+
+            `;
+
+        }
+
+    }
+);
+
+
+/* ==========================================
+   ABSENDEN
+========================================== */
+
+profileActionForm.addEventListener(
+    "submit",
+    async function (e) {
+
+        e.preventDefault();
+
+
+        const formData =
+            new FormData(
+                profileActionForm
+            );
+
+
+        const data = {};
+
+
+        formData.forEach(
+            (value, key) => {
+
+                data[key] = value;
+
+            }
+        );
+
+
+        try {
+
+            const res =
+                await fetch(
+                    "/profile/action",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body:
+                            JSON.stringify(data)
+                    }
+                );
+
+
+            const result =
+                await res.json();
+
+
+            if (!res.ok) {
+
+                throw new Error(
+                    result.error ||
+                    "Fehler beim Senden"
+                );
+
+            }
+
+
+            const modal =
+                bootstrap.Modal.getInstance(
+                    profileModal
+                );
+
+
+            modal.hide();
+
+
+        } catch (err) {
+
+            alert(
+                err.message ||
+                "Fehler beim Senden."
+            );
+
+        }
+
+    }
+);
+
+</script>
+
+
+{% endblock %}

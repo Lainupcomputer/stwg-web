@@ -1,0 +1,994 @@
+{% extends "dashboard.html" %}
+
+{% block title %}Besprechung{% endblock %}
+
+
+{% block style_header %}
+
+<!-- Quill CSS -->
+<link
+    href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css"
+    rel="stylesheet"
+>
+
+<style>
+
+    /* =========================================================
+       ALLGEMEIN
+       ========================================================= */
+
+    .meeting-card {
+        background-color: #333 !important;
+        color: #fff !important;
+        border: 1px solid #444;
+    }
+
+    .meeting-card .card-title {
+        color: #fff !important;
+    }
+
+    .meeting-card .form-label {
+        color: #fff !important;
+        font-weight: 500;
+    }
+
+    .meeting-card .form-control {
+        background-color: #444 !important;
+        color: #fff !important;
+        border: 1px solid #666 !important;
+    }
+
+    .meeting-card .form-control:focus {
+        background-color: #444 !important;
+        color: #fff !important;
+        border-color: #0d6efd !important;
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+    }
+
+    .meeting-card .form-control::placeholder {
+        color: #aaa !important;
+    }
+
+
+    /* =========================================================
+       DATUM
+       ========================================================= */
+
+    input[type="date"] {
+        color-scheme: dark;
+    }
+
+    input[type="date"]::-webkit-calendar-picker-indicator {
+        filter: invert(1);
+        cursor: pointer;
+    }
+
+
+    /* =========================================================
+       QUILL CONTAINER
+       ========================================================= */
+
+    .editor-wrapper {
+        border: 1px solid #666;
+        border-radius: 6px;
+        overflow: hidden;
+        background-color: #2b2b2b;
+    }
+
+
+    /* =========================================================
+       QUILL TOOLBAR
+       ========================================================= */
+
+    #toolbar {
+        background-color: #444 !important;
+        border: none !important;
+        border-bottom: 1px solid #666 !important;
+        color: #fff !important;
+    }
+
+
+    /* =========================================================
+       BUTTONS
+       ========================================================= */
+
+    #toolbar button {
+        color: #fff !important;
+        background: transparent !important;
+        border: none !important;
+    }
+
+    #toolbar button svg {
+        width: 18px;
+        height: 18px;
+    }
+
+
+    /* =========================================================
+       QUILL SVG ICONS
+       ========================================================= */
+
+    #toolbar .ql-stroke {
+        stroke: #fff !important;
+    }
+
+    #toolbar .ql-fill {
+        fill: #fff !important;
+    }
+
+    #toolbar .ql-even {
+        fill: #fff !important;
+    }
+
+
+    /* =========================================================
+       DIREKTE SVG ÜBERSCHREIBUNG
+       ========================================================= */
+
+    #toolbar svg path {
+        stroke: #fff !important;
+    }
+
+    #toolbar svg line {
+        stroke: #fff !important;
+    }
+
+    #toolbar svg polyline {
+        stroke: #fff !important;
+    }
+
+    #toolbar svg polygon {
+        fill: #fff !important;
+    }
+
+    #toolbar svg rect {
+        stroke: #fff !important;
+    }
+
+    #toolbar svg circle {
+        stroke: #fff !important;
+    }
+
+
+    /* =========================================================
+       HOVER
+       ========================================================= */
+
+    #toolbar button:hover {
+        background-color: #555 !important;
+    }
+
+    #toolbar button:hover .ql-stroke {
+        stroke: #4da3ff !important;
+    }
+
+    #toolbar button:hover .ql-fill {
+        fill: #4da3ff !important;
+    }
+
+    #toolbar button:hover svg path {
+        stroke: #4da3ff !important;
+    }
+
+
+    /* =========================================================
+       AKTIVER BUTTON
+       ========================================================= */
+
+    #toolbar button.ql-active {
+        background-color: #555 !important;
+    }
+
+    #toolbar button.ql-active .ql-stroke {
+        stroke: #4da3ff !important;
+    }
+
+    #toolbar button.ql-active .ql-fill {
+        fill: #4da3ff !important;
+    }
+
+    #toolbar button.ql-active svg path {
+        stroke: #4da3ff !important;
+    }
+
+
+    /* =========================================================
+       DROPDOWNS
+       ========================================================= */
+
+    #toolbar .ql-picker {
+        color: #fff !important;
+    }
+
+    #toolbar .ql-picker-label {
+        color: #fff !important;
+    }
+
+    #toolbar .ql-picker-label:hover {
+        color: #4da3ff !important;
+    }
+
+    #toolbar .ql-picker-label .ql-stroke {
+        stroke: #fff !important;
+    }
+
+    #toolbar .ql-picker-label svg {
+        stroke: #fff !important;
+        fill: none !important;
+    }
+
+
+    /* =========================================================
+       DROPDOWN MENÜ
+       ========================================================= */
+
+    #toolbar .ql-picker-options {
+        background-color: #333 !important;
+        border: 1px solid #666 !important;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    }
+
+    #toolbar .ql-picker-item {
+        color: #fff !important;
+    }
+
+    #toolbar .ql-picker-item:hover {
+        background-color: #555 !important;
+        color: #4da3ff !important;
+    }
+
+
+    /* =========================================================
+       COLOR PICKER
+       ========================================================= */
+
+    #toolbar .ql-color .ql-picker-label,
+    #toolbar .ql-background .ql-picker-label {
+        color: #fff !important;
+    }
+
+    #toolbar .ql-color .ql-picker-label svg,
+    #toolbar .ql-background .ql-picker-label svg {
+        stroke: #fff !important;
+    }
+
+
+    /* =========================================================
+       TOOLBAR TRENNER
+       ========================================================= */
+
+    #toolbar .ql-formats {
+        border-right: 1px solid #666;
+        padding-right: 8px;
+        margin-right: 8px;
+    }
+
+    #toolbar .ql-formats:last-child {
+        border-right: none;
+    }
+
+
+    /* =========================================================
+       EDITOR
+       ========================================================= */
+
+    #meetingEditor {
+        min-height: 450px;
+    }
+
+    .ql-container {
+        border: none !important;
+        background-color: #2b2b2b !important;
+        font-family: inherit;
+    }
+
+    .ql-editor {
+        min-height: 450px;
+        background-color: #2b2b2b !important;
+        color: #fff !important;
+        font-size: 16px;
+        line-height: 1.6;
+    }
+
+    .ql-editor.ql-blank::before {
+        color: #888 !important;
+        font-style: normal;
+    }
+
+
+    /* =========================================================
+       ÜBERSCHRIFTEN
+       ========================================================= */
+
+    .ql-editor h1,
+    .ql-editor h2,
+    .ql-editor h3 {
+        color: #fff !important;
+    }
+
+
+    /* =========================================================
+       LINKS
+       ========================================================= */
+
+    .ql-editor a {
+        color: #4da3ff !important;
+    }
+
+
+    /* =========================================================
+       LISTEN
+       ========================================================= */
+
+    .ql-editor ul,
+    .ql-editor ol {
+        color: #fff;
+    }
+
+
+    /* =========================================================
+       SUBMIT BUTTON
+       ========================================================= */
+
+    .meeting-submit {
+        margin-top: 15px;
+    }
+
+</style>
+
+{% endblock %}
+
+
+
+{% block content %}
+
+<div class="card meeting-card mb-4">
+
+    <div class="card-body">
+
+        <h5 class="card-title mb-4">
+            Neue Teambesprechung
+        </h5>
+
+
+        <form id="meetingForm">
+
+
+            <!-- =================================================
+                 TITEL
+                 ================================================= -->
+
+            <div class="mb-3">
+
+                <label
+                    for="meetingTitle"
+                    class="form-label"
+                >
+                    Titel
+                </label>
+
+                <input
+                    type="text"
+                    id="meetingTitle"
+                    name="title"
+                    class="form-control"
+                    placeholder="z.B. STWG Teambesprechung August"
+                    required
+                >
+
+            </div>
+
+
+            <!-- =================================================
+                 DATUM
+                 ================================================= -->
+
+            <div class="mb-4">
+
+                <label
+                    for="meetingDate"
+                    class="form-label"
+                >
+                    Datum
+                </label>
+
+                <input
+                    type="date"
+                    id="meetingDate"
+                    name="meeting_date"
+                    class="form-control"
+                    required
+                >
+
+            </div>
+
+
+            <!-- =================================================
+                 BESPRECHUNGSPROTOKOLL
+                 ================================================= -->
+
+            <div class="mb-3">
+
+                <label class="form-label">
+                    Besprechungsprotokoll
+                </label>
+
+
+                <div class="editor-wrapper">
+
+
+                    <!-- =================================================
+                         TOOLBAR
+                         ================================================= -->
+
+                    <div id="toolbar">
+
+
+                        <!-- Überschriften -->
+
+                        <span class="ql-formats">
+
+                            <select
+                                class="ql-header"
+                                title="Überschrift"
+                            >
+
+                                <option selected></option>
+
+                                <option value="1">
+                                    Überschrift 1
+                                </option>
+
+                                <option value="2">
+                                    Überschrift 2
+                                </option>
+
+                                <option value="3">
+                                    Überschrift 3
+                                </option>
+
+                            </select>
+
+                        </span>
+
+
+                        <!-- Textformatierung -->
+
+                        <span class="ql-formats">
+
+                            <button
+                                type="button"
+                                class="ql-bold"
+                                title="Fett"
+                            ></button>
+
+                            <button
+                                type="button"
+                                class="ql-italic"
+                                title="Kursiv"
+                            ></button>
+
+                            <button
+                                type="button"
+                                class="ql-underline"
+                                title="Unterstrichen"
+                            ></button>
+
+                            <button
+                                type="button"
+                                class="ql-strike"
+                                title="Durchgestrichen"
+                            ></button>
+
+                        </span>
+
+
+                        <!-- Schriftgröße -->
+
+                        <span class="ql-formats">
+
+                            <select
+                                class="ql-size"
+                                title="Schriftgröße"
+                            >
+
+                                <option value="small">
+                                    Klein
+                                </option>
+
+                                <option selected>
+                                    Normal
+                                </option>
+
+                                <option value="large">
+                                    Groß
+                                </option>
+
+                                <option value="huge">
+                                    Sehr groß
+                                </option>
+
+                            </select>
+
+                        </span>
+
+
+                        <!-- Textfarbe -->
+
+                        <span class="ql-formats">
+
+                            <select
+                                class="ql-color"
+                                title="Textfarbe"
+                            >
+
+                                <option value="#ffffff"></option>
+                                <option value="#ff0000"></option>
+                                <option value="#ff8800"></option>
+                                <option value="#ffff00"></option>
+                                <option value="#00ff00"></option>
+                                <option value="#00aaff"></option>
+                                <option value="#5500ff"></option>
+                                <option value="#ff00aa"></option>
+
+                            </select>
+
+                        </span>
+
+
+                        <!-- Hintergrundfarbe -->
+
+                        <span class="ql-formats">
+
+                            <select
+                                class="ql-background"
+                                title="Hintergrundfarbe"
+                            >
+
+                                <option value="#ffff00"></option>
+                                <option value="#ffcccc"></option>
+                                <option value="#ccffcc"></option>
+                                <option value="#cce5ff"></option>
+
+                            </select>
+
+                        </span>
+
+
+                        <!-- Listen -->
+
+                        <span class="ql-formats">
+
+                            <button
+                                type="button"
+                                class="ql-list"
+                                value="ordered"
+                                title="Nummerierte Liste"
+                            ></button>
+
+                            <button
+                                type="button"
+                                class="ql-list"
+                                value="bullet"
+                                title="Aufzählung"
+                            ></button>
+
+                        </span>
+
+
+                        <!-- Ausrichtung -->
+
+                        <span class="ql-formats">
+
+                            <select
+                                class="ql-align"
+                                title="Ausrichtung"
+                            ></select>
+
+                        </span>
+
+
+                        <!-- Link -->
+
+                        <span class="ql-formats">
+
+                            <button
+                                type="button"
+                                class="ql-link"
+                                title="Link"
+                            ></button>
+
+                        </span>
+
+
+                        <!-- Formatierung entfernen -->
+
+                        <span class="ql-formats">
+
+                            <button
+                                type="button"
+                                class="ql-clean"
+                                title="Formatierung entfernen"
+                            ></button>
+
+                        </span>
+
+                    </div>
+
+
+                    <!-- =================================================
+                         EDITOR
+                         ================================================= -->
+
+                    <div id="meetingEditor">
+
+                        <h1>
+                            STWG Teambesprechung
+                        </h1>
+
+                        <p><br></p>
+
+
+                        <h2>
+                            Schriftführer
+                        </h2>
+
+                        <p>
+                            Name des Schriftführers
+                        </p>
+
+
+                        <h2>
+                            Leitung
+                        </h2>
+
+                        <p>
+                            Anwesende Mitglieder der Leitung
+                        </p>
+
+
+                        <h2>
+                            Anwesende Mitglieder
+                        </h2>
+
+                        <ul>
+
+                            <li>
+                                Mitglied 1
+                            </li>
+
+                            <li>
+                                Mitglied 2
+                            </li>
+
+                            <li>
+                                Mitglied 3
+                            </li>
+
+                        </ul>
+
+
+                        <h2>
+                            1. Allgemeines
+                        </h2>
+
+                        <p>
+                            Allgemeine Informationen und Anmerkungen.
+                        </p>
+
+
+                        <h2>
+                            2. Rückblick
+                        </h2>
+
+                        <p>
+                            Rückblick auf die vergangene Zeit.
+                        </p>
+
+
+                        <h2>
+                            3. Aktuelle Themen
+                        </h2>
+
+                        <p>
+                            Aktuelle Themen und Diskussionen.
+                        </p>
+
+
+                        <h2>
+                            4. Mitglieder
+                        </h2>
+
+                        <p>
+                            Themen bezüglich der Mitglieder.
+                        </p>
+
+
+                        <h2>
+                            5. Entscheidungen
+                        </h2>
+
+                        <p>
+                            Getroffene Entscheidungen.
+                        </p>
+
+
+                        <h2>
+                            6. Aufgaben
+                        </h2>
+
+                        <p>
+                            Neue Aufgaben und Verantwortlichkeiten.
+                        </p>
+
+
+                        <h2>
+                            7. Sonstiges
+                        </h2>
+
+                        <p>
+                            Sonstige Themen und Informationen.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     VERSTECKTES FELD FÜR DEN HTML-INHALT
+                     ================================================= -->
+
+                <input
+                    type="hidden"
+                    id="meetingContent"
+                    name="content"
+                >
+
+            </div>
+
+
+            <!-- =================================================
+                 ABSENDEN
+                 ================================================= -->
+
+            <button
+                type="submit"
+                class="btn btn-primary meeting-submit"
+                id="meetingSubmit"
+            >
+                Besprechung erstellen
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+
+<!-- =============================================================
+     QUILL JAVASCRIPT
+     ============================================================= -->
+
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+
+
+<script>
+
+    /* =========================================================
+       QUILL INITIALISIEREN
+       ========================================================= */
+
+       const quill = new Quill(
+        '#meetingEditor',
+        {
+            theme: 'snow',
+
+        modules: {
+            toolbar: '#toolbar'
+        }
+    }
+);
+
+
+    /* =========================================================
+       HEUTIGES DATUM
+       ========================================================= */
+
+    const today =
+        new Date().toISOString().split('T')[0];
+
+    document
+        .getElementById('meetingDate')
+        .value = today;
+
+
+    /* =========================================================
+       FORMULAR ABSENDEN
+       ========================================================= */
+
+    document
+        .getElementById('meetingForm')
+        .addEventListener(
+            'submit',
+            async function(event) {
+
+                /*
+                 * Normales Absenden verhindern
+                 */
+                event.preventDefault();
+
+
+                /* =============================================
+                   Werte auslesen
+                   ============================================= */
+
+                const title =
+                    document
+                        .getElementById('meetingTitle')
+                        .value
+                        .trim();
+
+
+                const meetingDate =
+                    document
+                        .getElementById('meetingDate')
+                        .value;
+
+
+                const content =
+                    quill.root.innerHTML;
+
+
+                /* =============================================
+                   Eingaben prüfen
+                   ============================================= */
+
+                if (!title) {
+
+                    alert(
+                        'Bitte einen Titel eingeben.'
+                    );
+
+                    return;
+                }
+
+
+                if (!meetingDate) {
+
+                    alert(
+                        'Bitte ein Datum auswählen.'
+                    );
+
+                    return;
+                }
+
+
+                /* =============================================
+                   Button deaktivieren
+                   ============================================= */
+
+                const submitButton =
+                    document.getElementById(
+                        'meetingSubmit'
+                    );
+
+
+                submitButton.disabled = true;
+
+                submitButton.textContent =
+                    'Wird gespeichert...';
+
+
+                try {
+
+                    /* =========================================
+                       POST REQUEST
+                       ========================================= */
+
+                    const response =
+                        await fetch(
+                            '/meeting/create',
+                            {
+                                method: 'POST',
+
+                                headers: {
+                                    'Content-Type':
+                                        'application/json'
+                                },
+
+                                body: JSON.stringify({
+
+                                    title:
+                                        title,
+
+                                    meeting_date:
+                                        meetingDate,
+
+                                    content:
+                                        content
+
+                                })
+                            }
+                        );
+
+
+                    /* =========================================
+                       SERVER ANTWORT
+                       ========================================= */
+
+                    const result =
+                        await response.json();
+
+
+                    /* =========================================
+                       FEHLER
+                       ========================================= */
+
+                    if (
+                        !response.ok ||
+                        !result.success
+                    ) {
+
+                        throw new Error(
+                            result.message ||
+                            'Fehler beim Speichern.'
+                        );
+
+                    }
+
+
+                    /* =========================================
+                       ERFOLGREICH
+                       ========================================= */
+
+                    alert(
+                        'Besprechung wurde erfolgreich erstellt.'
+                    );
+
+
+                    /*
+                     * Hier können wir später beispielsweise
+                     * auf die Detailseite weiterleiten:
+                     *
+                     * window.location.href =
+                     *     '/meetings/' + result.meeting_id;
+                     */
+
+
+                } catch (error) {
+
+                    console.error(
+                        'Fehler:',
+                        error
+                    );
+
+
+                    alert(
+                        'Fehler beim Speichern: ' +
+                        error.message
+                    );
+
+
+                } finally {
+
+                    /* =========================================
+                       BUTTON WIEDER AKTIVIEREN
+                       ========================================= */
+
+                    submitButton.disabled = false;
+
+                    submitButton.textContent =
+                        'Besprechung erstellen';
+
+                }
+
+            }
+        );
+
+</script>
+
+{% endblock %}
+

@@ -1,0 +1,133 @@
+{% extends "dashboard.html" %}
+{% block title %}{{ document.title }}{% endblock %}
+{% block content %}
+<div class="card document-card mb-4">
+    <div class="card-body">
+        <div class="document-header">
+            <div>
+                <span class="document-icon">
+                    📄
+                </span>
+                <span class="document-title">
+                    {{ document.title }}
+                </span>
+            </div>
+            <div class="document-meta">
+                {% if document.created_at %}
+                    <span>
+                        Erstellt am
+                        {{ document.created_at.strftime("%d.%m.%Y %H:%M") }}
+                    </span>
+                {% endif %}
+                {% if document.updated_at %}
+                    <span>
+                        Zuletzt geändert am
+                        {{ document.updated_at.strftime("%d.%m.%Y %H:%M") }}
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="document-content">
+            {{ document.content | safe }}
+        </div>
+        <div class="document-actions">
+            <div class="document-actions-left">
+                <a
+                    href="{{ url_for('document.view') }}"
+                    class="btn btn-outline-light"
+                >
+                    ← Zurück
+                </a>
+                {% if session.get("can_manage_roles") %}
+                    <a
+                        href="{{ url_for(
+                            'document.edit',
+                            document_id=document.id
+                        ) }}"
+                        class="btn btn-primary"
+                    >
+                        ✏️ Bearbeiten
+                    </a>
+                    <button
+                    type="button"
+                    class="btn btn-danger"
+                    onclick="deleteDocument()"
+                >
+                    🗑️ Löschen
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    async function deleteDocument() {
+
+        const confirmed = confirm(
+            "Möchtest du dieses Dokument wirklich löschen?\n\n" +
+            "Diese Aktion kann nicht rückgängig gemacht werden."
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+
+        try {
+
+            const response = await fetch(
+                "{{ url_for(
+                    'document.delete',
+                    document_id=document.id
+                ) }}",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                }
+            );
+
+
+            const result = await response.json();
+
+
+            if (!response.ok || !result.success) {
+
+                throw new Error(
+                    result.message ||
+                    "Dokument konnte nicht gelöscht werden."
+                );
+
+            }
+
+
+            alert(
+                "Dokument wurde erfolgreich gelöscht."
+            );
+
+
+            window.location.href =
+                "{{ url_for('document.view') }}";
+
+
+        } catch (error) {
+
+            console.error(
+                "Fehler beim Löschen:",
+                error
+            );
+
+
+            alert(
+                "Fehler beim Löschen: " +
+                error.message
+            );
+
+        }
+
+    }
+
+</script>
+{% endblock %}

@@ -1,0 +1,1972 @@
+{% extends "dashboard.html" %}
+
+{% block title %}
+    Marktverwaltung
+{% endblock %}
+
+
+{% block style_header %}
+
+<style>
+
+    /* ==========================================================
+       MARKET ADMIN
+       ========================================================== */
+
+    .market-admin {
+        width: 100%;
+        padding: 25px;
+        box-sizing: border-box;
+    }
+
+
+    /* ==========================================================
+       HEADER
+       ========================================================== */
+
+    .market-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+
+        border-bottom: 1px solid #444;
+    }
+
+    .market-header h1 {
+        margin: 0;
+
+        color: #fff;
+
+        font-size: 28px;
+        font-weight: 700;
+    }
+
+    .market-header p {
+        margin: 5px 0 0;
+
+        color: #8e9297;
+
+        font-size: 14px;
+    }
+
+
+    /* ==========================================================
+       BUTTONS
+       ========================================================== */
+
+    .market-button {
+        border: 0;
+        border-radius: 6px;
+
+        padding: 10px 16px;
+
+        font-size: 14px;
+        font-weight: 600;
+
+        cursor: pointer;
+
+        transition:
+            background 0.15s ease,
+            transform 0.15s ease,
+            opacity 0.15s ease;
+    }
+
+    .market-button:hover {
+        transform: translateY(-1px);
+        opacity: .95;
+    }
+
+    .market-button.primary {
+        background: #992d22;
+        color: #fff;
+    }
+
+    .market-button.primary:hover {
+        background: #b4372a;
+    }
+
+    .market-button.secondary {
+        background: #444;
+        color: #fff;
+    }
+
+    .market-button.secondary:hover {
+        background: #555;
+    }
+
+    .market-button.danger {
+        background: #dc3545;
+        color: #fff;
+    }
+
+    .market-button.danger:hover {
+        background: #bb2d3b;
+    }
+
+
+    /* ==========================================================
+       CREATE PANEL
+       ========================================================== */
+
+    .market-create {
+        display: none;
+
+        margin-bottom: 25px;
+        padding: 22px;
+
+        border-radius: 8px;
+
+        background: #333;
+
+        border: 1px solid #444;
+
+        box-shadow:
+            0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .market-create.active {
+        display: block;
+    }
+
+    .market-create h2 {
+        margin: 0 0 20px;
+
+        color: #fff;
+
+        font-size: 20px;
+    }
+
+
+    /* ==========================================================
+       FORM
+       ========================================================== */
+
+    .market-form-grid {
+        display: grid;
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        gap: 15px;
+    }
+
+    .market-form-group {
+        display: flex;
+
+        flex-direction: column;
+
+        gap: 7px;
+    }
+
+    .market-form-group.full {
+        grid-column: 1 / -1;
+    }
+
+    .market-form-group label {
+        color: #b9bbbe;
+
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .market-form-group input {
+        width: 100%;
+
+        box-sizing: border-box;
+
+        padding: 10px 12px;
+
+        border-radius: 6px;
+
+        border: 1px solid #666;
+
+        background: #444;
+
+        color: #fff;
+
+        outline: none;
+
+        transition:
+            border-color 0.15s ease,
+            box-shadow 0.15s ease;
+    }
+
+    .market-form-group input::placeholder {
+        color: #888;
+    }
+
+    .market-form-group input:focus {
+        background: #444;
+
+        color: #fff;
+
+        border-color: #992d22;
+
+        box-shadow:
+            0 0 0 0.2rem rgba(
+                153,
+                45,
+                34,
+                0.2
+            );
+    }
+
+
+    /* ==========================================================
+       CHECKBOX
+       ========================================================== */
+
+    .market-checkbox {
+        display: flex;
+
+        align-items: center;
+
+        gap: 10px;
+
+        margin-top: 10px;
+
+        cursor: pointer;
+
+        user-select: none;
+
+        color: #ddd !important;
+    }
+
+    .market-checkbox input {
+        width: 18px;
+        height: 18px;
+
+        cursor: pointer;
+
+        accent-color: #992d22;
+    }
+
+
+    /* ==========================================================
+       FORM ACTIONS
+       ========================================================== */
+
+    .market-form-actions {
+        display: flex;
+
+        justify-content: flex-end;
+
+        gap: 10px;
+
+        margin-top: 20px;
+
+        padding-top: 15px;
+
+        border-top: 1px solid #444;
+    }
+
+
+    /* ==========================================================
+       TABLE
+       ========================================================== */
+
+    .market-table-wrapper {
+        width: 100%;
+
+        overflow-x: auto;
+
+        border-radius: 8px;
+
+        border: 1px solid #444;
+
+        background: #333;
+
+        box-shadow:
+            0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .market-table-wrapper::-webkit-scrollbar {
+        height: 8px;
+    }
+
+    .market-table-wrapper::-webkit-scrollbar-track {
+        background: #2b2d31;
+    }
+
+    .market-table-wrapper::-webkit-scrollbar-thumb {
+        background: #555;
+        border-radius: 8px;
+    }
+
+    .market-table {
+        width: 100%;
+
+        border-collapse: collapse;
+
+        min-width: 950px;
+
+        color: #fff;
+    }
+
+    .market-table th {
+        text-align: left;
+
+        padding: 14px 15px;
+
+        color: #8e9297;
+
+        font-size: 11px;
+
+        text-transform: uppercase;
+
+        letter-spacing: .06em;
+
+        background: #2b2d31;
+
+        border-bottom: 1px solid #444;
+    }
+
+    .market-table td {
+        padding: 14px 15px;
+
+        color: #ddd;
+
+        border-top: 1px solid #444;
+
+        vertical-align: middle;
+    }
+
+    .market-table tbody tr {
+        transition:
+            background 0.15s ease;
+    }
+
+    .market-table tbody tr:hover {
+        background: #383a3f;
+    }
+
+    .market-table tbody tr:hover td {
+        background: transparent;
+    }
+
+
+    /* ==========================================================
+       ITEM NAME
+       ========================================================== */
+
+    .item-name {
+        display: block;
+
+        color: #fff;
+
+        font-weight: 600;
+    }
+
+    .item-internal {
+        display: block;
+
+        margin-top: 3px;
+
+        color: #8e9297;
+
+        font-size: 11px;
+
+        font-family:
+            "Cascadia Code",
+            "Fira Code",
+            Consolas,
+            monospace;
+    }
+
+
+    /* ==========================================================
+       EXTERNAL ID
+       ========================================================== */
+
+    .external-id {
+        display: inline-flex;
+
+        padding: 4px 8px;
+
+        border-radius: 5px;
+
+        color: #ddd;
+
+        font-family:
+            "Cascadia Code",
+            "Fira Code",
+            Consolas,
+            monospace;
+
+        font-size: 12px;
+
+        background: #444;
+
+        border: 1px solid #555;
+    }
+
+
+    /* ==========================================================
+       PRICE
+       ========================================================== */
+
+    .price {
+        color: #ddd;
+
+        font-family:
+            "Cascadia Code",
+            "Fira Code",
+            Consolas,
+            monospace;
+
+        font-weight: 600;
+    }
+
+
+    /* ==========================================================
+       ENABLED
+       ========================================================== */
+
+    .status {
+        display: inline-flex;
+
+        align-items: center;
+
+        gap: 7px;
+
+        padding: 5px 9px;
+
+        border-radius: 20px;
+
+        font-size: 12px;
+
+        font-weight: 600;
+    }
+
+    .status-dot {
+        width: 7px;
+        height: 7px;
+
+        border-radius: 50%;
+    }
+
+    .status.enabled {
+        background: rgba(
+            40,
+            167,
+            69,
+            .12
+        );
+
+        color: #5fd17a;
+    }
+
+    .status.enabled .status-dot {
+        background: #28a745;
+
+        box-shadow:
+            0 0 7px rgba(
+                40,
+                167,
+                69,
+                .7
+            );
+    }
+
+    .status.disabled {
+        background: rgba(
+            149,
+            165,
+            166,
+            .12
+        );
+
+        color: #95a5a6;
+    }
+
+    .status.disabled .status-dot {
+        background: #72767d;
+    }
+
+
+    /* ==========================================================
+       ACTIONS
+       ========================================================== */
+
+    .item-actions {
+        display: flex;
+
+        gap: 7px;
+    }
+
+    .action-button {
+        width: 34px;
+        height: 34px;
+
+        display: flex;
+
+        align-items: center;
+        justify-content: center;
+
+        border: 1px solid #555;
+
+        border-radius: 6px;
+
+        background: #444;
+
+        color: #fff;
+
+        cursor: pointer;
+
+        transition:
+            background 0.15s ease,
+            border-color 0.15s ease,
+            transform 0.15s ease;
+    }
+
+    .action-button:hover {
+        background: #555;
+
+        border-color: #666;
+
+        transform: translateY(-1px);
+    }
+
+    .action-button.delete:hover {
+        background: rgba(
+            220,
+            53,
+            69,
+            .18
+        );
+
+        border-color: #dc3545;
+
+        color: #ed4245;
+    }
+
+
+    /* ==========================================================
+       EMPTY
+       ========================================================== */
+
+    .market-empty {
+        padding: 60px 20px;
+
+        text-align: center;
+
+        background: #333;
+
+        border: 1px solid #444;
+
+        border-radius: 8px;
+
+        color: #8e9297;
+    }
+
+    .market-empty-icon {
+        font-size: 40px;
+
+        margin-bottom: 10px;
+    }
+
+    .market-empty h3 {
+        margin: 0 0 5px;
+
+        color: #fff;
+    }
+
+    .market-empty p {
+        margin: 0;
+
+        color: #8e9297;
+
+        font-size: 14px;
+    }
+
+
+    /* ==========================================================
+       TOAST
+       ========================================================== */
+
+    .market-toast {
+        position: fixed;
+
+        right: 25px;
+        bottom: 25px;
+
+        z-index: 9999;
+
+        min-width: 250px;
+
+        padding: 14px 18px;
+
+        border-radius: 8px;
+
+        background: #202225;
+
+        color: #fff;
+
+        border: 1px solid #444;
+
+        box-shadow:
+            0 10px 30px rgba(
+                0,
+                0,
+                0,
+                .35
+            );
+
+        opacity: 0;
+
+        transform: translateY(20px);
+
+        pointer-events: none;
+
+        transition: .25s ease;
+    }
+
+    .market-toast.show {
+        opacity: 1;
+
+        transform: translateY(0);
+    }
+
+    .market-toast.success {
+        border-left: 4px solid #28a745;
+    }
+
+    .market-toast.error {
+        border-left: 4px solid #ed4245;
+    }
+
+
+    /* ==========================================================
+       EDIT MODAL
+       ========================================================== */
+
+    #editModal {
+        backdrop-filter: blur(3px);
+    }
+
+    #editModal > div {
+        background: #333 !important;
+
+        border: 1px solid #444;
+
+        color: #fff;
+
+        box-shadow:
+            0 20px 60px rgba(
+                0,
+                0,
+                0,
+                .6
+            );
+    }
+
+    #editModal h2 {
+        color: #fff;
+    }
+
+
+    /* ==========================================================
+       RESPONSIVE
+       ========================================================== */
+
+    @media (max-width: 800px) {
+
+        .market-admin {
+            padding: 15px;
+        }
+
+        .market-header {
+            flex-direction: column;
+
+            align-items: flex-start;
+        }
+
+        .market-header .market-button {
+            width: 100%;
+        }
+
+        .market-form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .market-form-group.full {
+            grid-column: auto;
+        }
+
+    }
+
+</style>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="market-admin">
+
+
+    <!-- ======================================================
+         HEADER
+         ====================================================== -->
+
+    <div class="market-header">
+
+        <div>
+
+            <h1>
+                Marktverwaltung
+            </h1>
+
+            <p>
+                Verwalte die überwachten Marktitems,
+                Preise und API-Zuordnungen.
+            </p>
+
+        </div>
+
+
+        <button
+            type="button"
+            class="market-button primary"
+            onclick="toggleCreate()"
+        >
+            + Marktitem hinzufügen
+        </button>
+
+    </div>
+
+
+
+    <!-- ======================================================
+         CREATE
+         ====================================================== -->
+
+    <div
+        id="createPanel"
+        class="market-create"
+    >
+
+        <h2>
+            Neues Marktitem
+        </h2>
+
+
+        <form
+            id="createForm"
+            onsubmit="createItem(event)"
+        >
+
+            <div class="market-form-grid">
+
+
+                <div class="market-form-group">
+
+                    <label>
+                        Externe API-ID
+                    </label>
+
+                    <input
+                        type="number"
+                        name="external_id"
+                        placeholder="z.B. 8500"
+                        min="1"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="market-form-group">
+
+                    <label>
+                        Interner Name
+                    </label>
+
+                    <input
+                        type="text"
+                        name="name"
+                        placeholder="z.B. apfel"
+                        maxlength="100"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="market-form-group full">
+
+                    <label>
+                        Anzeigename
+                    </label>
+
+                    <input
+                        type="text"
+                        name="display_name"
+                        placeholder="z.B. Apfel"
+                        maxlength="150"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="market-form-group">
+
+                    <label>
+                        Mindestpreis
+                    </label>
+
+                    <input
+                        type="number"
+                        name="min_price"
+                        placeholder="50"
+                        min="0"
+                        step="0.01"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="market-form-group">
+
+                    <label>
+                        Basispreis
+                    </label>
+
+                    <input
+                        type="number"
+                        name="base_price"
+                        placeholder="150"
+                        min="0"
+                        step="0.01"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="market-form-group">
+
+                    <label>
+                        Maximalpreis
+                    </label>
+
+                    <input
+                        type="number"
+                        name="max_price"
+                        placeholder="300"
+                        min="0"
+                        step="0.01"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="market-form-group">
+
+                    <label>
+                        Status
+                    </label>
+
+                    <label class="market-checkbox">
+
+                        <input
+                            type="checkbox"
+                            name="enabled"
+                            checked
+                        >
+
+                        <span>
+                            Marktitem überwachen
+                        </span>
+
+                    </label>
+
+                </div>
+
+            </div>
+
+
+            <div class="market-form-actions">
+
+                <button
+                    type="button"
+                    class="market-button secondary"
+                    onclick="toggleCreate()"
+                >
+                    Abbrechen
+                </button>
+
+                <button
+                    type="submit"
+                    class="market-button primary"
+                >
+                    Marktitem erstellen
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+
+    <!-- ======================================================
+         TABLE
+         ====================================================== -->
+
+    {% if items %}
+
+    <div class="market-table-wrapper">
+
+        <table class="market-table">
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        API-ID
+                    </th>
+
+                    <th>
+                        Marktitem
+                    </th>
+
+                    <th>
+                        Min
+                    </th>
+
+                    <th>
+                        Base
+                    </th>
+
+                    <th>
+                        Max
+                    </th>
+
+                    <th>
+                        Aktueller Preis
+                    </th>
+
+                    <th>
+                        Status
+                    </th>
+
+                    <th>
+                        Aktionen
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for item in items %}
+
+                <tr
+                    id="item-row-{{ item.id }}"
+                >
+
+                    <td>
+
+                        <span class="external-id">
+                            {{ item.external_id }}
+                        </span>
+
+                    </td>
+
+
+                    <td>
+
+                        <span class="item-name">
+                            {{ item.display_name }}
+                        </span>
+
+                        <span class="item-internal">
+                            {{ item.name }}
+                        </span>
+
+                    </td>
+
+
+                    <td>
+
+                        <span class="price">
+                            {{ "%.2f"|format(item.min_price|float) }}
+                        </span>
+
+                    </td>
+
+
+                    <td>
+
+                        <span class="price">
+                            {{ "%.2f"|format(item.base_price|float) }}
+                        </span>
+
+                    </td>
+
+
+                    <td>
+
+                        <span class="price">
+                            {{ "%.2f"|format(item.max_price|float) }}
+                        </span>
+
+                    </td>
+
+
+                    <td>
+
+                        {% set latest = item.price_history[-1] if item.price_history else none %}
+
+                        {% if latest %}
+
+                            <span class="price">
+                                {{ "%.2f"|format(latest.price|float) }}
+                            </span>
+
+                        {% else %}
+
+                            <span class="price">
+                                {{ "%.2f"|format(item.base_price|float) }}
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <td>
+
+                        {% if item.enabled %}
+
+                        <span class="status enabled">
+
+                            <span class="status-dot"></span>
+
+                            Aktiv
+
+                        </span>
+
+                        {% else %}
+
+                        <span class="status disabled">
+
+                            <span class="status-dot"></span>
+
+                            Deaktiviert
+
+                        </span>
+
+                        {% endif %}
+
+                    </td>
+
+
+                    <td>
+
+                        <div class="item-actions">
+
+                            <button
+                                type="button"
+                                class="action-button"
+                                title="Bearbeiten"
+                                onclick='editItem(
+                                    {{ item.id }},
+                                    {{ item.external_id|tojson }},
+                                    {{ item.name|tojson }},
+                                    {{ item.display_name|tojson }},
+                                    {{ item.min_price|float }},
+                                    {{ item.base_price|float }},
+                                    {{ item.max_price|float }},
+                                    {{ item.enabled|tojson }}
+                                )'
+                            >
+                                ✏️
+                            </button>
+
+
+                            <button
+                                type="button"
+                                class="action-button"
+                                title="Aktivieren / Deaktivieren"
+                                onclick="toggleItem(
+                                    {{ item.id }},
+                                    {{ item.enabled|tojson }}
+                                )"
+                            >
+                                {% if item.enabled %}
+                                    ⏸️
+                                {% else %}
+                                    ▶️
+                                {% endif %}
+                            </button>
+
+
+                            <button
+                                type="button"
+                                class="action-button delete"
+                                title="Löschen"
+                                onclick="deleteItem(
+                                    {{ item.id }},
+                                    {{ item.display_name|tojson }}
+                                )"
+                            >
+                                🗑️
+                            </button>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    {% else %}
+
+    <div class="market-empty">
+
+        <div class="market-empty-icon">
+            📈
+        </div>
+
+        <h3>
+            Noch keine Marktitems
+        </h3>
+
+        <p>
+            Lege ein Marktitem an, um mit der
+            Preisüberwachung zu beginnen.
+        </p>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+
+
+<!-- ==========================================================
+     TOAST
+     ========================================================== -->
+
+<div
+    id="marketToast"
+    class="market-toast"
+></div>
+
+
+
+<!-- ==========================================================
+     EDIT MODAL
+     ========================================================== -->
+
+<div
+    id="editModal"
+    style="
+        display:none;
+        position:fixed;
+        inset:0;
+        z-index:9998;
+        background:rgba(0,0,0,.65);
+        align-items:center;
+        justify-content:center;
+        padding:20px;
+    "
+>
+
+    <div
+        style="
+            width:100%;
+            max-width:600px;
+            padding:25px;
+            border-radius:8px;
+            background:#333;
+            border:1px solid #444;
+            box-shadow:0 20px 60px rgba(0,0,0,.6);
+        "
+    >
+
+        <h2 style="
+            margin-top:0;
+            color:#fff;
+        ">
+            Marktitem bearbeiten
+        </h2>
+
+
+        <form
+            id="editForm"
+            onsubmit="saveEdit(event)"
+        >
+
+            <input
+                type="hidden"
+                id="editId"
+            >
+
+
+            <div class="market-form-grid">
+
+
+                <div class="market-form-group">
+
+                    <label>
+                        Externe API-ID
+                    </label>
+
+                    <input
+                        type="number"
+                        id="editExternalId"
+                        min="1"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="market-form-group">
+
+                    <label>
+                        Interner Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="editName"
+                        maxlength="100"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="market-form-group full">
+
+                    <label>
+                        Anzeigename
+                    </label>
+
+                    <input
+                        type="text"
+                        id="editDisplayName"
+                        maxlength="150"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="market-form-group">
+
+                    <label>
+                        Mindestpreis
+                    </label>
+
+                    <input
+                        type="number"
+                        id="editMinPrice"
+                        min="0"
+                        step="0.01"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="market-form-group">
+
+                    <label>
+                        Basispreis
+                    </label>
+
+                    <input
+                        type="number"
+                        id="editBasePrice"
+                        min="0"
+                        step="0.01"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="market-form-group">
+
+                    <label>
+                        Maximalpreis
+                    </label>
+
+                    <input
+                        type="number"
+                        id="editMaxPrice"
+                        min="0"
+                        step="0.01"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="market-form-group">
+
+                    <label>
+                        Status
+                    </label>
+
+                    <label class="market-checkbox">
+
+                        <input
+                            type="checkbox"
+                            id="editEnabled"
+                        >
+
+                        <span>
+                            Marktitem überwachen
+                        </span>
+
+                    </label>
+
+                </div>
+
+            </div>
+
+
+            <div class="market-form-actions">
+
+                <button
+                    type="button"
+                    class="market-button secondary"
+                    onclick="closeEdit()"
+                >
+                    Abbrechen
+                </button>
+
+                <button
+                    type="submit"
+                    class="market-button primary"
+                >
+                    Änderungen speichern
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+
+<script>
+
+    /* ==========================================================
+       TOAST
+       ========================================================== */
+
+    function showToast(
+        message,
+        type = "success"
+    ) {
+
+        const toast =
+            document.getElementById(
+                "marketToast"
+            );
+
+        toast.textContent =
+            message;
+
+        toast.className =
+            "market-toast "
+            + type;
+
+        setTimeout(() => {
+
+            toast.classList.add(
+                "show"
+            );
+
+        }, 10);
+
+        setTimeout(() => {
+
+            toast.classList.remove(
+                "show"
+            );
+
+        }, 3000);
+
+    }
+
+
+    /* ==========================================================
+       CREATE PANEL
+       ========================================================== */
+
+    function toggleCreate() {
+
+        const panel =
+            document.getElementById(
+                "createPanel"
+            );
+
+        panel.classList.toggle(
+            "active"
+        );
+
+    }
+
+
+    /* ==========================================================
+       CREATE ITEM
+       ========================================================== */
+
+    async function createItem(
+        event
+    ) {
+
+        event.preventDefault();
+
+        const form =
+            document.getElementById(
+                "createForm"
+            );
+
+        const formData =
+            new FormData(form);
+
+        const payload = {
+
+            external_id:
+                Number(
+                    formData.get(
+                        "external_id"
+                    )
+                ),
+
+            name:
+                formData.get(
+                    "name"
+                ).trim(),
+
+            display_name:
+                formData.get(
+                    "display_name"
+                ).trim(),
+
+            min_price:
+                Number(
+                    formData.get(
+                        "min_price"
+                    )
+                ),
+
+            base_price:
+                Number(
+                    formData.get(
+                        "base_price"
+                    )
+                ),
+
+            max_price:
+                Number(
+                    formData.get(
+                        "max_price"
+                    )
+                ),
+
+            enabled:
+                formData.get(
+                    "enabled"
+                ) === "on"
+
+        };
+
+
+        if (
+            payload.min_price
+            >
+            payload.base_price
+            ||
+            payload.base_price
+            >
+            payload.max_price
+        ) {
+
+            showToast(
+                "Min <= Base <= Max muss gelten.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        try {
+
+            const response =
+                await fetch(
+                    "{{ url_for('market.create_item') }}",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body:
+                            JSON.stringify(
+                                payload
+                            )
+                    }
+                );
+
+
+            const result =
+                await response.json();
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    result.error
+                    ||
+                    "Fehler beim Erstellen"
+                );
+
+            }
+
+
+            showToast(
+                "Marktitem wurde erstellt."
+            );
+
+
+            setTimeout(
+                () => location.reload(),
+                500
+            );
+
+        }
+
+        catch (error) {
+
+            showToast(
+                error.message,
+                "error"
+            );
+
+        }
+
+    }
+
+
+    /* ==========================================================
+       EDIT ITEM
+       ========================================================== */
+
+    function editItem(
+        id,
+        externalId,
+        name,
+        displayName,
+        minPrice,
+        basePrice,
+        maxPrice,
+        enabled
+    ) {
+
+        document.getElementById(
+            "editId"
+        ).value = id;
+
+        document.getElementById(
+            "editExternalId"
+        ).value = externalId;
+
+        document.getElementById(
+            "editName"
+        ).value = name;
+
+        document.getElementById(
+            "editDisplayName"
+        ).value = displayName;
+
+        document.getElementById(
+            "editMinPrice"
+        ).value = minPrice;
+
+        document.getElementById(
+            "editBasePrice"
+        ).value = basePrice;
+
+        document.getElementById(
+            "editMaxPrice"
+        ).value = maxPrice;
+
+        document.getElementById(
+            "editEnabled"
+        ).checked = enabled;
+
+        document.getElementById(
+            "editModal"
+        ).style.display = "flex";
+
+    }
+
+
+    /* ==========================================================
+       CLOSE EDIT
+       ========================================================== */
+
+    function closeEdit() {
+
+        document.getElementById(
+            "editModal"
+        ).style.display = "none";
+
+    }
+
+
+    /* ==========================================================
+       SAVE EDIT
+       ========================================================== */
+
+    async function saveEdit(
+        event
+    ) {
+
+        event.preventDefault();
+
+        const id =
+            document.getElementById(
+                "editId"
+            ).value;
+
+
+        const payload = {
+
+            external_id:
+                Number(
+                    document.getElementById(
+                        "editExternalId"
+                    ).value
+                ),
+
+            name:
+                document.getElementById(
+                    "editName"
+                ).value.trim(),
+
+            display_name:
+                document.getElementById(
+                    "editDisplayName"
+                ).value.trim(),
+
+            min_price:
+                Number(
+                    document.getElementById(
+                        "editMinPrice"
+                    ).value
+                ),
+
+            base_price:
+                Number(
+                    document.getElementById(
+                        "editBasePrice"
+                    ).value
+                ),
+
+            max_price:
+                Number(
+                    document.getElementById(
+                        "editMaxPrice"
+                    ).value
+                ),
+
+            enabled:
+                document.getElementById(
+                    "editEnabled"
+                ).checked
+
+        };
+
+
+        if (
+            payload.min_price
+            >
+            payload.base_price
+            ||
+            payload.base_price
+            >
+            payload.max_price
+        ) {
+
+            showToast(
+                "Min <= Base <= Max muss gelten.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        try {
+
+            const response =
+                await fetch(
+                    `/market/admin/${id}`,
+                    {
+                        method: "PUT",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body:
+                            JSON.stringify(
+                                payload
+                            )
+                    }
+                );
+
+
+            const result =
+                await response.json();
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    result.error
+                    ||
+                    "Fehler beim Speichern"
+                );
+
+            }
+
+
+            showToast(
+                "Änderungen gespeichert."
+            );
+
+
+            setTimeout(
+                () => location.reload(),
+                500
+            );
+
+        }
+
+        catch (error) {
+
+            showToast(
+                error.message,
+                "error"
+            );
+
+        }
+
+    }
+
+
+    /* ==========================================================
+       TOGGLE ITEM
+       ========================================================== */
+
+    async function toggleItem(
+        id,
+        currentState
+    ) {
+
+        try {
+
+            const response =
+                await fetch(
+                    `/market/admin/${id}`,
+                    {
+                        method: "PUT",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body:
+                            JSON.stringify({
+                                enabled:
+                                    !currentState
+                            })
+                    }
+                );
+
+
+            const result =
+                await response.json();
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    result.error
+                    ||
+                    "Fehler beim Ändern des Status"
+                );
+
+            }
+
+
+            showToast(
+                currentState
+                    ? "Marktitem deaktiviert."
+                    : "Marktitem aktiviert."
+            );
+
+
+            setTimeout(
+                () => location.reload(),
+                500
+            );
+
+        }
+
+        catch (error) {
+
+            showToast(
+                error.message,
+                "error"
+            );
+
+        }
+
+    }
+
+
+    /* ==========================================================
+       DELETE ITEM
+       ========================================================== */
+
+    async function deleteItem(
+        id,
+        name
+    ) {
+
+        const confirmed =
+            confirm(
+                `Soll "${name}" wirklich gelöscht werden?\n\n`
+                +
+                "Die zugehörige Preishistorie kann dabei ebenfalls "
+                +
+                "gelöscht werden."
+            );
+
+
+        if (!confirmed) {
+            return;
+        }
+
+
+        try {
+
+            const response =
+                await fetch(
+                    `/market/admin/${id}`,
+                    {
+                        method: "DELETE"
+                    }
+                );
+
+
+            const result =
+                await response.json();
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    result.error
+                    ||
+                    "Fehler beim Löschen"
+                );
+
+            }
+
+
+            const row =
+                document.getElementById(
+                    `item-row-${id}`
+                );
+
+
+            if (row) {
+
+                row.remove();
+
+            }
+
+
+            showToast(
+                "Marktitem wurde gelöscht."
+            );
+
+        }
+
+        catch (error) {
+
+            showToast(
+                error.message,
+                "error"
+            );
+
+        }
+
+    }
+
+
+    /* ==========================================================
+       ESC CLOSE MODAL
+       ========================================================== */
+
+    document.addEventListener(
+        "keydown",
+        function(event) {
+
+            if (
+                event.key === "Escape"
+            ) {
+
+                closeEdit();
+
+            }
+
+        }
+    );
+
+</script>
+
+{% endblock %}

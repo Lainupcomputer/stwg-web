@@ -1,0 +1,157 @@
+{% extends "dashboard.html" %}
+{% block title %}Tickets{% endblock %}
+
+{% block style_header %}
+<style>
+/* Spaltenrahmen */
+.ticket-column {
+    border: 1px solid #555;
+    padding: 15px;
+    border-radius: 5px;
+    background-color: #222;
+    min-height: 200px; /* sichtbar auch ohne Karten */
+    margin-bottom: 1rem;
+}
+
+/* Ticket Karten */
+.card {
+    background-color: #333;
+    color: #fff;
+    margin-bottom: 1rem;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header & Status */
+.ticket-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+.ticket-status {
+    font-weight: bold;
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+.ticket-status.open { background-color: #28a745; }
+.ticket-status.in-progress { background-color: #ffc107; color: #000; }
+.ticket-status.closed { background-color: #dc3545; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-4 ticket-column" id="openTickets">
+            <h4>Offen</h4>
+        </div>
+        <div class="col-md-4 ticket-column" id="inProgressTickets">
+            <h4>Bearbeitung</h4>
+        </div>
+        <div class="col-md-4 ticket-column" id="closedTickets">
+            <h4>Geschlossen</h4>
+        </div>
+    </div>
+</div>
+
+<!-- Modal für Transcript -->
+<div class="modal fade" id="transcriptModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content bg-dark text-white">
+      <div class="modal-header">
+        <h5 class="modal-title">Ticket Transcript</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="transcriptContent" style="white-space: pre-wrap;"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const openDiv = document.getElementById("openTickets");
+const inProgressDiv = document.getElementById("inProgressTickets");
+const closedDiv = document.getElementById("closedTickets");
+
+async function loadTickets() {
+    try {
+        const res = await fetch("/tickets/api");
+        if (!res.ok) throw new Error("Fehler beim Laden der Tickets");
+        const tickets = await res.json();
+
+        renderTickets(tickets);
+    } catch (err) {
+        console.error(err);
+        openDiv.innerHTML = inProgressDiv.innerHTML = closedDiv.innerHTML = "<p>Fehler beim Laden der Tickets.</p>";
+    }
+}
+
+function renderTickets(tickets) {
+    // Spalten leeren
+    openDiv.innerHTML = "<h4>Offen</h4>";
+    inProgressDiv.innerHTML = "<h4>Bearbeitung</h4>";
+    closedDiv.innerHTML = "<h4>Geschlossen</h4>";
+
+    if (tickets.length === 0) {
+        openDiv.innerHTML += "<p>Keine Tickets gefunden.</p>";
+        return;
+    }
+
+    tickets.forEach(ticket => {
+        const card = document.createElement("div");
+        card.className = "card";
+
+        // Status-Klasse (für Farben)
+        const statusClass = ticket.status === "open" ? "open" :
+                            ticket.status === "in-progress" ? "in-progress" :
+                            "closed";
+
+        // Status-Text auf Deutsch
+        let statusText = ticket.status === "open" ? "Offen" :
+                         ticket.status === "in-progress" ? "Bearbeitung" :
+                         "Geschlossen";
+
+        card.innerHTML = `
+            <div class="card-body d-flex flex-column">
+                <div class="ticket-header">
+                    <h5>${ticket.creator_name} </h5><br>
+
+                    <span class="ticket-status ${statusClass}">${statusText}</span>
+                </div>
+                <h6>(ID: ${ticket.creator_id})</h6>
+                <p><strong>Handler:</strong> ${ticket.handler_id || "Keiner"}</p>
+                <p><strong>Beschreibung:</strong> ${ticket.description || "Keine Beschreibung"}</p>
+                <p><strong>Erstellt am:</strong> ${ticket.created_at}</p>
+                ${ticket.closed_at ? `<p><strong>Geschlossen am:</strong> ${ticket.closed_at}</p>` : ""}
+                <button class="btn btn-info btn-sm mt-auto transcript-btn">Transcript anzeigen</button>
+            </div>
+        `;
+
+        // EventListener für Transcript
+        const btn = card.querySelector(".transcript-btn");
+        btn.addEventListener("click", () => {
+            showTranscript(ticket.transcript || "Kein Transcript verfügbar");
+        });
+
+        // In die passende Spalte einfügen
+        if (ticket.status === "open") openDiv.appendChild(card);
+        else if (ticket.status === "in-progress") inProgressDiv.appendChild(card);
+        else closedDiv.appendChild(card);
+    });
+}
+
+function showTranscript(content) {
+    const transcriptDiv = document.getElementById("transcriptContent");
+    transcriptDiv.textContent = content;
+
+    const modal = new bootstrap.Modal(document.getElementById('transcriptModal'));
+    modal.show();
+}
+
+// Initial laden
+loadTickets();
+</script>
+{% endblock %}

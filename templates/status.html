@@ -1,0 +1,879 @@
+{% extends "dashboard.html" %}
+{% block title %}Statusmeldungen{% endblock %}
+{% block style_header %}
+<style>
+
+/* ==========================================================
+   PAGE
+========================================================== */
+
+.status-page {
+
+    max-width: 1000px;
+
+    margin: 0 auto;
+
+}
+
+
+/* ==========================================================
+   HEADER
+========================================================== */
+
+.status-header {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 14px;
+
+    margin-bottom: 22px;
+
+    padding-bottom: 16px;
+
+    border-bottom: 1px solid #2f3136;
+
+}
+
+
+.status-header-icon {
+
+    width: 46px;
+
+    height: 46px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background: rgba(153, 45, 34, 0.2);
+
+    border: 1px solid rgba(153, 45, 34, 0.4);
+
+    border-radius: 11px;
+
+    font-size: 21px;
+
+}
+
+
+.status-header h2 {
+
+    margin: 0;
+
+    color: #ffffff;
+
+    font-size: 22px;
+
+    font-weight: 700;
+
+}
+
+
+.status-header p {
+
+    margin: 3px 0 0;
+
+    color: #8e9297;
+
+    font-size: 13px;
+
+}
+
+
+/* ==========================================================
+   CARD
+========================================================== */
+
+.status-card {
+
+    background: #202225;
+
+    border: 1px solid #2f3136;
+
+    border-radius: 12px;
+
+    overflow: hidden;
+
+    margin-bottom: 18px;
+
+}
+
+
+.status-card-header {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 16px 20px;
+
+    border-bottom: 1px solid #2f3136;
+
+}
+
+
+.status-card-header h5 {
+
+    margin: 0;
+
+    font-size: 16px;
+
+    font-weight: 600;
+
+    color: #ffffff;
+
+}
+
+
+.status-card-body {
+
+    padding: 20px;
+
+}
+
+
+/* ==========================================================
+   FORM
+========================================================== */
+
+.status-form {
+
+    display: flex;
+
+    gap: 10px;
+
+}
+
+
+.status-form .form-control {
+
+    flex: 1;
+
+    min-width: 0;
+
+    background: #2b2d31 !important;
+
+    border: 1px solid #3a3c41 !important;
+
+    color: #ffffff !important;
+
+    border-radius: 8px;
+
+    padding: 9px 11px;
+
+}
+
+
+.status-form .form-control:focus {
+
+    background: #2b2d31 !important;
+
+    border-color: #992d22 !important;
+
+    color: #ffffff !important;
+
+    box-shadow:
+        0 0 0 2px rgba(153, 45, 34, 0.2) !important;
+
+}
+
+
+.status-form .form-control::placeholder {
+
+    color: #72767d;
+
+}
+
+
+/* ==========================================================
+   BUTTONS
+========================================================== */
+
+.btn-stwg {
+
+    background: #992d22;
+
+    border: 1px solid #992d22;
+
+    color: #ffffff;
+
+}
+
+
+.btn-stwg:hover {
+
+    background: #b3372a;
+
+    border-color: #b3372a;
+
+    color: #ffffff;
+
+}
+
+
+.btn-edit {
+
+    background: #2b2d31;
+
+    border: 1px solid #3a3c41;
+
+    color: #ffffff;
+
+}
+
+
+.btn-edit:hover {
+
+    background: #35373c;
+
+    border-color: #4a4c52;
+
+    color: #ffffff;
+
+}
+
+
+.btn-delete {
+
+    background: rgba(237, 66, 69, 0.1);
+
+    border: 1px solid rgba(237, 66, 69, 0.25);
+
+    color: #ed4245;
+
+}
+
+
+.btn-delete:hover {
+
+    background: rgba(237, 66, 69, 0.2);
+
+    color: #ff6b6b;
+
+}
+
+
+/* ==========================================================
+   STATUS LISTE
+========================================================== */
+
+.status-list {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 8px;
+
+}
+
+
+.status-item {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 15px;
+
+    padding: 13px 15px;
+
+    background: #202225;
+
+    border: 1px solid #2f3136;
+
+    border-radius: 9px;
+
+    transition:
+        background 0.18s ease,
+        border-color 0.18s ease,
+        transform 0.18s ease;
+
+}
+
+
+.status-item:hover {
+
+    background: #25272b;
+
+    border-color: #414349;
+
+    transform: translateX(2px);
+
+}
+
+
+.status-message {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    min-width: 0;
+
+    color: #ffffff;
+
+    font-size: 14px;
+
+}
+
+
+.status-icon {
+
+    width: 28px;
+
+    height: 28px;
+
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background: rgba(153, 45, 34, 0.15);
+
+    border-radius: 7px;
+
+    font-size: 13px;
+
+}
+
+
+.status-text {
+
+    overflow-wrap: anywhere;
+
+}
+
+
+.status-actions {
+
+    display: flex;
+
+    gap: 7px;
+
+    flex-shrink: 0;
+
+}
+
+
+.status-actions .btn {
+
+    border-radius: 7px;
+
+    font-size: 12px;
+
+    padding: 6px 10px;
+
+}
+
+
+/* ==========================================================
+   EMPTY
+========================================================== */
+
+.status-empty {
+
+    padding: 35px 20px;
+
+    text-align: center;
+
+    background: #202225;
+
+    border: 1px solid #2f3136;
+
+    border-radius: 10px;
+
+    color: #8e9297;
+
+}
+
+
+.status-empty-icon {
+
+    font-size: 30px;
+
+    margin-bottom: 8px;
+
+}
+
+
+/* ==========================================================
+   MOBILE
+========================================================== */
+
+@media (max-width: 700px) {
+
+    .status-form {
+
+        flex-direction: column;
+
+    }
+
+
+    .status-form .btn {
+
+        width: 100%;
+
+    }
+
+
+    .status-item {
+
+        align-items: flex-start;
+
+        flex-direction: column;
+
+    }
+
+
+    .status-actions {
+
+        width: 100%;
+
+    }
+
+
+    .status-actions .btn {
+
+        flex: 1;
+
+    }
+
+}
+
+</style>
+
+{% endblock %}
+{% block content %}
+<div class="status-page">
+    <div class="status-header">
+        <div class="status-header-icon">
+            📡
+        </div>
+        <div>
+            <h2>
+                Statusmeldungen
+            </h2>
+            <p>
+                Aktuelle Meldungen des STWG-Bot verwalten
+            </p>
+        </div>
+    </div>
+    <div class="status-card">
+        <div class="status-card-header">
+            <span>
+                ➕
+            </span>
+            <h5>
+                Neue Statusmeldung
+            </h5>
+        </div>
+        <div class="status-card-body">
+            <form
+                id="addForm"
+                class="status-form"
+            >
+                <input
+                    id="newMessage"
+                    type="text"
+                    name="message"
+                    class="form-control"
+                    placeholder="Neue Statusmeldung..."
+                    required
+                >
+                <button
+                    class="btn btn-stwg"
+                    type="submit"
+                >
+                    ➕ Hinzufügen
+                </button>
+            </form>
+        </div>
+    </div>
+    <div class="status-card">
+        <div class="status-card-header">
+            <span>
+                📋
+            </span>
+            <h5>
+                Aktuelle Meldungen
+            </h5>
+        </div>
+        <div class="status-card-body">
+            <div
+                id="msgList"
+                class="status-list"
+            >
+                <div class="status-empty">
+                    <div class="status-empty-icon">
+                        📡
+                    </div>
+                    Meldungen werden geladen...
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+const msgList =
+    document.getElementById("msgList");
+
+const addForm =
+    document.getElementById("addForm");
+
+const newMessage =
+    document.getElementById("newMessage");
+
+async function loadMessages() {
+
+    try {
+
+        const res =
+            await fetch(
+                "{{ url_for('status.get_status_messages') }}"
+            );
+
+
+        if (!res.ok) {
+
+            throw new Error(
+                "Fehler beim Laden der Meldungen"
+            );
+
+        }
+
+
+        const data =
+            await res.json();
+
+
+        msgList.innerHTML = "";
+
+
+        if (!data.length) {
+
+            msgList.innerHTML = `
+
+                <div class="status-empty">
+
+                    <div class="status-empty-icon">
+                        📭
+                    </div>
+
+                    Keine Statusmeldungen vorhanden
+
+                </div>
+
+            `;
+
+            return;
+
+        }
+
+
+        data.forEach(msg => {
+
+            const item =
+                document.createElement("div");
+
+
+            item.className =
+                "status-item";
+
+
+            const message =
+                document.createElement("div");
+
+
+            message.className =
+                "status-message";
+
+
+            message.innerHTML = `
+
+                <span class="status-icon">
+                    📡
+                </span>
+
+                <span class="status-text"></span>
+
+            `;
+
+
+            message.querySelector(
+                ".status-text"
+            ).textContent =
+                msg.message;
+
+
+            const actions =
+                document.createElement("div");
+
+
+            actions.className =
+                "status-actions";
+
+
+            const editBtn =
+                document.createElement("button");
+
+
+            editBtn.className =
+                "btn btn-edit";
+
+
+            editBtn.textContent =
+                "✏️ Bearbeiten";
+
+
+            editBtn.addEventListener(
+                "click",
+                () => editMsg(
+                    msg.id,
+                    msg.message
+                )
+            );
+
+
+            const deleteBtn =
+                document.createElement("button");
+
+
+            deleteBtn.className =
+                "btn btn-delete";
+
+
+            deleteBtn.textContent =
+                "🗑️ Löschen";
+
+
+            deleteBtn.addEventListener(
+                "click",
+                () => deleteMsg(msg.id)
+            );
+
+
+            actions.appendChild(editBtn);
+
+            actions.appendChild(deleteBtn);
+
+
+            item.appendChild(message);
+
+            item.appendChild(actions);
+
+
+            msgList.appendChild(item);
+
+        });
+
+
+    } catch (err) {
+
+        console.error(err);
+
+
+        msgList.innerHTML = `
+
+            <div class="status-empty">
+
+                <div class="status-empty-icon">
+                    ⚠️
+                </div>
+
+                Fehler beim Laden der Statusmeldungen
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+addForm.addEventListener(
+    "submit",
+    async (e) => {
+
+        e.preventDefault();
+
+
+        const message =
+            newMessage.value.trim();
+
+
+        if (!message) {
+
+            return;
+
+        }
+
+
+        try {
+
+            const res =
+                await fetch(
+                    "{{ url_for('status.create_status_message') }}",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body:
+                            JSON.stringify({
+                                message: message
+                            })
+                    }
+                );
+
+
+            if (!res.ok) {
+
+                throw new Error(
+                    "Fehler beim Erstellen"
+                );
+
+            }
+
+
+            newMessage.value = "";
+
+
+            loadMessages();
+
+
+        } catch (err) {
+
+            console.error(err);
+
+        }
+
+    }
+);
+
+
+async function editMsg(id, oldText) {
+
+    const neu =
+        prompt(
+            "Neue Statusmeldung eingeben:",
+            oldText
+        );
+
+
+    if (!neu || !neu.trim()) {
+
+        return;
+
+    }
+
+
+    try {
+
+        const res =
+            await fetch(
+                `/status/${id}`,
+                {
+                    method: "PUT",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify({
+                            message: neu.trim()
+                        })
+                }
+            );
+
+
+        if (!res.ok) {
+
+            throw new Error(
+                "Fehler beim Bearbeiten"
+            );
+
+        }
+
+
+        loadMessages();
+
+
+    } catch (err) {
+
+        console.error(err);
+
+    }
+
+}
+
+
+async function deleteMsg(id) {
+
+    if (
+        !confirm(
+            "Soll diese Statusmeldung wirklich gelöscht werden?"
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    try {
+
+        const res =
+            await fetch(
+                `/status/${id}`,
+                {
+                    method: "DELETE"
+                }
+            );
+
+
+        if (!res.ok) {
+
+            throw new Error(
+                "Fehler beim Löschen"
+            );
+
+        }
+
+
+        loadMessages();
+
+
+    } catch (err) {
+
+        console.error(err);
+
+    }
+
+}
+
+
+loadMessages();
+
+</script>
+{% endblock %}

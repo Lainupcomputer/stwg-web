@@ -1,0 +1,3755 @@
+{% extends "dashboard.html" %}
+
+{% block title %}
+    Wespenflug
+{% endblock %}
+
+{% block style_header %}
+<style>
+
+    /* ==========================================================
+       LEADERBOARD BUTTON
+       ========================================================== */
+
+    .leaderboard-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+
+        min-width: 135px;
+        padding: 8px 14px;
+
+        background: #2b2d31;
+        border: 1px solid #444;
+        border-radius: 9px;
+
+        color: #ffffff;
+        text-decoration: none;
+
+        font-size: 14px;
+        font-weight: 600;
+
+        transition:
+            background 0.18s ease,
+            transform 0.18s ease;
+    }
+
+    .leaderboard-button:hover {
+        background: #36393e;
+        color: #ffffff;
+        text-decoration: none;
+        transform: translateY(-1px);
+    }
+
+
+    /* ==========================================================
+       GAME
+       ========================================================== */
+
+    .game-wrapper {
+        width: 100%;
+        max-width: 1100px;
+        margin: 0 auto;
+    }
+
+    .game-card {
+        background: #202225;
+        border: 1px solid #111214;
+        border-radius: 14px;
+        padding: 20px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+    }
+
+
+    /* ==========================================================
+       HEADER
+       ========================================================== */
+
+    .game-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 15px;
+        flex-wrap: wrap;
+    }
+
+    .game-title {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 700;
+    }
+
+    .game-subtitle {
+        margin-top: 4px;
+        color: #8e9297;
+        font-size: 13px;
+    }
+
+    .game-stats {
+        display: flex;
+        gap: 10px;
+    }
+
+    .stat-box {
+        min-width: 100px;
+        padding: 8px 14px;
+        background: #2b2d31;
+        border-radius: 9px;
+        text-align: center;
+    }
+
+    .stat-label {
+        display: block;
+        color: #8e9297;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+    }
+
+    .stat-value {
+        display: block;
+        margin-top: 2px;
+        font-size: 20px;
+        font-weight: 700;
+    }
+
+
+    /* ==========================================================
+       CANVAS
+       ========================================================== */
+
+    .game-container {
+        position: relative;
+        width: 100%;
+        max-width: 1000px;
+        margin: 0 auto;
+        overflow: hidden;
+
+        border-radius: 12px;
+        background: #36393e;
+        border: 1px solid #111214;
+
+        cursor: pointer;
+        user-select: none;
+        -webkit-user-select: none;
+        touch-action: none;
+
+        contain: layout paint;
+    }
+
+    #gameCanvas {
+        display: block;
+        width: 100%;
+        height: auto;
+        aspect-ratio: 16 / 9;
+
+        image-rendering: auto;
+    }
+
+
+    /* ==========================================================
+       OVERLAY
+       ========================================================== */
+
+    .game-overlay {
+        position: absolute;
+        inset: 0;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        background: rgba(32, 34, 37, 0.72);
+
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+
+        transition: opacity 0.2s ease;
+    }
+
+    .game-overlay.hidden {
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .overlay-box {
+        width: min(90%, 400px);
+        padding: 28px;
+
+        background: #202225;
+        border: 1px solid #111214;
+        border-radius: 14px;
+
+        text-align: center;
+
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4);
+    }
+
+    .overlay-icon {
+        font-size: 55px;
+        margin-bottom: 10px;
+    }
+
+    .overlay-title {
+        font-size: 26px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .overlay-text {
+        color: #b9bbbe;
+        font-size: 14px;
+        line-height: 1.5;
+        margin-bottom: 20px;
+    }
+
+    .overlay-score {
+        font-size: 18px;
+        margin-bottom: 18px;
+    }
+
+
+    /* ==========================================================
+       BUTTONS
+       ========================================================== */
+
+    .game-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 15px;
+    }
+
+    .game-button {
+        border: 0;
+        border-radius: 8px;
+        padding: 9px 18px;
+
+        font-size: 14px;
+        font-weight: 600;
+
+        color: #ffffff;
+        background: #992d22;
+
+        transition:
+            background 0.18s ease,
+            transform 0.18s ease;
+    }
+
+    .game-button:hover {
+        background: #b6382b;
+        transform: translateY(-1px);
+    }
+
+    .game-button.secondary {
+        background: #2b2d31;
+        color: #b9bbbe;
+    }
+
+    .game-button.secondary:hover {
+        background: #36393e;
+        color: #ffffff;
+    }
+
+
+    /* ==========================================================
+       CONTROLS
+       ========================================================== */
+
+    .controls {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+
+        gap: 20px;
+        margin-top: 15px;
+
+        color: #8e9297;
+        font-size: 13px;
+        text-align: center;
+    }
+
+    .control {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .key {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+
+        min-width: 28px;
+        height: 25px;
+        padding: 0 7px;
+
+        background: #2b2d31;
+        border: 1px solid #444;
+        border-radius: 5px;
+
+        color: #ffffff;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+
+    /* ==========================================================
+       MOBILE
+       ========================================================== */
+
+    @media (max-width: 700px) {
+
+        .game-card {
+            padding: 12px;
+        }
+
+        .game-title {
+            font-size: 20px;
+        }
+
+        .game-stats {
+            width: 100%;
+        }
+
+        .stat-box {
+            flex: 1;
+        }
+
+        .controls {
+            gap: 10px;
+        }
+    }
+
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="game-wrapper">
+
+    <div class="game-card">
+
+        <div class="game-header">
+
+            <div>
+
+                <h1 class="game-title">
+                    🐝 Wespenflug
+                </h1>
+
+                <div class="game-subtitle">
+                    Flieg so weit du kannst und vermeide die Hindernisse.
+                </div>
+
+            </div>
+
+
+            <div class="game-stats">
+
+                <div class="stat-box">
+
+                    <a
+                        href="/wasp/leaderboard"
+                        class="leaderboard-button"
+                    >
+                        🏆 Leaderboard
+                    </a>
+
+                </div>
+
+
+                <div class="stat-box">
+
+                    <span class="stat-label">
+                        Punkte
+                    </span>
+
+                    <span
+                        class="stat-value"
+                        id="scoreDisplay"
+                    >
+                        0
+                    </span>
+
+                </div>
+
+
+                <div class="stat-box">
+
+                    <span class="stat-label">
+                        Highscore
+                    </span>
+
+                    <span
+                        class="stat-value"
+                        id="highscoreDisplay"
+                    >
+                        0
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ======================================================
+             GAME
+             ====================================================== -->
+
+        <div
+            class="game-container"
+            id="gameContainer"
+        >
+
+            <canvas
+                id="gameCanvas"
+                width="1000"
+                height="562"
+            ></canvas>
+
+
+            <div
+                class="game-overlay"
+                id="gameOverlay"
+            >
+
+                <div class="overlay-box">
+
+                    <div
+                        class="overlay-icon"
+                        id="overlayIcon"
+                    >
+                        🐝
+                    </div>
+
+
+                    <div
+                        class="overlay-title"
+                        id="overlayTitle"
+                    >
+                        Wespenflug
+                    </div>
+
+
+                    <div
+                        class="overlay-text"
+                        id="overlayText"
+                    >
+                        Hilf der STWG-Wespe durch die Hindernisse.
+                        <br>
+                        Nicht abstürzen!
+                    </div>
+
+
+                    <div
+                        class="overlay-score"
+                        id="overlayScore"
+                    >
+                        Highscore: <strong>0</strong>
+                    </div>
+
+
+                    <button
+                        class="game-button"
+                        id="startButton"
+                    >
+                        🐝 Starten
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ======================================================
+             BUTTONS
+             ====================================================== -->
+
+        <div class="game-buttons">
+
+            <button
+                class="game-button"
+                id="restartButton"
+            >
+                🔄 Neustart
+            </button>
+
+
+            <button
+                class="game-button secondary"
+                id="pauseButton"
+            >
+                ⏸ Pause
+            </button>
+
+        </div>
+
+
+        <!-- ======================================================
+             CONTROLS
+             ====================================================== -->
+
+        <div class="controls">
+
+            <div class="control">
+                <span class="key">SPACE</span>
+                <span>Fliegen</span>
+            </div>
+
+            <div class="control">
+                <span class="key">↑</span>
+                <span>Fliegen</span>
+            </div>
+
+            <div class="control">
+                <span class="key">P</span>
+                <span>Pause</span>
+            </div>
+
+            <div class="control">
+                <span class="key">R</span>
+                <span>Neustart</span>
+            </div>
+
+            <div class="control">
+                🖱️
+                <span>Klick / Touch</span>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+(() => {
+
+    "use strict";
+
+
+    /* ==========================================================
+       CANVAS
+       ========================================================== */
+
+    const canvas =
+        document.getElementById("gameCanvas");
+
+    const ctx =
+        canvas.getContext(
+            "2d",
+            {
+                alpha: false,
+                desynchronized: true
+            }
+        );
+
+
+    const gameContainer =
+        document.getElementById("gameContainer");
+
+
+    /* ==========================================================
+       UI
+       ========================================================== */
+
+    const scoreDisplay =
+        document.getElementById("scoreDisplay");
+
+    const highscoreDisplay =
+        document.getElementById("highscoreDisplay");
+
+    const overlay =
+        document.getElementById("gameOverlay");
+
+    const overlayIcon =
+        document.getElementById("overlayIcon");
+
+    const overlayTitle =
+        document.getElementById("overlayTitle");
+
+    const overlayText =
+        document.getElementById("overlayText");
+
+    const overlayScore =
+        document.getElementById("overlayScore");
+
+    const startButton =
+        document.getElementById("startButton");
+
+    const restartButton =
+        document.getElementById("restartButton");
+
+    const pauseButton =
+        document.getElementById("pauseButton");
+
+
+    /* ==========================================================
+       SOUND SYSTEM
+       ========================================================== */
+
+    let audioContext = null;
+
+    let fallingOscillator = null;
+    let fallingGain = null;
+
+    let fallingSoundActive = false;
+
+    let fallingTime = 0;
+
+
+    /*
+     * Audio Context aktivieren.
+     *
+     * Browser erlauben Audio normalerweise erst nachdem
+     * der Benutzer einmal geklickt / gedrückt hat.
+     */
+
+    function initAudio() {
+
+        if (!audioContext) {
+
+            const AudioContext =
+                window.AudioContext ||
+                window.webkitAudioContext;
+
+            if (!AudioContext) {
+                return;
+            }
+
+            audioContext =
+                new AudioContext();
+
+        }
+
+
+        if (
+            audioContext.state ===
+            "suspended"
+        ) {
+
+            audioContext.resume();
+
+        }
+
+    }
+
+
+    /*
+     * Hilfsfunktion für kurze Sounds.
+     */
+
+    function playTone(
+        frequency,
+        duration,
+        type = "sine",
+        volume = 0.08,
+        endFrequency = null
+    ) {
+
+        initAudio();
+
+
+        if (!audioContext) {
+            return;
+        }
+
+
+        const now =
+            audioContext.currentTime;
+
+
+        const oscillator =
+            audioContext.createOscillator();
+
+        const gain =
+            audioContext.createGain();
+
+
+        oscillator.type =
+            type;
+
+
+        oscillator.frequency.setValueAtTime(
+            frequency,
+            now
+        );
+
+
+        if (
+            endFrequency !== null
+        ) {
+
+            oscillator.frequency.exponentialRampToValueAtTime(
+                Math.max(1, endFrequency),
+                now + duration
+            );
+
+        }
+
+
+        gain.gain.setValueAtTime(
+            0.0001,
+            now
+        );
+
+
+        gain.gain.exponentialRampToValueAtTime(
+            volume,
+            now + 0.008
+        );
+
+
+        gain.gain.exponentialRampToValueAtTime(
+            0.0001,
+            now + duration
+        );
+
+
+        oscillator.connect(
+            gain
+        );
+
+
+        gain.connect(
+            audioContext.destination
+        );
+
+
+        oscillator.start(
+            now
+        );
+
+
+        oscillator.stop(
+            now + duration + 0.02
+        );
+
+    }
+
+
+    /* ==========================================================
+       SCORE SOUND
+       ========================================================== */
+
+    function playScoreSound() {
+
+        initAudio();
+
+
+        if (!audioContext) {
+            return;
+        }
+
+
+        /*
+         * Zwei kurze Töne geben einen kleinen
+         * "Score geschafft"-Charakter.
+         */
+
+        playTone(
+            880,
+            0.08,
+            "sine",
+            0.055,
+            1180
+        );
+
+
+        setTimeout(() => {
+
+            playTone(
+                1320,
+                0.10,
+                "sine",
+                0.045,
+                1550
+            );
+
+        }, 45);
+
+    }
+
+
+    /* ==========================================================
+       FALL-SUMMEN STARTEN
+       ========================================================== */
+
+    function startFallingSound() {
+
+        if (
+            fallingSoundActive
+        ) {
+
+            return;
+
+        }
+
+
+        initAudio();
+
+
+        if (!audioContext) {
+            return;
+        }
+
+
+        fallingOscillator =
+            audioContext.createOscillator();
+
+        fallingGain =
+            audioContext.createGain();
+
+
+        fallingOscillator.type =
+            "sawtooth";
+
+
+        fallingOscillator.frequency.value =
+            75;
+
+
+        fallingGain.gain.value =
+            0.0001;
+
+
+        fallingOscillator.connect(
+            fallingGain
+        );
+
+
+        fallingGain.connect(
+            audioContext.destination
+        );
+
+
+        fallingOscillator.start();
+
+
+        fallingSoundActive =
+            true;
+
+    }
+
+
+    /* ==========================================================
+       FALL-SUMMEN AKTUALISIEREN
+       ========================================================== */
+
+    function updateFallingSound(
+        delta
+    ) {
+
+        if (
+            !gameRunning ||
+            gamePaused
+        ) {
+
+            stopFallingSound();
+
+            return;
+
+        }
+
+
+        /*
+         * Nur wenn die Wespe tatsächlich
+         * deutlich nach unten fällt.
+         */
+
+        const fallingVelocity =
+            wasp.velocity;
+
+
+        if (
+            fallingVelocity <= 3.0
+        ) {
+
+            fallingTime = 0;
+
+            stopFallingSound();
+
+            return;
+
+        }
+
+
+        /*
+         * Das Summen beginnt erst nach
+         * einer kurzen Fallzeit.
+         *
+         * Dadurch piept es nicht bei jedem
+         * normalen kleinen Absinken.
+         */
+
+        fallingTime +=
+            delta;
+
+
+        if (
+            fallingTime <
+            18
+        ) {
+
+            return;
+
+        }
+
+
+        startFallingSound();
+
+
+        if (
+            !fallingOscillator ||
+            !fallingGain ||
+            !audioContext
+        ) {
+
+            return;
+
+        }
+
+
+        /*
+         * Je schneller die Wespe fällt,
+         * desto höher und aggressiver
+         * wird das Summen.
+         */
+
+        const intensity =
+            Math.min(
+                1,
+                Math.max(
+                    0,
+                    (
+                        fallingVelocity -
+                        3
+                    ) / 10
+                )
+            );
+
+
+        const frequency =
+            75 +
+            intensity * 120;
+
+
+        const volume =
+            0.012 +
+            intensity * 0.055;
+
+
+        const now =
+            audioContext.currentTime;
+
+
+        fallingOscillator.frequency
+            .setTargetAtTime(
+                frequency,
+                now,
+                0.035
+            );
+
+
+        fallingGain.gain
+            .setTargetAtTime(
+                volume,
+                now,
+                0.035
+            );
+
+    }
+
+
+    /* ==========================================================
+       FALL-SUMMEN STOPPEN
+       ========================================================== */
+
+    function stopFallingSound() {
+
+        if (
+            !fallingSoundActive
+        ) {
+
+            return;
+
+        }
+
+
+        if (
+            fallingGain &&
+            audioContext
+        ) {
+
+            const now =
+                audioContext.currentTime;
+
+
+            fallingGain.gain.cancelScheduledValues(
+                now
+            );
+
+
+            fallingGain.gain.setTargetAtTime(
+                0.0001,
+                now,
+                0.025
+            );
+
+        }
+
+
+        if (
+            fallingOscillator
+        ) {
+
+            try {
+
+                fallingOscillator.stop();
+
+            } catch (error) {
+                /* bereits gestoppt */
+            }
+
+        }
+
+
+        fallingOscillator =
+            null;
+
+        fallingGain =
+            null;
+
+        fallingSoundActive =
+            false;
+
+    }
+
+
+    /* ==========================================================
+       CRASH SOUND
+       ========================================================== */
+
+    function playCrashSound() {
+
+        initAudio();
+
+
+        if (!audioContext) {
+            return;
+        }
+
+
+        /*
+         * Fall-Summen sofort beenden.
+         */
+
+        stopFallingSound();
+
+
+        const now =
+            audioContext.currentTime;
+
+
+        /*
+         * Geräuschgenerator für einen
+         * kurzen, dumpfen Crash.
+         */
+
+        const bufferSize =
+            audioContext.sampleRate *
+            0.28;
+
+
+        const buffer =
+            audioContext.createBuffer(
+                1,
+                bufferSize,
+                audioContext.sampleRate
+            );
+
+
+        const data =
+            buffer.getChannelData(0);
+
+
+        for (
+            let i = 0;
+            i < bufferSize;
+            i++
+        ) {
+
+            const decay =
+                1 -
+                i / bufferSize;
+
+
+            data[i] =
+                (
+                    Math.random() * 2 -
+                    1
+                ) *
+                decay *
+                decay;
+
+        }
+
+
+        const noise =
+            audioContext.createBufferSource();
+
+
+        noise.buffer =
+            buffer;
+
+
+        const filter =
+            audioContext.createBiquadFilter();
+
+
+        filter.type =
+            "lowpass";
+
+
+        filter.frequency.setValueAtTime(
+            900,
+            now
+        );
+
+
+        filter.frequency.exponentialRampToValueAtTime(
+            90,
+            now + 0.25
+        );
+
+
+        const gain =
+            audioContext.createGain();
+
+
+        gain.gain.setValueAtTime(
+            0.0001,
+            now
+        );
+
+
+        gain.gain.exponentialRampToValueAtTime(
+            0.42,
+            now + 0.008
+        );
+
+
+        gain.gain.exponentialRampToValueAtTime(
+            0.0001,
+            now + 0.28
+        );
+
+
+        noise.connect(
+            filter
+        );
+
+
+        filter.connect(
+            gain
+        );
+
+
+        gain.connect(
+            audioContext.destination
+        );
+
+
+        noise.start(
+            now
+        );
+
+
+        noise.stop(
+            now + 0.3
+        );
+
+
+        /*
+         * Zusätzlich ein tiefer Impact.
+         */
+
+        const impact =
+            audioContext.createOscillator();
+
+
+        const impactGain =
+            audioContext.createGain();
+
+
+        impact.type =
+            "sine";
+
+
+        impact.frequency.setValueAtTime(
+            100,
+            now
+        );
+
+
+        impact.frequency.exponentialRampToValueAtTime(
+            35,
+            now + 0.22
+        );
+
+
+        impactGain.gain.setValueAtTime(
+            0.18,
+            now
+        );
+
+
+        impactGain.gain.exponentialRampToValueAtTime(
+            0.0001,
+            now + 0.22
+        );
+
+
+        impact.connect(
+            impactGain
+        );
+
+
+        impactGain.connect(
+            audioContext.destination
+        );
+
+
+        impact.start(
+            now
+        );
+
+
+        impact.stop(
+            now + 0.24
+        );
+
+    }
+
+
+    /* ==========================================================
+       FLAP SOUND
+       ========================================================== */
+
+    function playFlapSound() {
+
+        /*
+         * Bewusst sehr leise.
+         *
+         * Kein aufdringlicher Sound bei jedem Flap.
+         */
+
+        playTone(
+            250,
+            0.045,
+            "triangle",
+            0.018,
+            190
+        );
+
+    }
+
+
+    /* ==========================================================
+       CANVAS SETTINGS
+       ========================================================== */
+
+    const WIDTH =
+        canvas.width;
+
+    const HEIGHT =
+        canvas.height;
+
+    const GROUND_HEIGHT =
+        35;
+
+
+    /* ==========================================================
+       BASIS PHYSIK
+       ========================================================== */
+
+    const BASE_GRAVITY =
+        0.34;
+
+
+    const BASE_FLAP_STRENGTH =
+        -6.6;
+
+
+    /* ==========================================================
+       ROHR SETTINGS
+       ========================================================== */
+
+    const PIPE_WIDTH =
+        75;
+
+
+    const START_PIPE_GAP =
+        190;
+
+
+    const MIN_PIPE_GAP =
+        115;
+
+
+    const BASE_PIPE_SPEED =
+        3.0;
+
+
+    const PIPE_DISTANCE =
+        310;
+
+
+    const MAX_DELTA =
+        2;
+
+
+    /* ==========================================================
+       SCHWIERIGKEIT
+       ========================================================== */
+
+    const GRAVITY_GROWTH =
+        0.0045;
+
+
+    const SPEED_GROWTH =
+        0.035;
+
+
+    const GAP_SHRINK =
+        0.55;
+
+
+    const FLAP_GROWTH =
+        0.025;
+
+
+    function getCurrentGravity() {
+
+        return (
+            BASE_GRAVITY +
+            score * GRAVITY_GROWTH
+        );
+
+    }
+
+
+    function getCurrentPipeSpeed() {
+
+        return (
+            BASE_PIPE_SPEED +
+            score * SPEED_GROWTH
+        );
+
+    }
+
+
+    function getCurrentPipeGap() {
+
+        return Math.max(
+            MIN_PIPE_GAP,
+            START_PIPE_GAP -
+            score * GAP_SHRINK
+        );
+
+    }
+
+
+    function getCurrentFlapStrength() {
+
+        return (
+            BASE_FLAP_STRENGTH -
+            score * FLAP_GROWTH
+        );
+
+    }
+
+
+    /* ==========================================================
+       GAME STATE
+       ========================================================== */
+
+    let gameRunning =
+        false;
+
+    let gamePaused =
+        false;
+
+    let score =
+        0;
+
+    let highscore =
+        0;
+
+    let lastTime =
+        0;
+
+
+    /* ==========================================================
+       WESPE
+       ========================================================== */
+
+    const wasp = {
+
+        x: 180,
+
+        y: HEIGHT / 2,
+
+        width: 46,
+
+        height: 30,
+
+        velocity: 0,
+
+        rotation: 0
+
+    };
+
+
+    /* ==========================================================
+       PIPES
+       ========================================================== */
+
+    let pipes = [];
+
+
+    /* ==========================================================
+       BACKGROUND
+       ========================================================== */
+
+    let backgroundOffset =
+        0;
+
+
+    const backgroundGradient =
+        ctx.createLinearGradient(
+            0,
+            0,
+            0,
+            HEIGHT
+        );
+
+
+    backgroundGradient.addColorStop(
+        0,
+        "#36393e"
+    );
+
+    backgroundGradient.addColorStop(
+        1,
+        "#202225"
+    );
+
+
+    /* ==========================================================
+       EASTER EGGS
+       ========================================================== */
+
+    let easterEggs = [];
+
+    let easterEggTimer = 0;
+
+    let currentMessage = "";
+
+    let messageTimer = 0;
+
+    let swarmTimer = 0;
+
+    let heliTimer = 0;
+
+    let packageTimer = 0;
+
+    let beerTimer = 0;
+
+    let kiriTimer = 0;
+
+
+    /* ==========================================================
+       BACKEND
+       ========================================================== */
+
+    async function loadMyScore() {
+
+        try {
+
+            const response =
+                await fetch(
+                    "/wasp/api/my-score",
+                    {
+                        method: "GET",
+                        credentials: "same-origin"
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if (
+                !response.ok ||
+                !data.success
+            ) {
+
+                console.error(
+                    "Highscore konnte nicht geladen werden:",
+                    data.error ||
+                    "Unbekannter Fehler"
+                );
+
+                return;
+
+            }
+
+
+            highscore =
+                Number(
+                    data.highscore || 0
+                );
+
+
+            highscoreDisplay.textContent =
+                highscore;
+
+
+        } catch (error) {
+
+            console.error(
+                "Fehler beim Laden des Highscores:",
+                error
+            );
+
+        }
+
+    }
+
+
+    /* ==========================================================
+       SCORE SPEICHERN
+       ========================================================== */
+
+    async function saveScore() {
+
+        try {
+
+            const response =
+                await fetch(
+                    "/wasp/api/game-over",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        credentials:
+                            "same-origin",
+
+                        body:
+                            JSON.stringify({
+                                score: score
+                            })
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if (
+                !response.ok ||
+                !data.success
+            ) {
+
+                console.error(
+                    "Score konnte nicht gespeichert werden:",
+                    data.error ||
+                    "Unbekannter Fehler"
+                );
+
+                return false;
+
+            }
+
+
+            highscore =
+                Number(
+                    data.highscore || 0
+                );
+
+
+            highscoreDisplay.textContent =
+                highscore;
+
+
+            return true;
+
+
+        } catch (error) {
+
+            console.error(
+                "Fehler beim Speichern des Scores:",
+                error
+            );
+
+            return false;
+
+        }
+
+    }
+
+
+    /* ==========================================================
+       EASTER MESSAGE
+       ========================================================== */
+
+    function showEasterMessage(
+        text,
+        duration = 180
+    ) {
+
+        currentMessage =
+            text;
+
+        messageTimer =
+            duration;
+
+    }
+
+
+    /* ==========================================================
+       SPAWN EASTER EGG
+       ========================================================== */
+
+    function spawnEasterEgg(
+        type
+    ) {
+
+        easterEggs.push({
+
+            type: type,
+
+            x:
+                WIDTH + 100,
+
+            y:
+                80 +
+                Math.random() * 280,
+
+            speed:
+                2.2 +
+                Math.random() * 0.8,
+
+            rotation:
+                0,
+
+            life:
+                0
+
+        });
+
+    }
+
+
+    /* ==========================================================
+       UPDATE EASTER EGGS
+       ========================================================== */
+
+    function updateEasterEggs(
+        delta
+    ) {
+
+        if (
+            !gameRunning ||
+            gamePaused
+        ) {
+
+            return;
+
+        }
+
+
+        easterEggTimer +=
+            delta;
+
+
+        if (
+            easterEggTimer >
+            500
+        ) {
+
+            easterEggTimer =
+                0;
+
+
+            const random =
+                Math.random();
+
+
+            if (
+                random < 0.18
+            ) {
+
+                spawnEasterEgg(
+                    "swarm"
+                );
+
+            }
+
+            else if (
+                random < 0.32
+            ) {
+
+                spawnEasterEgg(
+                    "heli"
+                );
+
+            }
+
+            else if (
+                random < 0.44
+            ) {
+
+                spawnEasterEgg(
+                    "package"
+                );
+
+            }
+
+            else if (
+                random < 0.54
+            ) {
+
+                spawnEasterEgg(
+                    "beer"
+                );
+
+            }
+
+        }
+
+
+        if (
+            score === 5 &&
+            swarmTimer === 0
+        ) {
+
+            swarmTimer = 1;
+
+            spawnEasterEgg(
+                "swarm"
+            );
+
+            showEasterMessage(
+                "🐝 STWG-WESPENVERSTÄRKUNG!",
+                180
+            );
+
+        }
+
+
+        if (
+            score === 10 &&
+            heliTimer === 0
+        ) {
+
+            heliTimer = 1;
+
+            spawnEasterEgg(
+                "heli"
+            );
+
+            showEasterMessage(
+                "🚁 Martin ist wieder AFK...",
+                180
+            );
+
+        }
+
+
+        if (
+            score === 15 &&
+            packageTimer === 0
+        ) {
+
+            packageTimer = 1;
+
+            spawnEasterEgg(
+                "package"
+            );
+
+            showEasterMessage(
+                "📦 AMAZON LEIPZIG HIER",
+                180
+            );
+
+        }
+
+
+        if (
+            score === 20 &&
+            beerTimer === 0
+        ) {
+
+            beerTimer = 1;
+
+            spawnEasterEgg(
+                "beer"
+            );
+
+            showEasterMessage(
+                "🍺 Das Bier ist nur für Luis Oma",
+                220
+            );
+
+        }
+
+
+        if (
+            score === 25 &&
+            kiriTimer === 0
+        ) {
+
+            kiriTimer = 1;
+
+            showEasterMessage(
+                "🥷 KIRI DIGGI?",
+                180
+            );
+
+        }
+
+
+        if (
+            score === 30
+        ) {
+
+            showEasterMessage(
+                "🐝 WESPENMODUS: AKTIV",
+                180
+            );
+
+        }
+
+
+        if (
+            score === 50
+        ) {
+
+            showEasterMessage(
+                "👑 STWG-WESPENKÖNIG",
+                240
+            );
+
+        }
+
+
+        if (
+            score === 69
+        ) {
+
+            showEasterMessage(
+                "😏 69... NICE.",
+                180
+            );
+
+        }
+
+
+        if (
+            score === 100
+        ) {
+
+            showEasterMessage(
+                "🔥 100 PUNKTE?! STWG IST STOLZ.",
+                260
+            );
+
+        }
+
+
+        for (
+            const egg of easterEggs
+        ) {
+
+            egg.x -=
+                egg.speed * delta;
+
+            egg.life +=
+                delta;
+
+
+            if (
+                egg.type === "heli"
+            ) {
+
+                egg.y +=
+                    Math.sin(
+                        egg.life * 0.08
+                    ) *
+                    0.8 *
+                    delta;
+
+                egg.rotation =
+                    Math.sin(
+                        egg.life * 0.1
+                    ) *
+                    0.03;
+
+            }
+
+
+            if (
+                egg.type === "swarm"
+            ) {
+
+                egg.y +=
+                    Math.sin(
+                        egg.life * 0.15
+                    ) *
+                    1.5 *
+                    delta;
+
+            }
+
+        }
+
+
+        easterEggs =
+            easterEggs.filter(
+                egg =>
+                    egg.x > -150
+            );
+
+
+        if (
+            messageTimer > 0
+        ) {
+
+            messageTimer -=
+                delta;
+
+        }
+
+    }
+
+
+    /* ==========================================================
+       MINI WESPE
+       ========================================================== */
+
+    function drawMiniWasp(
+        x,
+        y
+    ) {
+
+        ctx.save();
+
+        ctx.translate(
+            x,
+            y
+        );
+
+        ctx.scale(
+            0.45,
+            0.45
+        );
+
+
+        ctx.fillStyle =
+            "rgba(220,240,255,0.6)";
+
+
+        ctx.beginPath();
+
+        ctx.ellipse(
+            -7,
+            -8,
+            12,
+            6,
+            -0.4,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fill();
+
+
+        ctx.beginPath();
+
+        ctx.ellipse(
+            7,
+            -8,
+            12,
+            6,
+            0.4,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fill();
+
+
+        ctx.fillStyle =
+            "#d9a400";
+
+        ctx.beginPath();
+
+        ctx.ellipse(
+            0,
+            0,
+            20,
+            10,
+            0,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fill();
+
+
+        ctx.fillStyle =
+            "#111214";
+
+        ctx.fillRect(
+            -8,
+            -10,
+            5,
+            20
+        );
+
+        ctx.fillRect(
+            3,
+            -10,
+            5,
+            20
+        );
+
+
+        ctx.restore();
+
+    }
+
+
+    /* ==========================================================
+       EASTER EGGS DRAW
+       ========================================================== */
+
+    function drawEasterEggs() {
+
+        for (
+            const egg of easterEggs
+        ) {
+
+            ctx.save();
+
+            ctx.translate(
+                egg.x,
+                egg.y
+            );
+
+            ctx.rotate(
+                egg.rotation
+            );
+
+
+            if (
+                egg.type === "swarm"
+            ) {
+
+                for (
+                    let i = 0;
+                    i < 5;
+                    i++
+                ) {
+
+                    const ox =
+                        Math.sin(
+                            egg.life * 0.12 + i
+                        ) * 28;
+
+                    const oy =
+                        Math.cos(
+                            egg.life * 0.15 + i
+                        ) * 18;
+
+
+                    drawMiniWasp(
+                        ox,
+                        oy
+                    );
+
+                }
+
+            }
+
+
+            else if (
+                egg.type === "heli"
+            ) {
+
+                ctx.fillStyle =
+                    "#191a1c";
+
+                ctx.fillRect(
+                    -32,
+                    -10,
+                    64,
+                    20
+                );
+
+
+                ctx.fillStyle =
+                    "#36393e";
+
+                ctx.fillRect(
+                    -15,
+                    -18,
+                    28,
+                    12
+                );
+
+
+                ctx.fillStyle =
+                    "rgba(180,220,255,0.6)";
+
+                ctx.fillRect(
+                    -10,
+                    -15,
+                    18,
+                    8
+                );
+
+
+                ctx.strokeStyle =
+                    "#111214";
+
+                ctx.lineWidth =
+                    3;
+
+
+                ctx.beginPath();
+
+                ctx.moveTo(
+                    -35,
+                    -20
+                );
+
+                ctx.lineTo(
+                    35,
+                    -20
+                );
+
+                ctx.stroke();
+
+
+                ctx.beginPath();
+
+                ctx.moveTo(
+                    0,
+                    -20
+                );
+
+                ctx.lineTo(
+                    0,
+                    -28
+                );
+
+                ctx.stroke();
+
+            }
+
+
+            else if (
+                egg.type === "package"
+            ) {
+
+                ctx.fillStyle =
+                    "#c48a4a";
+
+                ctx.fillRect(
+                    -22,
+                    -18,
+                    44,
+                    36
+                );
+
+
+                ctx.strokeStyle =
+                    "#7d512b";
+
+                ctx.lineWidth =
+                    2;
+
+                ctx.strokeRect(
+                    -22,
+                    -18,
+                    44,
+                    36
+                );
+
+
+                ctx.fillStyle =
+                    "#333";
+
+                ctx.fillRect(
+                    -3,
+                    -18,
+                    6,
+                    36
+                );
+
+
+                ctx.font =
+                    "bold 9px Arial";
+
+                ctx.fillStyle =
+                    "#111";
+
+                ctx.textAlign =
+                    "center";
+
+                ctx.fillText(
+                    "AMAZON",
+                    0,
+                    4
+                );
+
+            }
+
+
+            else if (
+                egg.type === "beer"
+            ) {
+
+                ctx.fillStyle =
+                    "#d9a400";
+
+                ctx.fillRect(
+                    -9,
+                    -20,
+                    18,
+                    40
+                );
+
+
+                ctx.fillStyle =
+                    "#f5d56a";
+
+                ctx.fillRect(
+                    -8,
+                    -15,
+                    16,
+                    25
+                );
+
+
+                ctx.fillStyle =
+                    "#eee";
+
+                ctx.fillRect(
+                    -9,
+                    -23,
+                    18,
+                    5
+                );
+
+
+                ctx.fillStyle =
+                    "#111";
+
+                ctx.font =
+                    "bold 7px Arial";
+
+                ctx.textAlign =
+                    "center";
+
+                ctx.fillText(
+                    "L",
+                    0,
+                    3
+                );
+
+            }
+
+
+            ctx.restore();
+
+        }
+
+    }
+
+
+    /* ==========================================================
+       EASTER MESSAGE
+       ========================================================== */
+
+    function drawEasterMessage() {
+
+        if (
+            !gameRunning ||
+            messageTimer <= 0 ||
+            !currentMessage
+        ) {
+
+            return;
+
+        }
+
+
+        ctx.save();
+
+
+        ctx.textAlign =
+            "center";
+
+
+        ctx.font =
+            "bold 22px Arial";
+
+
+        ctx.fillStyle =
+            "rgba(0,0,0,0.5)";
+
+
+        ctx.fillText(
+            currentMessage,
+            WIDTH / 2 + 2,
+            HEIGHT - 63
+        );
+
+
+        ctx.fillStyle =
+            "rgba(255,255,255,0.95)";
+
+
+        ctx.fillText(
+            currentMessage,
+            WIDTH / 2,
+            HEIGHT - 65
+        );
+
+
+        ctx.restore();
+
+    }
+
+
+    /* ==========================================================
+       RESET
+       ========================================================== */
+
+    function resetGame() {
+
+        stopFallingSound();
+
+        fallingTime =
+            0;
+
+
+        score =
+            0;
+
+
+        scoreDisplay.textContent =
+            "0";
+
+
+        pipes =
+            [];
+
+
+        wasp.x =
+            180;
+
+        wasp.y =
+            HEIGHT / 2;
+
+        wasp.velocity =
+            0;
+
+        wasp.rotation =
+            0;
+
+
+        backgroundOffset =
+            0;
+
+
+        gamePaused =
+            false;
+
+
+        easterEggs =
+            [];
+
+        easterEggTimer =
+            0;
+
+        currentMessage =
+            "";
+
+        messageTimer =
+            0;
+
+
+        swarmTimer =
+            0;
+
+        heliTimer =
+            0;
+
+        packageTimer =
+            0;
+
+        beerTimer =
+            0;
+
+        kiriTimer =
+            0;
+
+
+        pauseButton.textContent =
+            "⏸ Pause";
+
+
+        createInitialPipes();
+
+    }
+
+
+    /* ==========================================================
+       PIPES
+       ========================================================== */
+
+    function createInitialPipes() {
+
+        pipes =
+            [];
+
+
+        let x =
+            WIDTH + 100;
+
+
+        for (
+            let i = 0;
+            i < 5;
+            i++
+        ) {
+
+            createPipe(x);
+
+            x +=
+                PIPE_DISTANCE;
+
+        }
+
+    }
+
+
+    function createPipe(
+        x
+    ) {
+
+        const minTop =
+            65;
+
+
+        const currentGap =
+            getCurrentPipeGap();
+
+
+        const maxTop =
+            HEIGHT -
+            GROUND_HEIGHT -
+            currentGap -
+            65;
+
+
+        const topHeight =
+            Math.random() *
+            (
+                maxTop -
+                minTop
+            ) +
+            minTop;
+
+
+        pipes.push({
+
+            x: x,
+
+            top:
+                topHeight,
+
+            gap:
+                currentGap,
+
+            passed:
+                false
+
+        });
+
+    }
+
+
+    /* ==========================================================
+       FLAP
+       ========================================================== */
+
+    function flap() {
+
+        if (
+            !gameRunning
+        ) {
+
+            return;
+
+        }
+
+
+        if (
+            gamePaused
+        ) {
+
+            return;
+
+        }
+
+
+        initAudio();
+
+
+        wasp.velocity =
+            getCurrentFlapStrength();
+
+
+        playFlapSound();
+
+    }
+
+
+    /* ==========================================================
+       START
+       ========================================================== */
+
+    function startGame() {
+
+        initAudio();
+
+        resetGame();
+
+        gameRunning =
+            true;
+
+
+        overlay.classList.add(
+            "hidden"
+        );
+
+
+        lastTime =
+            performance.now();
+
+    }
+
+
+    /* ==========================================================
+       GAME OVER
+       ========================================================== */
+
+    async function gameOver() {
+
+        if (
+            !gameRunning
+        ) {
+
+            return;
+
+        }
+
+
+        gameRunning =
+            false;
+
+
+        /*
+         * Wichtig:
+         * Der Crash-Sound wird genau hier
+         * beim tatsächlichen Game Over ausgelöst.
+         */
+
+        playCrashSound();
+
+
+        await saveScore();
+
+
+        overlayIcon.textContent =
+            "💥";
+
+
+        overlayTitle.textContent =
+            "Abgestürzt!";
+
+
+        overlayText.innerHTML =
+            "Die Wespe hat das Hindernis erwischt.<br>" +
+            "Versuch es nochmal!";
+
+
+        overlayScore.innerHTML =
+            "Punkte: <strong>" +
+            score +
+            "</strong><br>" +
+            "Highscore: <strong>" +
+            highscore +
+            "</strong>";
+
+
+        startButton.textContent =
+            "🔄 Nochmal spielen";
+
+
+        overlay.classList.remove(
+            "hidden"
+        );
+
+    }
+
+
+    /* ==========================================================
+       PAUSE
+       ========================================================== */
+
+    function togglePause() {
+
+        if (
+            !gameRunning
+        ) {
+
+            return;
+
+        }
+
+
+        gamePaused =
+            !gamePaused;
+
+
+        if (
+            gamePaused
+        ) {
+
+            stopFallingSound();
+
+        }
+
+
+        pauseButton.textContent =
+            gamePaused
+                ? "▶ Fortsetzen"
+                : "⏸ Pause";
+
+
+        lastTime =
+            performance.now();
+
+    }
+
+
+    /* ==========================================================
+       COLLISION
+       ========================================================== */
+
+    function checkCollision() {
+
+        const margin =
+            7;
+
+
+        const birdLeft =
+            wasp.x -
+            wasp.width / 2 +
+            margin;
+
+
+        const birdRight =
+            wasp.x +
+            wasp.width / 2 -
+            margin;
+
+
+        const birdTop =
+            wasp.y -
+            wasp.height / 2 +
+            margin;
+
+
+        const birdBottom =
+            wasp.y +
+            wasp.height / 2 -
+            margin;
+
+
+        if (
+            birdBottom >=
+            HEIGHT -
+            GROUND_HEIGHT
+        ) {
+
+            return true;
+
+        }
+
+
+        if (
+            birdTop <= 0
+        ) {
+
+            return true;
+
+        }
+
+
+        for (
+            const pipe of pipes
+        ) {
+
+            const pipeLeft =
+                pipe.x;
+
+
+            const pipeRight =
+                pipe.x +
+                PIPE_WIDTH;
+
+
+            const topBottom =
+                pipe.top;
+
+
+            const bottomTop =
+                pipe.top +
+                pipe.gap;
+
+
+            const horizontal =
+                birdRight >
+                    pipeLeft &&
+                birdLeft <
+                    pipeRight;
+
+
+            if (
+                !horizontal
+            ) {
+
+                continue;
+
+            }
+
+
+            if (
+                birdTop <
+                    topBottom ||
+                birdBottom >
+                    bottomTop
+            ) {
+
+                return true;
+
+            }
+
+        }
+
+
+        return false;
+
+    }
+
+
+    /* ==========================================================
+       UPDATE
+       ========================================================== */
+
+    function update(
+        delta
+    ) {
+
+        if (
+            !gameRunning ||
+            gamePaused
+        ) {
+
+            return;
+
+        }
+
+
+        const currentGravity =
+            getCurrentGravity();
+
+
+        const currentPipeSpeed =
+            getCurrentPipeSpeed();
+
+
+        /* ======================================================
+           WESPE
+           ====================================================== */
+
+        wasp.velocity +=
+            currentGravity *
+            delta;
+
+
+        wasp.y +=
+            wasp.velocity *
+            delta;
+
+
+        wasp.rotation =
+            Math.max(
+                -0.45,
+                Math.min(
+                    0.8,
+                    wasp.velocity *
+                    0.07
+                )
+            );
+
+
+        /* ======================================================
+           FALL-SOUND
+           ====================================================== */
+
+        updateFallingSound(
+            delta
+        );
+
+
+        /* ======================================================
+           PIPES
+           ====================================================== */
+
+        for (
+            const pipe of pipes
+        ) {
+
+            pipe.x -=
+                currentPipeSpeed *
+                delta;
+
+
+            if (
+                !pipe.passed &&
+                pipe.x +
+                    PIPE_WIDTH <
+                    wasp.x
+            ) {
+
+                pipe.passed =
+                    true;
+
+
+                score++;
+
+
+                scoreDisplay.textContent =
+                    score;
+
+
+                /*
+                 * Sound bei jedem Punkt.
+                 */
+
+                playScoreSound();
+
+            }
+
+        }
+
+
+        /* ======================================================
+           NEUE PIPE
+           ====================================================== */
+
+        const lastPipe =
+            pipes[
+                pipes.length - 1
+            ];
+
+
+        if (
+            lastPipe &&
+            lastPipe.x <
+                WIDTH -
+                PIPE_DISTANCE
+        ) {
+
+            createPipe(
+                lastPipe.x +
+                PIPE_DISTANCE
+            );
+
+        }
+
+
+        /* ======================================================
+           ALTE PIPES
+           ====================================================== */
+
+        pipes =
+            pipes.filter(
+                pipe =>
+                    pipe.x +
+                        PIPE_WIDTH >
+                    -50
+            );
+
+
+        /* ======================================================
+           COLLISION
+           ====================================================== */
+
+        if (
+            checkCollision()
+        ) {
+
+            gameOver();
+
+            return;
+
+        }
+
+
+        /* ======================================================
+           EASTER EGGS
+           ====================================================== */
+
+        updateEasterEggs(
+            delta
+        );
+
+
+        /* ======================================================
+           BACKGROUND
+           ====================================================== */
+
+        backgroundOffset -=
+            currentPipeSpeed *
+            0.3 *
+            delta;
+
+
+        if (
+            backgroundOffset <
+            -100
+        ) {
+
+            backgroundOffset =
+                0;
+
+        }
+
+    }
+
+
+    /* ==========================================================
+       BACKGROUND
+       ========================================================== */
+
+    function drawBackground() {
+
+        ctx.fillStyle =
+            backgroundGradient;
+
+
+        ctx.fillRect(
+            0,
+            0,
+            WIDTH,
+            HEIGHT
+        );
+
+
+        ctx.fillStyle =
+            "rgba(255,255,255,0.035)";
+
+
+        for (
+            let x =
+                backgroundOffset - 100;
+
+            x <
+                WIDTH + 100;
+
+            x += 220
+        ) {
+
+            drawCloud(
+                x,
+                100
+            );
+
+
+            drawCloud(
+                x + 110,
+                230
+            );
+
+        }
+
+
+        ctx.fillStyle =
+            "#202225";
+
+
+        ctx.fillRect(
+            0,
+            HEIGHT -
+                GROUND_HEIGHT,
+            WIDTH,
+            GROUND_HEIGHT
+        );
+
+
+        ctx.fillStyle =
+            "#992d22";
+
+
+        ctx.fillRect(
+            0,
+            HEIGHT -
+                GROUND_HEIGHT,
+            WIDTH,
+            3
+        );
+
+    }
+
+
+    /* ==========================================================
+       CLOUD
+       ========================================================== */
+
+    function drawCloud(
+        x,
+        y
+    ) {
+
+        ctx.beginPath();
+
+
+        ctx.arc(
+            x,
+            y,
+            25,
+            0,
+            Math.PI * 2
+        );
+
+
+        ctx.arc(
+            x + 25,
+            y - 10,
+            32,
+            0,
+            Math.PI * 2
+        );
+
+
+        ctx.arc(
+            x + 55,
+            y,
+            25,
+            0,
+            Math.PI * 2
+        );
+
+
+        ctx.fill();
+
+    }
+
+
+    /* ==========================================================
+       PIPES DRAW
+       ========================================================== */
+
+    function drawPipes() {
+
+        for (
+            const pipe of pipes
+        ) {
+
+            drawObstacle(
+                pipe.x,
+                0,
+                PIPE_WIDTH,
+                pipe.top
+            );
+
+
+            drawObstacle(
+                pipe.x,
+                pipe.top +
+                    pipe.gap,
+                PIPE_WIDTH,
+                HEIGHT -
+                    GROUND_HEIGHT -
+                    (
+                        pipe.top +
+                        pipe.gap
+                    )
+            );
+
+        }
+
+    }
+
+
+    function drawObstacle(
+        x,
+        y,
+        width,
+        height
+    ) {
+
+        ctx.fillStyle =
+            "#992d22";
+
+
+        ctx.fillRect(
+            x,
+            y,
+            width,
+            height
+        );
+
+
+        ctx.fillStyle =
+            "#6f2119";
+
+
+        ctx.fillRect(
+            x,
+            y,
+            8,
+            height
+        );
+
+
+        ctx.fillStyle =
+            "rgba(255,255,255,0.08)";
+
+
+        ctx.fillRect(
+            x + 10,
+            y,
+            7,
+            height
+        );
+
+
+        const capHeight =
+            16;
+
+
+        ctx.fillStyle =
+            "#b6382b";
+
+
+        ctx.fillRect(
+            x - 6,
+
+            y === 0
+                ? height -
+                    capHeight
+                : y,
+
+            width + 12,
+
+            capHeight
+        );
+
+    }
+
+
+    /* ==========================================================
+       WESPE DRAW
+       ========================================================== */
+
+    function drawWasp() {
+
+        ctx.save();
+
+
+        ctx.translate(
+            wasp.x,
+            wasp.y
+        );
+
+
+        ctx.rotate(
+            wasp.rotation
+        );
+
+
+        ctx.fillStyle =
+            "rgba(0,0,0,0.25)";
+
+
+        ctx.beginPath();
+
+
+        ctx.ellipse(
+            2,
+            16,
+            25,
+            5,
+            0,
+            0,
+            Math.PI * 2
+        );
+
+
+        ctx.fill();
+
+
+        /* ======================================================
+           FLÜGEL
+           ====================================================== */
+
+        ctx.fillStyle =
+            "rgba(220,240,255,0.65)";
+
+
+        ctx.beginPath();
+
+
+        ctx.ellipse(
+            -8,
+            -15,
+            15,
+            8,
+            -0.4,
+            0,
+            Math.PI * 2
+        );
+
+
+        ctx.fill();
+
+
+        ctx.beginPath();
+
+
+        ctx.ellipse(
+            8,
+            -14,
+            15,
+            8,
+            0.4,
+            0,
+            Math.PI * 2
+        );
+
+
+        ctx.fill();
+
+
+        /* ======================================================
+           KÖRPER
+           ====================================================== */
+
+        ctx.fillStyle =
+            "#d9a400";
+
+
+        ctx.beginPath();
+
+
+        ctx.ellipse(
+            0,
+            0,
+            24,
+            13,
+            0,
+            0,
+            Math.PI * 2
+        );
+
+
+        ctx.fill();
+
+
+        /* ======================================================
+           STREIFEN
+           ====================================================== */
+
+        ctx.fillStyle =
+            "#111214";
+
+
+        ctx.fillRect(
+            -12,
+            -12,
+            6,
+            24
+        );
+
+
+        ctx.fillRect(
+            0,
+            -12,
+            6,
+            24
+        );
+
+
+        ctx.fillRect(
+            12,
+            -8,
+            5,
+            16
+        );
+
+
+        /* ======================================================
+           KOPF
+           ====================================================== */
+
+        ctx.fillStyle =
+            "#18191c";
+
+
+        ctx.beginPath();
+
+
+        ctx.arc(
+            -20,
+            0,
+            9,
+            0,
+            Math.PI * 2
+        );
+
+
+        ctx.fill();
+
+
+        /* ======================================================
+           AUGE
+           ====================================================== */
+
+        ctx.fillStyle =
+            "#ffffff";
+
+
+        ctx.beginPath();
+
+
+        ctx.arc(
+            -23,
+            -3,
+            2.5,
+            0,
+            Math.PI * 2
+        );
+
+
+        ctx.fill();
+
+
+        /* ======================================================
+           FÜHLER
+           ====================================================== */
+
+        ctx.strokeStyle =
+            "#111214";
+
+        ctx.lineWidth =
+            2;
+
+
+        ctx.beginPath();
+
+
+        ctx.moveTo(
+            -25,
+            -7
+        );
+
+
+        ctx.lineTo(
+            -34,
+            -15
+        );
+
+
+        ctx.moveTo(
+            -22,
+            -8
+        );
+
+
+        ctx.lineTo(
+            -20,
+            -18
+        );
+
+
+        ctx.stroke();
+
+
+        /* ======================================================
+           STACHEL
+           ====================================================== */
+
+        ctx.fillStyle =
+            "#111214";
+
+
+        ctx.beginPath();
+
+
+        ctx.moveTo(
+            24,
+            0
+        );
+
+
+        ctx.lineTo(
+            34,
+            -4
+        );
+
+
+        ctx.lineTo(
+            34,
+            4
+        );
+
+
+        ctx.closePath();
+
+
+        ctx.fill();
+
+
+        ctx.restore();
+
+    }
+
+
+    /* ==========================================================
+       SCORE
+       ========================================================== */
+
+    function drawCanvasScore() {
+
+        if (
+            !gameRunning
+        ) {
+
+            return;
+
+        }
+
+
+        ctx.save();
+
+
+        ctx.textAlign =
+            "center";
+
+
+        ctx.font =
+            "bold 42px Arial";
+
+
+        ctx.fillStyle =
+            "rgba(0,0,0,0.45)";
+
+
+        ctx.fillText(
+            score,
+            WIDTH / 2 + 2,
+            62
+        );
+
+
+        ctx.fillStyle =
+            "rgba(255,255,255,0.9)";
+
+
+        ctx.fillText(
+            score,
+            WIDTH / 2,
+            60
+        );
+
+
+        ctx.restore();
+
+    }
+
+
+    /* ==========================================================
+       DRAW
+       ========================================================== */
+
+    function draw() {
+
+        drawBackground();
+
+        drawPipes();
+
+        drawEasterEggs();
+
+        drawWasp();
+
+        drawCanvasScore();
+
+        drawEasterMessage();
+
+    }
+
+
+    /* ==========================================================
+       GAME LOOP
+       ========================================================== */
+
+    function gameLoop(
+        timestamp
+    ) {
+
+        if (
+            !lastTime
+        ) {
+
+            lastTime =
+                timestamp;
+
+        }
+
+
+        let delta =
+            (
+                timestamp -
+                lastTime
+            ) /
+            16.6667;
+
+
+        lastTime =
+            timestamp;
+
+
+        delta =
+            Math.min(
+                delta,
+                MAX_DELTA
+            );
+
+
+        update(
+            delta
+        );
+
+
+        draw();
+
+
+        requestAnimationFrame(
+            gameLoop
+        );
+
+    }
+
+
+    /* ==========================================================
+       KEYBOARD
+       ========================================================== */
+
+    document.addEventListener(
+        "keydown",
+        event => {
+
+            if (
+                event.code ===
+                    "Space" ||
+                event.code ===
+                    "ArrowUp"
+            ) {
+
+                event.preventDefault();
+
+                initAudio();
+
+                flap();
+
+            }
+
+
+            if (
+                event.code ===
+                    "KeyP" ||
+                event.code ===
+                    "Escape"
+            ) {
+
+                event.preventDefault();
+
+                togglePause();
+
+            }
+
+
+            if (
+                event.code ===
+                "KeyR"
+            ) {
+
+                event.preventDefault();
+
+                initAudio();
+
+                startGame();
+
+            }
+
+        }
+    );
+
+
+    /* ==========================================================
+       MOUSE
+       ========================================================== */
+
+    gameContainer.addEventListener(
+        "mousedown",
+        event => {
+
+            if (
+                event.target === canvas ||
+                event.target === gameContainer
+            ) {
+
+                initAudio();
+
+                flap();
+
+            }
+
+        }
+    );
+
+
+    /* ==========================================================
+       TOUCH
+       ========================================================== */
+
+    gameContainer.addEventListener(
+        "touchstart",
+        event => {
+
+            event.preventDefault();
+
+            initAudio();
+
+            flap();
+
+        },
+        {
+            passive: false
+        }
+    );
+
+
+    /* ==========================================================
+       BUTTONS
+       ========================================================== */
+
+    startButton.addEventListener(
+        "click",
+        event => {
+
+            event.stopPropagation();
+
+            initAudio();
+
+            startGame();
+
+        }
+    );
+
+
+    restartButton.addEventListener(
+        "click",
+        event => {
+
+            event.stopPropagation();
+
+            initAudio();
+
+            startGame();
+
+        }
+    );
+
+
+    pauseButton.addEventListener(
+        "click",
+        event => {
+
+            event.stopPropagation();
+
+            togglePause();
+
+        }
+    );
+
+
+    /* ==========================================================
+       INITIALISIERUNG
+       ========================================================== */
+
+    resetGame();
+
+    draw();
+
+    loadMyScore();
+
+
+    requestAnimationFrame(
+        gameLoop
+    );
+
+
+})();
+
+</script>
+
+{% endblock %}

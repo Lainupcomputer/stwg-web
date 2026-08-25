@@ -1,0 +1,1209 @@
+{% extends "dashboard.html" %}
+
+{% block title %}
+    Preisalarm Checker
+{% endblock %}
+
+
+{% block style_header %}
+
+<style>
+
+    /* ==========================================================
+       MARKET ALERT CHECKER
+       ========================================================== */
+
+    .alert-checker-control {
+        padding: 25px;
+    }
+
+
+    /* ==========================================================
+       HEADER
+       ========================================================== */
+
+    .alert-checker-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+
+        padding-bottom: 15px;
+
+        border-bottom: 1px solid #444;
+    }
+
+    .alert-checker-header h2 {
+        margin: 0;
+
+        color: #fff;
+
+        font-size: 24px;
+
+        font-weight: 600;
+    }
+
+    .alert-checker-header p {
+        margin: 5px 0 0;
+
+        color: #8e9297;
+
+        font-size: 13px;
+    }
+
+
+    /* ==========================================================
+       STATUS
+       ========================================================== */
+
+    .alert-checker-status {
+        display: flex;
+
+        align-items: center;
+
+        gap: 10px;
+
+        font-weight: 600;
+
+        color: #fff;
+    }
+
+    .alert-checker-status-dot {
+        width: 12px;
+        height: 12px;
+
+        border-radius: 50%;
+
+        background: #dc3545;
+
+        box-shadow:
+            0 0 10px rgba(220, 53, 69, .7);
+
+        transition: .2s;
+    }
+
+    .alert-checker-status-dot.online {
+        background: #28a745;
+
+        box-shadow:
+            0 0 10px rgba(40, 167, 69, .8);
+    }
+
+
+    /* ==========================================================
+       GRID
+       ========================================================== */
+
+    .alert-checker-grid {
+        display: grid;
+
+        grid-template-columns:
+            minmax(0, 1fr)
+            minmax(350px, 500px);
+
+        gap: 20px;
+    }
+
+
+    /* ==========================================================
+       CARD
+       ========================================================== */
+
+    .alert-checker-card {
+        background-color: #333 !important;
+
+        color: #fff !important;
+
+        border: 1px solid #444;
+
+        border-radius: 8px;
+
+        overflow: hidden;
+    }
+
+    .alert-checker-card-header {
+        display: flex;
+
+        align-items: center;
+
+        justify-content: space-between;
+
+        padding: 15px 18px;
+
+        background-color: #2b2d31;
+
+        border-bottom: 1px solid #444;
+    }
+
+    .alert-checker-card-header h5 {
+        margin: 0;
+
+        color: #fff;
+
+        font-size: 16px;
+
+        font-weight: 600;
+    }
+
+    .alert-checker-card-body {
+        padding: 18px;
+    }
+
+
+    /* ==========================================================
+       BUTTONS
+       ========================================================== */
+
+    .alert-checker-actions {
+        display: flex;
+
+        gap: 10px;
+
+        margin-bottom: 20px;
+    }
+
+    .btn-alert-checker {
+        border: none;
+
+        border-radius: 6px;
+
+        padding: 9px 16px;
+
+        cursor: pointer;
+
+        font-weight: 600;
+
+        color: #fff;
+
+        transition: .15s;
+    }
+
+    .btn-alert-checker:hover {
+        transform: translateY(-1px);
+    }
+
+    .btn-alert-checker:disabled {
+        opacity: .45;
+
+        cursor: not-allowed;
+
+        transform: none;
+    }
+
+    .btn-alert-checker-start {
+        background: #198754;
+    }
+
+    .btn-alert-checker-stop {
+        background: #dc3545;
+    }
+
+    .btn-alert-checker-restart {
+        background: #fd7e14;
+    }
+
+
+    /* ==========================================================
+       SERVICE INFO
+       ========================================================== */
+
+    .alert-checker-info-grid {
+        display: grid;
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        gap: 10px;
+    }
+
+    .alert-checker-info {
+        background-color: #2b2d31;
+
+        border: 1px solid #444;
+
+        border-radius: 6px;
+
+        padding: 12px;
+    }
+
+    .alert-checker-info-label {
+        display: block;
+
+        color: #8e9297;
+
+        font-size: 11px;
+
+        margin-bottom: 5px;
+    }
+
+    .alert-checker-info-value {
+        display: block;
+
+        color: #fff;
+
+        font-size: 14px;
+
+        font-weight: 600;
+
+        word-break: break-word;
+    }
+
+
+    /* ==========================================================
+       INFO BOX
+       ========================================================== */
+
+    .alert-checker-help {
+        margin-top: 20px;
+
+        padding: 13px;
+
+        background: #2b2d31;
+
+        border: 1px solid #444;
+
+        border-radius: 6px;
+
+        color: #888;
+
+        font-size: 12px;
+
+        line-height: 1.5;
+    }
+
+    .alert-checker-help strong {
+        color: #bbb;
+    }
+
+
+    /* ==========================================================
+       AUTOSTART
+       ========================================================== */
+
+    .alert-checker-service-actions {
+        display: flex;
+
+        gap: 10px;
+    }
+
+    .btn-alert-checker-secondary {
+        background: #444;
+
+        color: #fff;
+
+        border: 1px solid #666;
+
+        border-radius: 6px;
+
+        padding: 9px 14px;
+
+        cursor: pointer;
+
+        font-size: 12px;
+
+        font-weight: 600;
+
+        transition: .15s;
+    }
+
+    .btn-alert-checker-secondary:hover {
+        background: #555;
+
+        transform: translateY(-1px);
+    }
+
+
+    /* ==========================================================
+       TERMINAL
+       ========================================================== */
+
+    .alert-checker-terminal {
+        background: #0b0b0b;
+
+        border: 1px solid #333;
+
+        border-radius: 10px;
+
+        height: 600px;
+
+        overflow-y: auto;
+
+        padding: 15px;
+
+        box-shadow:
+            inset 0 0 30px rgba(0, 0, 0, .5);
+    }
+
+    #alert-checker-console {
+        margin: 0;
+
+        color: #ddd;
+
+        font-family:
+            "Cascadia Code",
+            "Fira Code",
+            Consolas,
+            monospace;
+
+        font-size: 13px;
+
+        line-height: 1.5;
+
+        white-space: pre-wrap;
+
+        word-break: break-word;
+    }
+
+    .alert-checker-terminal::-webkit-scrollbar {
+        width: 7px;
+    }
+
+    .alert-checker-terminal::-webkit-scrollbar-track {
+        background: #111;
+    }
+
+    .alert-checker-terminal::-webkit-scrollbar-thumb {
+        background: #444;
+
+        border-radius: 8px;
+    }
+
+
+    /* ==========================================================
+       LOG BUTTON
+       ========================================================== */
+
+    .btn-alert-log-refresh {
+        background: #444;
+
+        border: 1px solid #555;
+
+        color: #fff;
+
+        border-radius: 6px;
+
+        padding: 6px 10px;
+
+        cursor: pointer;
+
+        font-size: 12px;
+
+        transition: .15s;
+    }
+
+    .btn-alert-log-refresh:hover {
+        background: #555;
+    }
+
+
+    /* ==========================================================
+       STATUS TEXT
+       ========================================================== */
+
+    .status-running {
+        color: #28a745 !important;
+    }
+
+    .status-stopped {
+        color: #dc3545 !important;
+    }
+
+
+    /* ==========================================================
+       TOAST
+       ========================================================== */
+
+    .alert-checker-toast {
+        position: fixed;
+
+        right: 25px;
+        bottom: 25px;
+
+        z-index: 9999;
+
+        background: #202225;
+
+        border: 1px solid #444;
+
+        color: #fff;
+
+        border-radius: 6px;
+
+        padding: 12px 16px;
+
+        box-shadow:
+            0 5px 20px rgba(0, 0, 0, .4);
+
+        font-size: 13px;
+
+        opacity: 0;
+
+        pointer-events: none;
+
+        transform: translateY(10px);
+
+        transition: .2s;
+    }
+
+    .alert-checker-toast.show {
+        opacity: 1;
+
+        transform: translateY(0);
+    }
+
+
+    /* ==========================================================
+       RESPONSIVE
+       ========================================================== */
+
+    @media (max-width: 1100px) {
+
+        .alert-checker-grid {
+            grid-template-columns: 1fr;
+        }
+
+    }
+
+
+    @media (max-width: 700px) {
+
+        .alert-checker-control {
+            padding: 15px;
+        }
+
+        .alert-checker-header {
+            flex-direction: column;
+
+            align-items: flex-start;
+
+            gap: 12px;
+        }
+
+        .alert-checker-actions {
+            flex-direction: column;
+        }
+
+        .alert-checker-info-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .alert-checker-service-actions {
+            flex-direction: column;
+        }
+
+        .alert-checker-terminal {
+            height: 450px;
+        }
+
+    }
+
+</style>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="alert-checker-control">
+
+
+    <!-- ======================================================
+         HEADER
+         ====================================================== -->
+
+    <div class="alert-checker-header">
+
+        <div>
+
+            <h2>
+                🔔 Preisalarm Checker
+            </h2>
+
+            <p>
+                Überwacht aktive Preisalarme und löst
+                Benachrichtigungen über die ActionQueue aus.
+            </p>
+
+        </div>
+
+
+        <div class="alert-checker-status">
+
+            <span
+                id="alertCheckerStatusDot"
+                class="alert-checker-status-dot"
+            ></span>
+
+            <span id="alertCheckerStatusText">
+                Wird geladen...
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <!-- ======================================================
+         GRID
+         ====================================================== -->
+
+    <div class="alert-checker-grid">
+
+
+        <!-- ==================================================
+             LINKS
+             ================================================== -->
+
+        <div>
+
+
+            <!-- ==============================================
+                 STEUERUNG
+                 ============================================== -->
+
+            <div class="alert-checker-card">
+
+                <div class="alert-checker-card-header">
+
+                    <h5>
+                        Checker Steuerung
+                    </h5>
+
+                </div>
+
+
+                <div class="alert-checker-card-body">
+
+
+                    <div class="alert-checker-actions">
+
+                        <button
+                            id="startButton"
+                            class="btn-alert-checker btn-alert-checker-start"
+                            onclick="controlChecker('start')"
+                        >
+                            ▶ Start
+                        </button>
+
+
+                        <button
+                            id="stopButton"
+                            class="btn-alert-checker btn-alert-checker-stop"
+                            onclick="controlChecker('stop')"
+                        >
+                            ■ Stop
+                        </button>
+
+
+                        <button
+                            class="btn-alert-checker btn-alert-checker-restart"
+                            onclick="controlChecker('restart')"
+                        >
+                            ↻ Neustart
+                        </button>
+
+                    </div>
+
+
+                    <!-- INFO -->
+
+                    <div class="alert-checker-info-grid">
+
+
+                        <div class="alert-checker-info">
+
+                            <span class="alert-checker-info-label">
+                                Service
+                            </span>
+
+                            <span
+                                id="serviceName"
+                                class="alert-checker-info-value"
+                            >
+                                —
+                            </span>
+
+                        </div>
+
+
+                        <div class="alert-checker-info">
+
+                            <span class="alert-checker-info-label">
+                                Status
+                            </span>
+
+                            <span
+                                id="activeState"
+                                class="alert-checker-info-value"
+                            >
+                                —
+                            </span>
+
+                        </div>
+
+
+                        <div class="alert-checker-info">
+
+                            <span class="alert-checker-info-label">
+                                Autostart
+                            </span>
+
+                            <span
+                                id="enabledState"
+                                class="alert-checker-info-value"
+                            >
+                                —
+                            </span>
+
+                        </div>
+
+
+                        <div class="alert-checker-info">
+
+                            <span class="alert-checker-info-label">
+                                Prozess-ID
+                            </span>
+
+                            <span
+                                id="mainPid"
+                                class="alert-checker-info-value"
+                            >
+                                —
+                            </span>
+
+                        </div>
+
+
+                        <div class="alert-checker-info">
+
+                            <span class="alert-checker-info-label">
+                                Gestartet
+                            </span>
+
+                            <span
+                                id="startTime"
+                                class="alert-checker-info-value"
+                            >
+                                —
+                            </span>
+
+                        </div>
+
+
+                        <div class="alert-checker-info">
+
+                            <span class="alert-checker-info-label">
+                                Neustarts
+                            </span>
+
+                            <span
+                                id="restartCount"
+                                class="alert-checker-info-value"
+                            >
+                                —
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- HELP -->
+
+                    <div class="alert-checker-help">
+
+                        Der Checker prüft regelmäßig die aktiven
+                        Preisalarme.
+
+                        Wird ein Alarm ausgelöst, wird eine
+                        <strong>ActionQueue</strong>-Aktion für den
+                        Discord-Bot erstellt.
+
+                        Der Discord-Bot verarbeitet diese Aktion
+                        anschließend und verschickt die
+                        Benachrichtigung.
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ==============================================
+                 SYSTEMDIENST
+                 ============================================== -->
+
+            <div
+                class="alert-checker-card"
+                style="margin-top: 20px;"
+            >
+
+                <div class="alert-checker-card-header">
+
+                    <h5>
+                        Systemdienst
+                    </h5>
+
+                </div>
+
+
+                <div class="alert-checker-card-body">
+
+                    <div
+                        style="
+                            color: #888;
+                            font-size: 12px;
+                            margin-bottom: 12px;
+                        "
+                    >
+                        Legt fest, ob der Preisalarm Checker
+                        automatisch beim Start des Servers
+                        gestartet wird.
+                    </div>
+
+
+                    <div class="alert-checker-service-actions">
+
+                        <button
+                            class="btn-alert-checker-secondary"
+                            onclick="controlChecker('enable')"
+                        >
+                            ✓ Autostart aktivieren
+                        </button>
+
+
+                        <button
+                            class="btn-alert-checker-secondary"
+                            onclick="controlChecker('disable')"
+                        >
+                            × Autostart deaktivieren
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+        <!-- ==================================================
+             RECHTS - LOG
+             ================================================== -->
+
+        <div class="alert-checker-card">
+
+            <div class="alert-checker-card-header">
+
+                <h5>
+                    Checker-Konsole
+                </h5>
+
+
+                <button
+                    class="btn-alert-log-refresh"
+                    onclick="loadOutput()"
+                >
+                    ↻ Aktualisieren
+                </button>
+
+            </div>
+
+
+            <div class="alert-checker-card-body">
+
+                <div
+                    id="alertCheckerTerminal"
+                    class="alert-checker-terminal"
+                >
+
+                    <pre id="alert-checker-console">Logs werden geladen...</pre>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+</div>
+
+
+<!-- ==========================================================
+     TOAST
+     ========================================================== -->
+
+<div
+    id="alertCheckerToast"
+    class="alert-checker-toast"
+></div>
+
+
+<script>
+
+
+    // ==========================================================
+    // STATUS LADEN
+    // ==========================================================
+
+    async function loadStatus() {
+
+        try {
+
+            const response = await fetch(
+                "{{ url_for('market_alert_checker_control.status') }}"
+            );
+
+
+            const data =
+                await response.json();
+
+
+            if (data.error) {
+
+                showToast(
+                    data.error
+                );
+
+                return;
+            }
+
+
+            updateStatus(
+                data
+            );
+
+
+        } catch (error) {
+
+            console.error(
+                "Statusfehler:",
+                error
+            );
+
+        }
+
+    }
+
+
+    // ==========================================================
+    // STATUS AKTUALISIEREN
+    // ==========================================================
+
+    function updateStatus(
+        data
+    ) {
+
+        const dot =
+            document.getElementById(
+                "alertCheckerStatusDot"
+            );
+
+
+        const statusText =
+            document.getElementById(
+                "alertCheckerStatusText"
+            );
+
+
+        const startButton =
+            document.getElementById(
+                "startButton"
+            );
+
+
+        const stopButton =
+            document.getElementById(
+                "stopButton"
+            );
+
+
+        dot.classList.remove(
+            "online"
+        );
+
+
+        statusText.classList.remove(
+            "status-running",
+            "status-stopped"
+        );
+
+
+        if (data.running) {
+
+            dot.classList.add(
+                "online"
+            );
+
+
+            statusText.textContent =
+                "Läuft";
+
+
+            statusText.classList.add(
+                "status-running"
+            );
+
+
+            startButton.disabled =
+                true;
+
+
+            stopButton.disabled =
+                false;
+
+        } else {
+
+            statusText.textContent =
+                "Gestoppt";
+
+
+            statusText.classList.add(
+                "status-stopped"
+            );
+
+
+            startButton.disabled =
+                false;
+
+
+            stopButton.disabled =
+                true;
+
+        }
+
+
+        document.getElementById(
+            "serviceName"
+        ).textContent =
+            data.service || "—";
+
+
+        document.getElementById(
+            "activeState"
+        ).textContent =
+            data.active || "—";
+
+
+        document.getElementById(
+            "enabledState"
+        ).textContent =
+            data.enabled || "—";
+
+
+        const details =
+            data.details || {};
+
+
+        document.getElementById(
+            "mainPid"
+        ).textContent =
+            details.MainPID &&
+            details.MainPID !== "0"
+                ? details.MainPID
+                : "—";
+
+
+        document.getElementById(
+            "startTime"
+        ).textContent =
+            details.ExecMainStartTimestamp ||
+            "—";
+
+
+        document.getElementById(
+            "restartCount"
+        ).textContent =
+            details.NRestarts ||
+            "0";
+
+    }
+
+
+    // ==========================================================
+    // LOGS
+    // ==========================================================
+
+    async function loadOutput() {
+
+        const consoleElement =
+            document.getElementById(
+                "alert-checker-console"
+            );
+
+
+        try {
+
+            const response = await fetch(
+                "{{ url_for('market_alert_checker_control.output') }}?lines=100"
+            );
+
+
+            const data =
+                await response.json();
+
+
+            if (!data.success) {
+
+                consoleElement.textContent =
+                    data.output ||
+                    "Fehler beim Laden der Logs.";
+
+                return;
+
+            }
+
+
+            consoleElement.textContent =
+                data.output ||
+                "Noch keine Logs vorhanden.";
+
+
+            const terminal =
+                document.getElementById(
+                    "alertCheckerTerminal"
+                );
+
+
+            terminal.scrollTop =
+                terminal.scrollHeight;
+
+
+        } catch (error) {
+
+            consoleElement.textContent =
+                "Fehler beim Laden der Logs:\n\n" +
+                error;
+
+        }
+
+    }
+
+
+    // ==========================================================
+    // START / STOP / RESTART / ENABLE / DISABLE
+    // ==========================================================
+
+    async function controlChecker(
+        action
+    ) {
+
+        try {
+
+            const response = await fetch(
+                `/market-alerts/control/${action}`,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    }
+                }
+            );
+
+
+            const data =
+                await response.json();
+
+
+            showToast(
+                data.message ||
+                "Aktion ausgeführt."
+            );
+
+
+            await loadStatus();
+
+            await loadOutput();
+
+
+        } catch (error) {
+
+            showToast(
+                "Fehler: " + error
+            );
+
+        }
+
+    }
+
+
+    // ==========================================================
+    // TOAST
+    // ==========================================================
+
+    let alertCheckerToastTimeout = null;
+
+
+    function showToast(
+        message
+    ) {
+
+        const toast =
+            document.getElementById(
+                "alertCheckerToast"
+            );
+
+
+        toast.textContent =
+            message;
+
+
+        toast.classList.add(
+            "show"
+        );
+
+
+        clearTimeout(
+            alertCheckerToastTimeout
+        );
+
+
+        alertCheckerToastTimeout =
+            setTimeout(
+                function () {
+
+                    toast.classList.remove(
+                        "show"
+                    );
+
+                },
+                3000
+            );
+
+    }
+
+
+    // ==========================================================
+    // INITIALISIERUNG
+    // ==========================================================
+
+    loadStatus();
+
+    loadOutput();
+
+
+    // ==========================================================
+    // AUTOMATISCHE AKTUALISIERUNG
+    // ==========================================================
+
+    setInterval(
+        loadStatus,
+        5000
+    );
+
+
+    setInterval(
+        loadOutput,
+        5000
+    );
+
+</script>
+
+{% endblock %}

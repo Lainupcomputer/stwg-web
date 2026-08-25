@@ -1,0 +1,1048 @@
+{% extends "dashboard.html" %}
+{% block title %}Warenhaus{% endblock %}
+{% block style_header %}
+
+<style>
+
+    /* ==========================================
+       WAREHOUSE STATISTIK
+    ========================================== */
+
+    .warehouse-stat {
+        border-radius: 8px;
+        padding: 1rem;
+        background-color: #2b2d31 !important;
+        border: 1px solid #444 !important;
+        color: #fff !important;
+    }
+
+    .warehouse-stat h4 {
+        margin: 0;
+        color: #fff !important;
+    }
+
+
+    /* ==========================================
+       WAREHOUSE CARD
+    ========================================== */
+
+    .warehouse-card {
+        background-color: #2b2d31 !important;
+        border: 1px solid #444 !important;
+        color: #fff !important;
+    }
+
+    .warehouse-card .card-header {
+        background-color: #212327 !important;
+        border-bottom: 1px solid #444 !important;
+        color: #fff !important;
+    }
+
+    .warehouse-card .card-body {
+        background-color: #2b2d31 !important;
+        color: #fff !important;
+    }
+
+
+    /* ==========================================
+       TABELLE
+    ========================================== */
+
+    .warehouse-table {
+        --bs-table-bg: #2b2d31;
+        --bs-table-color: #fff;
+        --bs-table-border-color: #444;
+
+        background-color: #2b2d31 !important;
+        color: #fff !important;
+        margin-bottom: 0 !important;
+    }
+
+    .warehouse-table thead {
+        background-color: #212327 !important;
+        color: #fff !important;
+    }
+
+    .warehouse-table thead th {
+        background-color: #212327 !important;
+        color: #fff !important;
+        border-color: #444 !important;
+    }
+
+    .warehouse-table tbody {
+        background-color: #2b2d31 !important;
+        color: #fff !important;
+    }
+
+    .warehouse-table tbody tr {
+        background-color: #2b2d31 !important;
+        color: #fff !important;
+    }
+
+    .warehouse-table tbody td {
+        background-color: #2b2d31 !important;
+        color: #fff !important;
+        border-color: #444 !important;
+    }
+
+    .warehouse-table tbody tr:hover td {
+        background-color: #36393e !important;
+        color: #fff !important;
+    }
+
+    .warehouse-table td,
+    .warehouse-table th {
+        vertical-align: middle;
+    }
+
+
+    /* ==========================================
+       AKTIONEN
+    ========================================== */
+
+    .warehouse-actions {
+        display: flex;
+        gap: 5px;
+        flex-wrap: wrap;
+    }
+
+
+    /* ==========================================
+       GEWICHT
+    ========================================== */
+
+    .warehouse-weight {
+        white-space: nowrap;
+    }
+
+
+    /* ==========================================
+       KAPAZITÄTSBALKEN
+    ========================================== */
+
+    .warehouse-progress {
+        height: 20px;
+        background-color: #212327 !important;
+        border: 1px solid #444 !important;
+        border-radius: 6px;
+        overflow: hidden;
+    }
+
+    .warehouse-progress .progress-bar {
+        background-color: #992d22 !important;
+        color: #fff !important;
+    }
+
+
+    /* ==========================================
+       MODAL
+    ========================================== */
+
+    .warehouse-modal .modal-content {
+        background-color: #2b2d31 !important;
+        color: #fff !important;
+        border: 1px solid #444 !important;
+    }
+
+    .warehouse-modal .modal-header {
+        background-color: #212327 !important;
+        color: #fff !important;
+        border-bottom: 1px solid #444 !important;
+    }
+
+    .warehouse-modal .modal-title {
+        color: #fff !important;
+    }
+
+    .warehouse-modal .modal-body {
+        background-color: #2b2d31 !important;
+        color: #fff !important;
+    }
+
+    .warehouse-modal .modal-footer {
+        background-color: #212327 !important;
+        border-top: 1px solid #444 !important;
+    }
+
+
+    /* ==========================================
+       MODAL INPUTS
+    ========================================== */
+
+    .warehouse-modal .form-control,
+    .warehouse-modal .form-select {
+        background-color: #36393e !important;
+        color: #fff !important;
+        border: 1px solid #555 !important;
+    }
+
+    .warehouse-modal .form-control:focus,
+    .warehouse-modal .form-select:focus {
+        background-color: #36393e !important;
+        color: #fff !important;
+        border-color: #992d22 !important;
+        box-shadow: 0 0 0 0.2rem rgba(153, 45, 34, 0.25) !important;
+    }
+
+    .warehouse-modal .form-select option {
+        background-color: #36393e;
+        color: #fff;
+    }
+
+
+    /* ==========================================
+       MODAL CLOSE BUTTON
+    ========================================== */
+
+    .warehouse-modal .btn-close {
+        filter: invert(1) grayscale(100%) brightness(200%);
+    }
+
+
+    /* ==========================================
+       MODAL BACKDROP
+    ========================================== */
+
+    .modal-backdrop.show {
+        opacity: 0.75;
+    }
+
+
+</style>
+
+{% endblock %}
+{% block content %}
+
+<div class="container-fluid px-0">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1">
+                📦 Lagerhalle
+            </h2>
+        </div>
+        <div class="d-flex gap-2">
+            {% if session.get("is_admin") %}
+            <a
+                href="{{ url_for('warehouse.items') }}"
+                class="btn btn-secondary"
+            >
+                ⚙ Gegenstände
+            </a>
+            <button
+                type="button"
+                class="btn btn-primary"
+                data-bs-toggle="modal"
+                data-bs-target="#createModal"
+            >
+                + Eintrag erstellen
+            </button>
+            {% endif %}
+        </div>
+    </div>
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="warehouse-stat">
+                <div class="text-secondary">
+                    Aktuelles Gewicht
+                </div>
+                <h4 id="totalWeight">
+                    {{ total_weight }}
+                </h4>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="warehouse-stat">
+                <div class="text-secondary">
+                    Noch verfügbar
+                </div>
+                <h4 id="freeWeight">
+                    {{ free_weight }}
+                </h4>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="warehouse-stat">
+                <div class="text-secondary">
+                    Maximale Kapazität
+                </div>
+                <h4>
+                    {{ warehouse_capacity }}
+                </h4>
+            </div>
+        </div>
+    </div>
+    {% set percentage = (
+        (total_weight / warehouse_capacity) * 100
+    ) if warehouse_capacity > 0 else 0 %}
+    <div class="mb-4">
+        <div class="d-flex justify-content-between mb-1">
+            <span>
+                Lagerauslastung
+            </span>
+            <span>
+                {{ "%.1f"|format(percentage) }} %
+            </span>
+        </div>
+        <div class="progress warehouse-progress">
+            <div
+                id="weightProgress"
+                class="progress-bar"
+                role="progressbar"
+                style="width: {{ percentage }}%;"
+            >
+            </div>
+        </div>
+    </div>
+    <div class="card warehouse-card">
+        <div class="card-header">
+            <strong>
+                Lagerbestand
+            </strong>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0 warehouse-table">
+                    <thead>
+                        <tr>
+                            <th>
+                                Besitzer
+                            </th>
+                            <th>
+                                Gegenstand
+                            </th>
+                            <th>
+                                Menge
+                            </th>
+                            <th>
+                                Gewicht / Stück
+                            </th>
+                            <th>
+                                Gesamtgewicht
+                            </th>
+                            {% if session.get("is_admin") %}
+                            <th>
+                                Aktionen
+                            </th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for entry in warehouses %}
+                        <tr id="row-{{ entry.id }}">
+                            <td>
+                                {{ entry.user_name }}
+                            </td>
+                            <td>
+                                {% if entry.item_data %}
+                                    {{ entry.item_data.name }}
+                                {% else %}
+                                    <span class="text-warning">
+                                        Unbekannter Gegenstand
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <strong>
+                                    {{ entry.amount }}
+                                </strong>
+                            </td>
+                            <td>
+                                {% if entry.item_data %}
+                                    {{ entry.item_data.weight }}
+                                {% else %}
+
+                                    -
+
+                                {% endif %}
+                            </td>
+                            <td class="warehouse-weight">
+                                {% if entry.item_data %}
+                                    {{ entry.amount * entry.item_data.weight }}
+                                {% else %}
+
+                                    -
+
+                                {% endif %}
+                            </td>
+                            {% if session.get("is_admin") %}
+                            <td>
+                                <div class="warehouse-actions">
+                                    <button
+                                        type="button"
+                                        class="btn btn-sm btn-success"
+                                        onclick="changeAmount(
+                                            {{ entry.id }},
+                                            'increase'
+                                        )"
+                                    >
+                                        +1
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="btn btn-sm btn-warning"
+                                        onclick="changeAmount(
+                                            {{ entry.id }},
+                                            'decrease'
+                                        )"
+                                    >
+                                        -1
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="btn btn-sm btn-primary"
+                                        onclick="openSetModal(
+                                            {{ entry.id }},
+                                            {{ entry.amount }}
+                                        )"
+                                    >
+                                        Menge setzen
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="btn btn-sm btn-info"
+                                        onclick="openEditModal(
+                                            {{ entry.id }},
+                                            {{ entry.user_id }},
+                                            {{ entry.item_id }}
+                                        )"
+                                    >
+                                        Bearbeiten
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="btn btn-sm btn-danger"
+                                        onclick="deleteEntry(
+                                            {{ entry.id }}
+                                        )"
+                                    >
+                                        Löschen
+                                    </button>
+                                </div>
+                            </td>
+                            {% endif %}
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td
+                                colspan="{% if session.get('is_admin') %}6{% else %}5{% endif %}"
+                                class="text-center py-5 text-secondary"
+                            >
+                                Das Warenhaus ist momentan leer.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% if session.get("is_admin") %}
+<div
+    class="modal fade warehouse-modal"
+    id="createModal"
+    tabindex="-1"
+    aria-hidden="true"
+>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    Lagerbestand erstellen
+                </h5>
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                ></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label
+                        for="createUser"
+                        class="form-label"
+                    >
+                        Besitzer
+                    </label>
+                    <select
+                        id="createUser"
+                        class="form-select"
+                    >
+                        {% for user in users %}
+                            <option
+                                value="{{ user.user_id }}"
+                            >
+                                {{ user.username }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label
+                        for="createItem"
+                        class="form-label"
+                    >
+                        Gegenstand
+                    </label>
+                    <select
+                        id="createItem"
+                        class="form-select"
+                    >
+                        {% for item in items %}
+                            <option
+                                value="{{ item.id }}"
+                            >
+                                {{ item.name }}
+                                -
+                                {{ item.weight }}
+                                Gewicht
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label
+                        for="createAmount"
+                        class="form-label"
+                    >
+                        Menge
+                    </label>
+                    <input
+                        type="number"
+                        id="createAmount"
+                        class="form-control"
+                        min="1"
+                        value="1"
+                    >
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-bs-dismiss="modal"
+                >
+                    Abbrechen
+                </button>
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    onclick="createEntry()"
+                >
+                    Erstellen
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div
+    class="modal fade warehouse-modal"
+    id="setModal"
+    tabindex="-1"
+    aria-hidden="true"
+>
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    Menge setzen
+                </h5>
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                ></button>
+            </div>
+            <div class="modal-body">
+                <label
+                    for="setAmount"
+                    class="form-label"
+                >
+                    Neue Menge
+                </label>
+                <input
+                    type="number"
+                    id="setAmount"
+                    class="form-control"
+                    min="0"
+                >
+            </div>
+            <div class="modal-footer">
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    onclick="setAmount()"
+                >
+                    Speichern
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div
+    class="modal fade warehouse-modal"
+    id="editModal"
+    tabindex="-1"
+    aria-hidden="true"
+>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    Eintrag bearbeiten
+                </h5>
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                ></button>
+            </div>
+            <div class="modal-body">
+                <input
+                    type="hidden"
+                    id="editId"
+                >
+                <div class="mb-3">
+                    <label
+                        for="editUser"
+                        class="form-label"
+                    >
+                        Besitzer
+                    </label>
+                    <select
+                        id="editUser"
+                        class="form-select"
+                    >
+                        {% for user in users %}
+                            <option
+                                value="{{ user.user_id }}"
+                            >
+                                {{ user.username }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label
+                        for="editItem"
+                        class="form-label"
+                    >
+                        Gegenstand
+                    </label>
+                    <select
+                        id="editItem"
+                        class="form-select"
+                    >
+                        {% for item in items %}
+                            <option
+                                value="{{ item.id }}"
+                            >
+                                {{ item.name }}
+                                -
+                                {{ item.weight }}
+                                Gewicht
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    onclick="editEntry()"
+                >
+                    Speichern
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+<script>
+function changeAmount(id, action) {
+
+
+    fetch(
+        "{{ url_for('warehouse.update') }}",
+        {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+
+                id: id,
+
+                action: action,
+
+                amount: 1
+
+            })
+
+        }
+    )
+
+
+    .then(response => response.json())
+
+
+    .then(data => {
+
+
+        if (!data.success) {
+
+            alert(data.message);
+
+            return;
+
+        }
+
+
+        location.reload();
+
+    })
+
+
+    .catch(error => {
+
+        console.error(error);
+
+        alert(
+            "Beim Ändern der Menge ist ein Fehler aufgetreten."
+        );
+
+    });
+
+}
+
+let currentSetId = null;
+
+
+function openSetModal(id, amount) {
+
+
+    currentSetId = id;
+
+
+    document.getElementById(
+        "setAmount"
+    ).value = amount;
+
+
+    bootstrap.Modal
+        .getOrCreateInstance(
+            document.getElementById("setModal")
+        )
+        .show();
+
+}
+
+function setAmount() {
+
+
+    const amount = parseInt(
+
+        document.getElementById(
+            "setAmount"
+        ).value
+
+    );
+
+
+    if (isNaN(amount) || amount < 0) {
+
+        alert(
+            "Bitte eine gültige Menge eingeben."
+        );
+
+        return;
+
+    }
+
+
+    fetch(
+        "{{ url_for('warehouse.update') }}",
+        {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+
+                id: currentSetId,
+
+                action: "set",
+
+                amount: amount
+
+            })
+
+        }
+
+    )
+
+
+    .then(response => response.json())
+
+
+    .then(data => {
+
+
+        if (!data.success) {
+
+            alert(data.message);
+
+            return;
+
+        }
+
+
+        location.reload();
+
+    });
+
+}
+
+function createEntry() {
+
+
+    const userId =
+
+        document.getElementById(
+            "createUser"
+        ).value;
+
+
+    const itemId =
+
+        document.getElementById(
+            "createItem"
+        ).value;
+
+
+    const amount =
+
+        parseInt(
+
+            document.getElementById(
+                "createAmount"
+            ).value
+
+        );
+
+
+    if (!amount || amount < 1) {
+
+        alert(
+            "Bitte eine gültige Menge eingeben."
+        );
+
+        return;
+
+    }
+
+
+    fetch(
+        "{{ url_for('warehouse.create') }}",
+        {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+
+                user_id: userId,
+
+                item_id: itemId,
+
+                amount: amount
+
+            })
+
+        }
+
+    )
+
+
+    .then(response => response.json())
+
+
+    .then(data => {
+
+
+        if (!data.success) {
+
+            alert(data.message);
+
+            return;
+
+        }
+
+
+        location.reload();
+
+    });
+
+}
+
+
+function openEditModal(
+    id,
+    userId,
+    itemId
+) {
+
+
+    document.getElementById(
+        "editId"
+    ).value = id;
+
+
+    document.getElementById(
+        "editUser"
+    ).value = userId;
+
+
+    document.getElementById(
+        "editItem"
+    ).value = itemId;
+
+
+    bootstrap.Modal
+        .getOrCreateInstance(
+            document.getElementById("editModal")
+        )
+        .show();
+
+}
+
+
+
+function editEntry() {
+
+
+    fetch(
+        "{{ url_for('warehouse.edit') }}",
+        {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+
+                id:
+                    document.getElementById(
+                        "editId"
+                    ).value,
+
+                user_id:
+                    document.getElementById(
+                        "editUser"
+                    ).value,
+
+                item_id:
+                    document.getElementById(
+                        "editItem"
+                    ).value
+
+            })
+
+        }
+
+    )
+
+
+    .then(response => response.json())
+
+
+    .then(data => {
+
+
+        if (!data.success) {
+
+            alert(data.message);
+
+            return;
+
+        }
+
+
+        location.reload();
+
+    });
+
+}
+
+
+function deleteEntry(id) {
+
+
+    if (
+
+        !confirm(
+            "Möchtest du diesen Eintrag wirklich löschen?"
+        )
+
+    ) {
+
+        return;
+
+    }
+
+
+    fetch(
+        "{{ url_for('warehouse.delete') }}",
+        {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+
+                id: id
+
+            })
+
+        }
+
+    )
+
+
+    .then(response => response.json())
+
+
+    .then(data => {
+
+
+        if (!data.success) {
+
+            alert(data.message);
+
+            return;
+
+        }
+
+
+        location.reload();
+
+    });
+
+}
+</script>
+{% endblock %}

@@ -1,0 +1,374 @@
+{% extends "dashboard.html" %}
+
+{% block title %}
+    Ausbildungen
+{% endblock %}
+
+{% block style_header %}
+<style>
+
+.training-control {
+    padding: 25px;
+}
+
+.training-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #444;
+}
+
+.training-header h2 {
+    margin: 0;
+    color: #fff;
+    font-size: 24px;
+}
+
+.training-header p {
+    margin: 5px 0 0;
+    color: #8e9297;
+    font-size: 13px;
+}
+
+.training-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.training-btn {
+    border: none;
+    border-radius: 6px;
+    padding: 9px 15px;
+    color: #fff;
+    cursor: pointer;
+    font-weight: 600;
+    text-decoration: none;
+    transition: .15s ease;
+}
+
+.training-btn:hover {
+    opacity: .85;
+    color: #fff;
+}
+
+.training-btn-primary {
+    background: #992d22;
+}
+
+.training-btn-secondary {
+    background: #444;
+    border: 1px solid #666;
+}
+
+.training-btn-success {
+    background: #198754;
+}
+
+.training-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.training-stat {
+    background: #333;
+    border: 1px solid #444;
+    border-radius: 8px;
+    padding: 18px;
+}
+
+.training-stat-label {
+    color: #8e9297;
+    font-size: 12px;
+}
+
+.training-stat-value {
+    color: #fff;
+    font-size: 28px;
+    font-weight: 700;
+    margin-top: 5px;
+}
+
+.training-card {
+    background: #333 !important;
+    color: #fff !important;
+    border: 1px solid #444;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.training-card-header {
+    padding: 15px 18px;
+    background: #2b2d31;
+    border-bottom: 1px solid #444;
+}
+
+.training-card-header h5 {
+    margin: 0;
+    color: #fff;
+}
+
+.training-card-body {
+    padding: 18px;
+}
+
+.training-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.training-table th {
+    color: #aaa;
+    font-size: 12px;
+    text-align: left;
+    padding: 10px;
+    border-bottom: 1px solid #444;
+}
+
+.training-table td {
+    padding: 10px;
+    border-bottom: 1px solid #444;
+    color: #ddd;
+}
+
+.training-table tr:last-child td {
+    border-bottom: none;
+}
+
+.member-name {
+    color: #fff;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.member-name:hover {
+    color: #992d22;
+}
+
+.training-status {
+    display: inline-block;
+    padding: 4px 9px;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.training-status.done {
+    background: rgba(40,167,69,.2);
+    color: #28a745;
+}
+
+.training-status.missing {
+    background: rgba(220,53,69,.2);
+    color: #dc3545;
+}
+
+.progress-bar-container {
+    background: #222;
+    border-radius: 6px;
+    height: 8px;
+    overflow: hidden;
+    margin-top: 8px;
+}
+
+.progress-bar {
+    height: 100%;
+    background: #198754;
+    border-radius: 6px;
+    transition: width .25s ease;
+}
+
+.member-progress {
+    min-width: 150px;
+}
+
+@media (max-width: 900px) {
+
+    .training-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .training-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .training-table {
+        font-size: 12px;
+    }
+
+}
+
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="training-control">
+    <div class="training-header">
+        <div>
+            <h2>
+                🎓 Ausbildungsübersicht
+            </h2>
+        </div>
+    </div>
+
+    <!-- ==================================================
+         MITGLIEDER / STATUS
+    ================================================== -->
+
+    <div class="training-card">
+
+        <div class="training-card-header">
+
+            <h5>
+                Pflichtausbildungen –
+                {{ "%02d"|format(month) }}.{{ year }}
+            </h5>
+
+        </div>
+
+
+        <div class="training-card-body">
+
+            {% if members %}
+
+            <table class="training-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Mitglied
+                        </th>
+
+
+                        {% for training in trainings %}
+
+                            <th>
+                                {{ training.name }}
+                            </th>
+
+                        {% endfor %}
+
+
+                        <th>
+                            Fortschritt
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                {% for member in members %}
+
+                    <tr>
+
+                        <!-- ==================================
+                             MITGLIED
+                        ================================== -->
+
+                        <td>
+
+                            <a
+                                href="{{ url_for(
+                                    'training.member_detail',
+                                    user_id=member.user.id
+                                ) }}"
+                                class="member-name"
+                            >
+                                {{ member.user.username }}
+                            </a>
+
+                        </td>
+
+
+                        <!-- ==================================
+                             AUSBILDUNGEN
+                        ================================== -->
+
+                        {% for item in member.trainings %}
+
+                            <td>
+
+                                {% if item.completed %}
+
+                                    <span class="training-status done">
+                                        ✓ Erledigt
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="training-status missing">
+                                        ✕ Offen
+                                    </span>
+
+                                {% endif %}
+
+                            </td>
+
+                        {% endfor %}
+
+
+                        <!-- ==================================
+                             FORTSCHRITT
+                        ================================== -->
+
+                        <td class="member-progress">
+
+                            {{ member.completed }}
+                            /
+                            {{ member.total }}
+
+
+                            <div class="progress-bar-container">
+
+                                <div
+                                    class="progress-bar"
+                                    style="
+                                        width:
+                                        {% if member.total %}
+                                            {{ (member.completed / member.total * 100)|round }}%
+                                        {% else %}
+                                            100%
+                                        {% endif %}
+                                    "
+                                ></div>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+
+            {% else %}
+
+                <div style="color:#888;">
+                    Keine aktiven Mitglieder vorhanden.
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,286 @@
+{% extends "dashboard.html" %}
+
+{% block title %}
+    {{ training.name }}
+{% endblock %}
+
+
+{% block style_header %}
+<style>
+
+.training-control {
+    padding: 25px;
+}
+
+.training-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #444;
+}
+
+.training-header h2 {
+    color: #fff;
+    margin: 0;
+    font-size: 24px;
+}
+
+.training-header p {
+    color: #888;
+    margin: 6px 0 0;
+    font-size: 13px;
+}
+
+.training-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.training-btn {
+    padding: 9px 14px;
+    border-radius: 6px;
+    text-decoration: none;
+    color: #fff;
+    font-weight: 600;
+    font-size: 13px;
+    display: inline-block;
+}
+
+.training-btn:hover {
+    opacity: .9;
+}
+
+.btn-edit {
+    background: #0d6efd;
+}
+
+.btn-back {
+    background: #444;
+}
+
+.training-card {
+    background: #333;
+    border: 1px solid #444;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.training-card-header {
+    background: #2b2d31;
+    padding: 15px 18px;
+    border-bottom: 1px solid #444;
+}
+
+.training-card-header h5 {
+    margin: 0;
+    color: #fff;
+    font-size: 15px;
+}
+
+.training-card-body {
+    padding: 20px;
+    color: #ddd;
+}
+
+.training-description {
+    color: #ddd;
+    line-height: 1.6;
+    margin-bottom: 18px;
+}
+
+.training-document {
+    background: #222;
+    border: 1px solid #444;
+    border-radius: 7px;
+    padding: 20px;
+    white-space: pre-wrap;
+    line-height: 1.6;
+    color: #ddd;
+}
+
+.badges {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.badge {
+    padding: 5px 9px;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.badge-green {
+    color: #28a745;
+    background: rgba(40,167,69,.2);
+}
+
+.badge-orange {
+    color: #fd7e14;
+    background: rgba(253,126,20,.2);
+}
+
+.badge-red {
+    color: #dc3545;
+    background: rgba(220,53,69,.2);
+}
+
+.empty-text {
+    color: #888;
+    font-size: 13px;
+}
+
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="training-control">
+
+
+    {# ======================================================
+       HEADER
+       ====================================================== #}
+
+    <div class="training-header">
+
+        <div>
+
+            <h2>
+                🎓 {{ training.name }}
+            </h2>
+
+            <p>
+                Details und Ausbildungsunterlagen
+            </p>
+
+        </div>
+
+
+        <div class="training-actions">
+
+            <a
+                href="{{ url_for(
+                    'training.edit_training',
+                    training_id=training.id
+                ) }}"
+                class="training-btn btn-edit"
+            >
+                ✏ Bearbeiten
+            </a>
+
+
+            <a
+                href="{{ url_for('training.trainings') }}"
+                class="training-btn btn-back"
+            >
+                ← Zurück
+            </a>
+
+        </div>
+
+    </div>
+
+
+    {# ======================================================
+       INFORMATIONEN
+       ====================================================== #}
+
+    <div class="training-card">
+
+        <div class="training-card-header">
+
+            <h5>
+                Informationen
+            </h5>
+
+        </div>
+
+
+        <div class="training-card-body">
+
+            <div class="training-description">
+
+                {{ training.description or
+                   "Keine Beschreibung vorhanden." }}
+
+            </div>
+
+
+            <div class="badges">
+
+                {% if training.active %}
+
+                    <span class="badge badge-green">
+                        ✓ AKTIV
+                    </span>
+
+                {% else %}
+
+                    <span class="badge badge-red">
+                        ✕ INAKTIV
+                    </span>
+
+                {% endif %}
+
+
+                {% if training.required_monthly %}
+
+                    <span class="badge badge-orange">
+                        📅 MONATLICH PFLICHT
+                    </span>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    {# ======================================================
+       AUSBILDUNGSDOKUMENT
+       ====================================================== #}
+
+    <div class="training-card">
+
+        <div class="training-card-header">
+
+            <h5>
+                📄 Ausbildungsdokument
+            </h5>
+
+        </div>
+
+
+        <div class="training-card-body">
+
+            {% if training.document %}
+
+                <div class="training-document">
+                    {{ training.document }}
+                </div>
+
+            {% else %}
+
+                <div class="empty-text">
+                    Für diese Ausbildung wurde noch kein
+                    Dokument hinterlegt.
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+</div>
+
+{% endblock %}

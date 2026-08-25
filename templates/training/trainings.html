@@ -1,0 +1,432 @@
+{% extends "dashboard.html" %}
+
+{% block title %}
+    Ausbildungen verwalten
+{% endblock %}
+
+{% block style_header %}
+<style>
+
+.training-control {
+    padding: 25px;
+}
+
+.training-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #444;
+}
+
+.training-header h2 {
+    margin: 0;
+    color: #fff;
+}
+
+.training-header p {
+    margin: 5px 0 0;
+    color: #888;
+    font-size: 13px;
+}
+
+.training-btn {
+    display: inline-block;
+    padding: 9px 15px;
+    border-radius: 6px;
+    text-decoration: none;
+    color: #fff;
+    font-weight: 600;
+    background: #992d22;
+    transition: .15s ease;
+}
+
+.training-btn:hover {
+    color: #fff;
+    opacity: .85;
+}
+
+.training-card {
+    background: #333;
+    border: 1px solid #444;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.training-card-header {
+    padding: 15px 18px;
+    background: #2b2d31;
+    border-bottom: 1px solid #444;
+}
+
+.training-card-header h5 {
+    margin: 0;
+    color: #fff;
+}
+
+.training-card-body {
+    padding: 18px;
+}
+
+.training-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 15px;
+    background: #2b2d31;
+    border: 1px solid #444;
+    border-radius: 7px;
+    margin-bottom: 10px;
+}
+
+.training-item:last-child {
+    margin-bottom: 0;
+}
+
+.training-info {
+    min-width: 0;
+}
+
+.training-name {
+    color: #fff;
+    font-weight: 600;
+    font-size: 15px;
+}
+
+.training-description {
+    color: #888;
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+.training-badges {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+}
+
+.badge {
+    padding: 4px 7px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.badge-active {
+    background: rgba(40,167,69,.2);
+    color: #28a745;
+}
+
+.badge-inactive {
+    background: rgba(220,53,69,.2);
+    color: #dc3545;
+}
+
+.badge-required {
+    background: rgba(253,126,20,.2);
+    color: #fd7e14;
+}
+
+.training-actions {
+    display: flex;
+    gap: 7px;
+    flex-shrink: 0;
+}
+
+.training-action {
+    padding: 7px 10px;
+    border-radius: 5px;
+    color: #fff;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    font-size: 12px;
+    transition: .15s ease;
+}
+
+.training-action:hover {
+    opacity: .85;
+    color: #fff;
+}
+
+.action-view {
+    background: #444;
+}
+
+.action-edit {
+    background: #0d6efd;
+}
+
+.action-delete {
+    background: #dc3545;
+}
+
+.training-empty {
+    color: #888;
+    text-align: center;
+    padding: 30px 15px;
+}
+
+@media (max-width: 700px) {
+
+    .training-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .training-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .training-actions {
+        width: 100%;
+    }
+
+    .training-action {
+        flex: 1;
+        text-align: center;
+    }
+
+}
+
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="training-control">
+
+    <!-- ==================================================
+         HEADER
+    ================================================== -->
+
+    <div class="training-header">
+
+        <div>
+
+            <h2>
+                🎓 Ausbildungen
+            </h2>
+
+            <p>
+                Ausbildungen erstellen und verwalten
+            </p>
+
+        </div>
+
+
+        <a
+            href="{{ url_for('training.create_training') }}"
+            class="training-btn"
+        >
+            ＋ Ausbildung erstellen
+        </a>
+
+    </div>
+
+
+    <!-- ==================================================
+         AUSBILDUNGEN
+    ================================================== -->
+
+    <div class="training-card">
+
+        <div class="training-card-header">
+
+            <h5>
+                Ausbildungsübersicht
+            </h5>
+
+        </div>
+
+
+        <div class="training-card-body">
+
+            {% if trainings %}
+
+                {% for training in trainings %}
+
+                    <div class="training-item">
+
+                        <!-- ==================================
+                             INFORMATIONEN
+                        ================================== -->
+
+                        <div class="training-info">
+
+                            <div class="training-name">
+                                {{ training.name }}
+                            </div>
+
+
+                            <div class="training-description">
+
+                                {% if training.description %}
+
+                                    {{ training.description }}
+
+                                {% else %}
+
+                                    Keine Beschreibung vorhanden.
+
+                                {% endif %}
+
+                            </div>
+
+
+                            <div class="training-badges">
+
+                                {% if training.active %}
+
+                                    <span class="badge badge-active">
+                                        AKTIV
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="badge badge-inactive">
+                                        INAKTIV
+                                    </span>
+
+                                {% endif %}
+
+
+                                {% if training.required_monthly %}
+
+                                    <span class="badge badge-required">
+                                        MONATLICH PFLICHT
+                                    </span>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- ==================================
+                             AKTIONEN
+                        ================================== -->
+
+                        <div class="training-actions">
+
+                            <a
+                                href="{{ url_for(
+                                    'training.training_detail',
+                                    training_id=training.id
+                                ) }}"
+                                class="training-action action-view"
+                            >
+                                Anzeigen
+                            </a>
+
+
+                            <a
+                                href="{{ url_for(
+                                    'training.edit_training',
+                                    training_id=training.id
+                                ) }}"
+                                class="training-action action-edit"
+                            >
+                                Bearbeiten
+                            </a>
+
+
+                            <button
+                                type="button"
+                                class="training-action action-delete"
+                                onclick="deleteTraining({{ training.id }})"
+                            >
+                                Löschen
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+
+            {% else %}
+
+                <div class="training-empty">
+                    Noch keine Ausbildungen vorhanden.
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+async function deleteTraining(id) {
+
+    if (!confirm(
+        "Diese Ausbildung wirklich löschen?"
+    )) {
+        return;
+    }
+
+
+    try {
+
+        const response = await fetch(
+            "{{ url_for('training.delete_training', training_id=0) }}"
+                .replace("/0/delete", "/" + id + "/delete"),
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            }
+        );
+
+
+        const data = await response.json();
+
+
+        if (data.success) {
+
+            alert(
+                data.message ||
+                "Ausbildung wurde gelöscht."
+            );
+
+            location.reload();
+
+            return;
+        }
+
+
+        alert(
+            data.message ||
+            "Die Ausbildung konnte nicht gelöscht werden."
+        );
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert(
+            "Fehler beim Löschen der Ausbildung."
+        );
+
+    }
+
+}
+
+</script>
+
+{% endblock %}

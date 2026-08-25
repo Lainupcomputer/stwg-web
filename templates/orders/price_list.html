@@ -1,0 +1,196 @@
+{% extends "dashboard.html" %}
+{% block title %}Preisliste bearbeiten{% endblock %}
+{% block style_header %}
+<link rel="stylesheet" href="{{ url_for('static', filename='style/global_dark.css') }}">
+
+<style>
+/* Spaltenrahmen */
+.price-column {
+    border: 1px solid #555;
+    padding: 15px;
+    border-radius: 5px;
+    background-color: #222;
+    min-height: 200px;
+    margin-bottom: 1rem;
+}
+
+/* Item Karten */
+.card {
+    background-color: #333;
+    color: #fff;
+    margin-bottom: 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100px; /* feste Höhe */
+    padding: 10px;
+}
+
+/* Name & Preis */
+.item-name {
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+.item-price {
+    font-size: 0.9rem;
+    margin-top: 5px;
+}
+
+/* Buttons untereinander, gleich groß */
+.item-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.item-buttons button {
+    width: 60px;
+    font-size: 0.85rem;
+}
+
+/* Edit Bleistift-Button */
+.btn-edit {
+    background-color: #ffc107;
+    border: none;
+    color: #000;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 3px;
+}
+
+/* Delete Button */
+.btn-delete-x {
+    background-color: #dc3545;
+    border: none;
+    color: #fff;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 3px;
+}
+
+/* Modal Inputs */
+.modal .form-control {
+    background-color: #333 !important;
+    color: #fff !important;
+    border: 1px solid #888 !important;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+
+
+
+    <!-- Neues Item hinzufügen -->
+    <div class="card mb-4 p-3">
+        <h5>Neues Item hinzufügen</h5>
+        <div class="input-group mb-2">
+            <input type="text" class="form-control" id="new-name" placeholder="Name">
+            <input type="text" class="form-control" id="new-price" placeholder="Preis">
+            <select class="form-select" id="new-category">
+                <option value="weapons">Weapons</option>
+                <option value="vehicle">Vehicle</option>
+                <option value="equipment">Equipment</option>
+                <option value="components">Components</option>
+            </select>
+            <button class="btn btn-success" onclick="addItem()">Hinzufügen</button>
+        </div>
+    </div>
+
+    <div class="row">
+        {% for category, items in categorized_items.items() %}
+        <div class="col-md-3 price-column">
+            <h5 class="text-center">{{ category.capitalize() }}</h5>
+            <div id="list-{{ category }}">
+                {% for item in items %}
+                <div class="card d-flex flex-row justify-content-between align-items-center" data-id="{{ item.id }}">
+    <div>
+        <div class="item-name">Name: {{ item.name }}</div>
+        <div class="item-price">Preis: {{ item.price }} €</div>
+    </div>
+    <div class="item-buttons d-flex flex-column">
+        <button class="btn-edit" title="Bearbeiten" onclick="openEditModal({{ item.id }}, '{{ item.name }}', '{{ item.price }}')">&#9998;</button>
+        <button class="btn-delete-x" title="Löschen" onclick="deleteItem({{ item.id }})">x</button>
+    </div>
+</div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Edit Item Modal -->
+<div class="modal fade" id="editItemModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content bg-dark text-white">
+      <div class="modal-header">
+        <h5 class="modal-title">Item bearbeiten</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="text" id="edit-name" class="form-control mb-2 text-dark" placeholder="Name">
+        <input type="text" id="edit-price" class="form-control text-dark" placeholder="Preis">
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+        <button class="btn btn-primary" id="saveEditBtn">Speichern</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let editItemId = null;
+
+async function addItem() {
+    const name = document.getElementById("new-name").value.trim();
+    const price = document.getElementById("new-price").value.trim();
+    const category = document.getElementById("new-category").value;
+    if (!name || !price || !category) return alert("Alle Felder ausfüllen!");
+
+    const res = await fetch("/orders/item", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ name, price, category })
+    });
+    const data = await res.json();
+    if (!res.ok) return alert(data.error);
+    location.reload();
+}
+
+async function deleteItem(id) {
+    if (!confirm("Wirklich löschen?")) return;
+    const res = await fetch(`/orders/item/${id}`, { method: "DELETE" });
+    if (!res.ok) return alert("Fehler beim Löschen");
+    location.reload();
+}
+
+// --- Modal öffnen ---
+function openEditModal(id, name, price) {
+    editItemId = id;
+    document.getElementById("edit-name").value = name;
+    document.getElementById("edit-price").value = price;
+    const modal = new bootstrap.Modal(document.getElementById("editItemModal"));
+    modal.show();
+}
+
+// --- Modal speichern ---
+document.getElementById("saveEditBtn").addEventListener("click", async () => {
+    const name = document.getElementById("edit-name").value.trim();
+    const price = document.getElementById("edit-price").value.trim();
+    if (!name || !price) return alert("Name und Preis müssen ausgefüllt sein!");
+
+    const res = await fetch(`/orders/item/${editItemId}`, {
+        method: "PUT",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ name, price })
+    });
+    if (!res.ok) return alert("Fehler beim Bearbeiten");
+    bootstrap.Modal.getInstance(document.getElementById("editItemModal")).hide();
+    location.reload();
+});
+</script>
+{% endblock %}

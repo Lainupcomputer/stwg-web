@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
+
+    <title>
+        {% block title %}Fehler{% endblock %}
+        – STWG
+    </title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="icon"
+        type="image/x-icon"
+        href="{{ url_for('static', filename='img/fav.png') }}"
+    >
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background:
+                radial-gradient(
+                    circle at top right,
+                    rgba(153, 45, 34, 0.12),
+                    transparent 35%
+                ),
+                #36393e;
+            color: #ffffff;
+            font-family:
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .public-navbar {
+            width: 100%;
+            background: rgba(32, 34, 37, 0.94);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid #111214;
+        }
+
+        .navbar-inner {
+            max-width: 1250px;
+            margin: auto;
+            min-height: 70px;
+            padding: 0 22px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .brand-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #992d22;
+            border-radius: 10px;
+            font-size: 20px;
+            box-shadow:
+                0 5px 18px rgba(0,0,0,0.25);
+        }
+
+        .brand-text {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.1;
+        }
+
+        .brand-title {
+            font-size: 16px;
+            font-weight: 800;
+        }
+
+        .brand-subtitle {
+            font-size: 10px;
+            color: #8e9297;
+            margin-top: 3px;
+        }
+
+        .desktop-nav {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .desktop-nav a {
+            color: #b9bbbe;
+            text-decoration: none;
+            padding: 9px 13px;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: 0.2s ease;
+        }
+
+        .desktop-nav a:hover {
+            color: #fff;
+            background: #2b2d31;
+        }
+
+        .login-btn {
+            background: #992d22 !important;
+            color: #fff !important;
+            margin-left: 8px;
+        }
+
+        .login-btn:hover {
+            background: #b6382a !important;
+            transform: translateY(-1px);
+        }
+
+        .error-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 70px 20px;
+        }
+
+        .error-container {
+            width: 100%;
+            max-width: 720px;
+            text-align: center;
+            background: #202225;
+            border: 1px solid #2f3136;
+            border-radius: 18px;
+            padding: 55px 35px;
+            box-shadow:
+                0 20px 60px rgba(0,0,0,0.30);
+        }
+
+        .error-icon {
+            width: 70px;
+            height: 70px;
+            margin: 0 auto 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background:
+                rgba(153, 45, 34, 0.15);
+            border:
+                1px solid rgba(153, 45, 34, 0.35);
+            border-radius: 16px;
+            font-size: 34px;
+        }
+
+        .error-code {
+            color: #992d22;
+            font-size: clamp(80px, 15vw, 150px);
+            line-height: 0.9;
+            font-weight: 900;
+            letter-spacing: -6px;
+            margin-bottom: 20px;
+            text-shadow:
+                0 10px 30px rgba(0,0,0,0.25);
+        }
+
+        .error-container h1 {
+            font-size: 30px;
+            font-weight: 800;
+            margin: 0 0 12px;
+        }
+
+        .error-container p {
+            color: #8e9297;
+            font-size: 16px;
+            line-height: 1.7;
+            max-width: 560px;
+            margin:
+                0 auto 30px;
+        }
+
+        .error-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: #992d22;
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: 9px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.2s ease;
+        }
+
+        .error-button:hover {
+            background: #b6382a;
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow:
+                0 8px 25px rgba(153,45,34,0.25);
+        }
+
+        .error-secondary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 8px;
+            padding: 12px 20px;
+            border-radius: 9px;
+            color: #fff;
+            background: #2b2d31;
+            border: 1px solid #3a3c41;
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.2s ease;
+        }
+
+        .error-secondary:hover {
+            background: #323438;
+            color: #fff;
+        }
+
+        footer {
+            border-top: 1px solid #2f3136;
+            background: #202225;
+        }
+
+        .footer-inner {
+            max-width: 1250px;
+            margin: auto;
+            padding: 28px 22px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            color: #8e9297;
+            font-size: 13px;
+        }
+
+        .footer-inner strong {
+            color: #fff;
+        }
+
+        @media (max-width: 600px) {
+
+            .navbar-inner {
+                padding: 0 14px;
+            }
+
+            .desktop-nav {
+                display: none;
+            }
+
+            .error-wrapper {
+                padding:
+                    40px 15px;
+            }
+
+            .error-container {
+                padding:
+                    40px 20px;
+            }
+
+            .error-container h1 {
+                font-size: 25px;
+            }
+
+            .error-container p {
+                font-size: 15px;
+            }
+
+            .error-button,
+            .error-secondary {
+                width: 100%;
+                margin:
+                    5px 0;
+            }
+
+            .footer-inner {
+                flex-direction: column;
+                text-align: center;
+            }
+
+        }
+
+    </style>
+</head>
+<body>
+<nav class="public-navbar">
+    <div class="navbar-inner">
+        <a
+            href="{{ url_for('index') }}"
+            class="brand"
+        >
+            <div class="brand-icon">
+                🐝
+            </div>
+            <div class="brand-text">
+                <span class="brand-title">
+                    STWG
+                </span>
+                <span class="brand-subtitle">
+                    STICH UND WEG
+                </span>
+            </div>
+        </a>
+        <div class="desktop-nav">
+            <a href="{{ url_for('index') }}">
+                Startseite
+            </a>
+            <a href="{{ url_for('index') }}#ueber-uns">
+                Über uns
+            </a>
+            <a href="{{ url_for('index') }}#aufgaben">
+                Aufgaben
+            </a>
+            <a href="{{ url_for('index') }}#leitung">
+                Leitung
+            </a>
+            <a
+                href="{{ url_for('auth.login') }}"
+                class="login-btn"
+            >
+                🔐 Anmelden
+            </a>
+        </div>
+    </div>
+</nav>
+<main class="error-wrapper">
+    <div class="error-container">
+        <div class="error-icon">
+            🐝
+        </div>
+        <div class="error-code">
+            {% block error_code %}500{% endblock %}
+        </div>
+        <h1>
+            {% block error_title %}
+                Interner Serverfehler
+            {% endblock %}
+        </h1>
+        <p>
+            {% block error_message %}
+                Auf dem Server ist ein unerwarteter Fehler aufgetreten.
+            {% endblock %}
+        </p>
+        <div>
+            <a
+                href="{{ url_for('index') }}"
+                class="error-button"
+            >
+                🏠 Zur Startseite
+            </a>
+            <a
+                href="javascript:history.back()"
+                class="error-secondary"
+            >
+                ← Zurück
+            </a>
+        </div>
+    </div>
+</main>
+<footer>
+    <div class="footer-inner">
+        <div>
+            <strong>
+                🐝 STWG StichUndWeg
+            </strong>
+            <br>
+            Arma 3 · Live Your Life
+        </div>
+        <div>
+            Mit ❤️ gemacht von LainUp
+        </div>
+    </div>
+</footer>
+</body>
+</html>

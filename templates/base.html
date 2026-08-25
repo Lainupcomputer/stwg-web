@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Mein CMS{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/bootstrap.min.css') }}"/>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style/style.css') }}"/>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='img/fav.png') }}">
+    {% block style_header %}{% endblock %}
+</head>
+<body>
+    <script src="{{ url_for('static', filename='script/bootstrap.min.js') }}"></script>
+    {% include 'partials/navbar_minimal.html' %}
+    {% include 'partials/flash_msg.html' %}
+    {% block content %}{% endblock %}
+
+</body>
+</html>

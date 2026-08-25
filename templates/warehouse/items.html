@@ -1,0 +1,805 @@
+{% extends "dashboard.html" %}
+{% block title %}Gegenstände{% endblock %}
+{% block style_header %}
+<style>
+
+    .warehouse-card {
+        background-color: #2b2d31 !important;
+        border: 1px solid #444 !important;
+        color: #fff !important;
+    }
+
+    .warehouse-card .card-header {
+        background-color: #212327 !important;
+        border-bottom: 1px solid #444 !important;
+        color: #fff !important;
+    }
+
+    .warehouse-table {
+        --bs-table-bg: #2b2d31;
+        --bs-table-color: #fff;
+        --bs-table-border-color: #444;
+
+        background-color: #2b2d31 !important;
+        color: #fff !important;
+    }
+
+    .warehouse-table thead,
+    .warehouse-table thead tr,
+    .warehouse-table thead th {
+        background-color: #212327 !important;
+        color: #fff !important;
+        border-color: #444 !important;
+    }
+
+    .warehouse-table tbody,
+    .warehouse-table tbody tr,
+    .warehouse-table tbody td {
+        background-color: #2b2d31 !important;
+        color: #fff !important;
+        border-color: #444 !important;
+    }
+
+    .warehouse-table tbody tr:hover td {
+        background-color: #36393e !important;
+        color: #fff !important;
+    }
+
+    .warehouse-modal .modal-content {
+        background-color: #2b2d31 !important;
+        color: #fff !important;
+        border: 1px solid #444 !important;
+    }
+
+    .warehouse-modal .modal-header {
+        background-color: #212327 !important;
+        color: #fff !important;
+        border-bottom: 1px solid #444 !important;
+    }
+
+    .warehouse-modal .modal-body {
+        background-color: #2b2d31 !important;
+        color: #fff !important;
+    }
+
+    .warehouse-modal .modal-footer {
+        background-color: #212327 !important;
+        border-top: 1px solid #444 !important;
+    }
+
+    .warehouse-modal .form-control {
+        background-color: #36393e !important;
+        color: #fff !important;
+        border: 1px solid #555 !important;
+    }
+
+    .warehouse-modal .form-control:focus {
+        background-color: #36393e !important;
+        color: #fff !important;
+        border-color: #992d22 !important;
+        box-shadow: 0 0 0 0.2rem rgba(153, 45, 34, 0.25) !important;
+    }
+
+    .warehouse-modal .form-control::placeholder {
+        color: #aaa !important;
+    }
+
+    .warehouse-modal .btn-close {
+        filter: invert(1) grayscale(100%) brightness(200%);
+    }
+
+    .item-weight {
+        font-weight: 600;
+    }
+
+</style>
+{% endblock %}
+{% block content %}
+<div class="container-fluid px-0">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1">
+                ⚙ Gegenstände
+            </h2>
+        </div>
+        <div class="d-flex gap-2">
+            <a
+                href="{{ url_for('warehouse.view') }}"
+                class="btn btn-secondary"
+            >
+                ← Lagerhaus
+            </a>
+            <button
+                type="button"
+                class="btn btn-primary"
+                id="openCreateItemButton"
+            >
+                + Gegenstand erstellen
+            </button>
+        </div>
+    </div>
+    <div class="card warehouse-card">
+        <div class="card-header">
+            <strong>
+                Gegenstände
+            </strong>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table warehouse-table mb-0">
+                    <thead>
+                        <tr>
+                            <th>
+                                Gegenstand
+                            </th>
+                            <th>
+                                Gewicht pro Stück
+                            </th>
+                            <th style="width: 220px;">
+                                Aktionen
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for item in items %}
+                        <tr>
+                            <td>
+                                <strong>
+                                    {{ item.name }}
+                                </strong>
+                            </td>
+                            <td>
+                                <span class="item-weight">
+                                    {{ item.weight }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="d-flex gap-2">
+                                    <button
+                                        type="button"
+                                        class="btn btn-sm btn-primary edit-item-button"
+                                        data-item-id="{{ item.id }}"
+                                        data-item-name="{{ item.name }}"
+                                        data-item-weight="{{ item.weight }}"
+                                    >
+                                        Bearbeiten
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="btn btn-sm btn-danger delete-item-button"
+                                        data-item-id="{{ item.id }}"
+                                        data-item-name="{{ item.name }}"
+                                    >
+                                        Löschen
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td
+                                colspan="3"
+                                class="text-center py-5 text-secondary"
+                            >
+                                Keine Gegenstände vorhanden.
+
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div
+    class="modal fade warehouse-modal"
+    id="createItemModal"
+    tabindex="-1"
+    aria-hidden="true"
+>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    Gegenstand erstellen
+                </h5>
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Schließen"
+                ></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label
+                        for="createItemName"
+                        class="form-label"
+                    >
+                        Name
+                    </label>
+                    <input
+                        type="text"
+                        id="createItemName"
+                        class="form-control"
+                        maxlength="100"
+                        placeholder="z.B. Wasserflasche"
+                    >
+                </div>
+                <div class="mb-3">
+                    <label
+                        for="createItemWeight"
+                        class="form-label"
+                    >
+                        Gewicht pro Stück
+                    </label>
+                    <input
+                        type="number"
+                        id="createItemWeight"
+                        class="form-control"
+                        min="0"
+                        step="0.01"
+                        placeholder="z.B. 2.5"
+                    >
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-bs-dismiss="modal"
+                >
+                    Abbrechen
+                </button>
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    id="createItemButton"
+                >
+                    Erstellen
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div
+    class="modal fade warehouse-modal"
+    id="editItemModal"
+    tabindex="-1"
+    aria-hidden="true"
+>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    Gegenstand bearbeiten
+                </h5>
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Schließen"
+                ></button>
+            </div>
+            <div class="modal-body">
+                <input
+                    type="hidden"
+                    id="editItemId"
+                >
+                <div class="mb-3">
+                    <label
+                        for="editItemName"
+                        class="form-label"
+                    >
+                        Name
+                    </label>
+                    <input
+                        type="text"
+                        id="editItemName"
+                        class="form-control"
+                        maxlength="100"
+                    >
+                </div>
+                <div class="mb-3">
+                    <label
+                        for="editItemWeight"
+                        class="form-label"
+                    >
+                        Gewicht pro Stück
+                    </label>
+                    <input
+                        type="number"
+                        id="editItemWeight"
+                        class="form-control"
+                        min="0"
+                        step="0.01"
+                    >
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-bs-dismiss="modal"
+                >
+                    Abbrechen
+                </button>
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    id="saveItemButton"
+                >
+                    Speichern
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+
+        console.log(
+            "Warehouse Items JavaScript geladen"
+        );
+
+        const createModalElement =
+            document.getElementById(
+                "createItemModal"
+            );
+
+        const editModalElement =
+            document.getElementById(
+                "editItemModal"
+            );
+
+
+        const createModal =
+            new bootstrap.Modal(
+                createModalElement
+            );
+
+        const editModal =
+            new bootstrap.Modal(
+                editModalElement
+            );
+
+        const openCreateButton =
+            document.getElementById(
+                "openCreateItemButton"
+            );
+
+
+        openCreateButton.addEventListener(
+            "click",
+            function () {
+
+                document.getElementById(
+                    "createItemName"
+                ).value = "";
+
+                document.getElementById(
+                    "createItemWeight"
+                ).value = "";
+
+
+                createModal.show();
+
+            }
+        );
+
+        document.getElementById(
+            "createItemButton"
+        ).addEventListener(
+            "click",
+            function () {
+
+
+                const name =
+                    document.getElementById(
+                        "createItemName"
+                    ).value.trim();
+
+
+                const weight =
+                    parseFloat(
+                        document.getElementById(
+                            "createItemWeight"
+                        ).value
+                    );
+
+
+                if (!name) {
+
+                    alert(
+                        "Bitte einen Namen eingeben."
+                    );
+
+                    return;
+
+                }
+
+
+                if (
+                    isNaN(weight) ||
+                    weight < 0
+                ) {
+
+                    alert(
+                        "Bitte ein gültiges Gewicht eingeben."
+                    );
+
+                    return;
+
+                }
+
+
+                fetch(
+                    "{{ url_for('warehouse.create_item') }}",
+                    {
+
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body: JSON.stringify({
+
+                            name: name,
+
+                            weight: weight
+
+                        })
+
+                    }
+                )
+
+
+                .then(
+                    response => response.json()
+                )
+
+
+                .then(
+                    data => {
+
+                        if (!data.success) {
+
+                            alert(
+                                data.message
+                            );
+
+                            return;
+
+                        }
+
+                        location.reload();
+
+                    }
+                )
+
+
+                .catch(
+                    error => {
+
+                        console.error(
+                            "Fehler:",
+                            error
+                        );
+
+                        alert(
+                            "Beim Erstellen ist ein Fehler aufgetreten."
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+
+        document
+            .querySelectorAll(
+                ".edit-item-button"
+            )
+            .forEach(
+                function (button) {
+
+
+                    button.addEventListener(
+                        "click",
+                        function () {
+
+
+                            const id =
+                                this.dataset.itemId;
+
+                            const name =
+                                this.dataset.itemName;
+
+                            const weight =
+                                this.dataset.itemWeight;
+
+
+                            console.log(
+                                "Bearbeiten:",
+                                id,
+                                name,
+                                weight
+                            );
+
+
+                            document.getElementById(
+                                "editItemId"
+                            ).value = id;
+
+
+                            document.getElementById(
+                                "editItemName"
+                            ).value = name;
+
+
+                            document.getElementById(
+                                "editItemWeight"
+                            ).value = weight;
+
+
+                            editModal.show();
+
+                        }
+                    );
+
+                }
+            );
+
+        document.getElementById(
+            "saveItemButton"
+        ).addEventListener(
+            "click",
+            function () {
+
+
+                const id =
+                    document.getElementById(
+                        "editItemId"
+                    ).value;
+
+
+                const name =
+                    document.getElementById(
+                        "editItemName"
+                    ).value.trim();
+
+
+                const weight =
+                    parseFloat(
+                        document.getElementById(
+                            "editItemWeight"
+                        ).value
+                    );
+
+
+                if (!id) {
+
+                    alert(
+                        "Keine Item-ID vorhanden."
+                    );
+
+                    return;
+
+                }
+
+
+                if (!name) {
+
+                    alert(
+                        "Bitte einen Namen eingeben."
+                    );
+
+                    return;
+
+                }
+
+
+                if (
+                    isNaN(weight) ||
+                    weight < 0
+                ) {
+
+                    alert(
+                        "Bitte ein gültiges Gewicht eingeben."
+                    );
+
+                    return;
+
+                }
+
+
+                fetch(
+                    "{{ url_for('warehouse.edit_item') }}",
+                    {
+
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body: JSON.stringify({
+
+                            id: id,
+
+                            name: name,
+
+                            weight: weight
+
+                        })
+
+                    }
+                )
+
+
+                .then(
+                    response => response.json()
+                )
+
+
+                .then(
+                    data => {
+
+                        if (!data.success) {
+
+                            alert(
+                                data.message
+                            );
+
+                            return;
+
+                        }
+
+                        location.reload();
+
+                    }
+                )
+
+
+                .catch(
+                    error => {
+
+                        console.error(
+                            "Fehler:",
+                            error
+                        );
+
+                        alert(
+                            "Beim Speichern ist ein Fehler aufgetreten."
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+        document
+            .querySelectorAll(
+                ".delete-item-button"
+            )
+            .forEach(
+                function (button) {
+
+
+                    button.addEventListener(
+                        "click",
+                        function () {
+
+
+                            const id =
+                                this.dataset.itemId;
+
+                            const name =
+                                this.dataset.itemName;
+
+
+                            console.log(
+                                "Löschen:",
+                                id,
+                                name
+                            );
+
+
+                            if (
+                                !confirm(
+                                    'Möchtest du "' +
+                                    name +
+                                    '" wirklich löschen?'
+                                )
+                            ) {
+
+                                return;
+
+                            }
+
+
+                            fetch(
+                                "{{ url_for('warehouse.delete_item') }}",
+                                {
+
+                                    method: "POST",
+
+                                    headers: {
+                                        "Content-Type":
+                                            "application/json"
+                                    },
+
+                                    body: JSON.stringify({
+
+                                        id: id
+
+                                    })
+
+                                }
+                            )
+
+
+                            .then(
+                                response =>
+                                    response.json()
+                            )
+
+
+                            .then(
+                                data => {
+
+                                    if (
+                                        !data.success
+                                    ) {
+
+                                        alert(
+                                            data.message
+                                        );
+
+                                        return;
+
+                                    }
+
+                                    location.reload();
+
+                                }
+                            )
+
+
+                            .catch(
+                                error => {
+
+                                    console.error(
+                                        "Fehler:",
+                                        error
+                                    );
+
+                                    alert(
+                                        "Beim Löschen ist ein Fehler aufgetreten."
+                                    );
+
+                                }
+                            );
+
+                        }
+                    );
+
+                }
+            );
+
+    }
+
+);
+</script>
+{% endblock %}

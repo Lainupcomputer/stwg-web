@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Dashboard{% endblock %}</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+        crossorigin="anonymous"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style/style.css') }}"
+    >
+
+    <link
+        rel="icon"
+        type="image/x-icon"
+        href="{{ url_for('static', filename='img/fav.png') }}"
+    >
+
+    {% block style_header %}{% endblock %}
+
+</head>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+    
+        const tooltipTriggerList = document.querySelectorAll(
+            '[data-bs-toggle="tooltip"]'
+        );
+    
+        tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+    
+            new bootstrap.Tooltip(
+                tooltipTriggerEl,
+                {
+                    delay: {
+                        show: 350,
+                        hide: 100
+                    },
+                    placement: "right"
+                }
+            );
+    
+        });
+    
+    });
+</script>
+<body>
+<div class="d-flex w-100">
+    <nav class="sidebar">
+        <a
+            href="{{ url_for('index') }}"
+            class="sidebar-brand"
+        >
+            <div class="sidebar-brand-icon">
+                🐝
+            </div>
+            <div class="sidebar-brand-text">
+                <span class="sidebar-brand-title">
+                    STWG
+                </span>
+                <span class="sidebar-brand-subtitle">
+                    Management Panel
+                </span>
+            </div>
+        </a>
+        <div class="sidebar-section">
+            <button
+                class="sidebar-section-title"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#collapse_stwg"
+                aria-expanded="true"
+                aria-controls="collapse_stwg"
+            >
+                <span>
+                    STWG
+                </span>
+                <span class="arrow">
+                    ▾
+                </span>
+            </button>
+            <div
+                class="collapse show"
+                id="collapse_stwg"
+            >
+                <ul class="sidebar-nav">  
+                    <li class="sidebar-nav-item">
+                        <a
+                            class="nav-link {% if active=='meeting' %}active{% endif %}"
+                            href="{{ url_for('meeting.view') }}"
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="right"
+                            title="Zeigt vergangene Besprechungen von STWG"
+                        >
+                        
+
+                            <span class="nav-icon">
+                                📅
+                            </span>
+
+                            <span class="nav-text">
+                                Besprechungen
+                            </span>
+
+                        </a>
+
+                    </li>
+                    <!-- Regeln -->
+
+                    <li class="sidebar-nav-item">
+
+                        <a
+                            class="nav-link {% if active=='rules' %}active{% endif %}"
+                            href="{{ url_for('rules.view_rules_public') }}"
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="right"
+                            title="Zeigt dir das Regelwerk von STWG"
+                        >
+                        
+
+                            <span class="nav-icon">
+                                📜
+                            </span>
+
+                            <span class="nav-text">
+                                Regelwerk
+                            </span>
+
+                        </a>
+
+                    </li>
+
+                    <!-- Lager -->
+
+                    <li class="sidebar-nav-item">
+
+                        <a
+                            class="nav-link {% if active=='my_warehouse' %}active{% endif %}"
+                            href="{{ url_for('warehouse.my') }}"
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="right"
+                            title="Zeigt dir die Lagerhallenverwaltung"
+                        
+                        >
+
+                            <span class="nav-icon">
+                                📦
+                            </span>
+
+                            <span class="nav-text">
+                                Lagerhalle
+                            </span>
+
+                        </a>
+
+                    </li>
+            
+  
+                    <!-- Marktverlauf -->
+
+                    <li class="sidebar-nav-item">
+
+                        <a
+                            class="nav-link {% if active=='market' %}active{% endif %}"
+                            href="{{ url_for('market.index') }}"
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="right"
+                            title="Zeigt dir den Marktverlaif an"
+                        
+                        >
+
+                            <span class="nav-icon">
+                                📈
+                            </span>
+
+                            <span class="nav-text">
+                                Marktverlauf
+                            </span>
+
+                        </a>
+
+                    </li>
+                    <!-- Preisalarm -->
+
+                    <li class="sidebar-nav-item">
+
+                        <a
+                            class="nav-link {% if active=='market_alerts' %}active{% endif %}"
+                            href="{{ url_for('market_alerts.index') }}"
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="right"
+                            title="Verwalte Benachrichtigungen bei bestimmten Preisen"
+                        
+                        >
+
+                            <span class="nav-icon">
+                                🔔
+                            </span>
+
+                            <span class="nav-text">
+                                Preisalarm
+                            </span>
+
+                        </a>
+
+                    </li>   
+                    <li>
+
+                        <a
+                            class="nav-link {% if active=='wasp_game' %}active{% endif %}"
+                            href="{{ url_for('wasp.game') }}"
+                        >
+                    
+                            <span class="nav-icon">
+                                🐝
+                            </span>
+                    
+                            <span class="nav-text">
+                                Wespenflug
+                            </span>
+                    
+                        </a>
+                    
+                    </li>                
+                </ul>
+
+            </div>
+
+        </div>
+
+
+        <div class="sidebar-divider"></div>
+        {% if session.get('is_trainer') %}
+
+<div class="sidebar-section">
+
+    <button
+        class="sidebar-section-title"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#collapseTrainings"
+        aria-expanded="true"
+        aria-controls="collapseTrainings"
+    >
+        <span>
+            Ausbildungen
+        </span>
+
+        <span class="arrow">
+            ▾
+        </span>
+    </button>
+
+
+    <div
+        class="collapse show"
+        id="collapseTrainings"
+    >
+
+        <ul class="sidebar-nav">
+
+            <li>
+
+                <a
+                    class="nav-link {% if active=='training' %}active{% endif %}"
+                    href="{{ url_for('training.index') }}"
+                >
+
+                    <span class="nav-icon">
+                        🎓
+                    </span>
+
+                    <span class="nav-text">
+                        Übersicht
+                    </span>
+
+                </a>
+
+            </li>
+            <li>
+
+                <a
+                    class="nav-link {% if active=='training' %}active{% endif %}"
+                    href="{{ url_for('training.trainings') }}"
+                >
+
+                    <span class="nav-icon">
+                        🎓
+                    </span>
+
+                    <span class="nav-text">
+                        Ausbildungen
+                    </span>
+
+                </a>
+
+            </li>
+
+        </ul>
+
+    </div>
+
+</div>
+
+{% endif %}
+
+        <!-- ======================================================
+             VERWALTUNG
+        ======================================================= -->
+        {% if session.get('is_admin') %}
+        <div class="sidebar-section">
+
+            <button
+                class="sidebar-section-title"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#collapseVerwaltung"
+                aria-expanded="true"
+                aria-controls="collapseVerwaltung"
+            >
+
+                <span>
+                    Verwaltung
+                </span>
+
+                <span class="arrow">
+                    ▾
+                </span>
+
+            </button>
+
+
+            <div
+                class="collapse show"
+                id="collapseVerwaltung"
+            >
+
+                <ul class="sidebar-nav">
+
+
+                    <!-- Benutzer -->
+
+                    <li class="sidebar-nav-item">
+
+                        <a
+                            class="nav-link {% if active=='user' %}active{% endif %}"
+                            href="{{ url_for('users.view_users') }}"
+                        >
+
+                            <span class="nav-icon">
+                                👥
+                            </span>
+
+                            <span class="nav-text">
+                                Benutzer
+                            </span>
+
+                        </a>
+
+                    </li>
+
+
+
+                    <!-- Regeln -->
+
+                    <li class="sidebar-nav-item">
+
+                        <a
+                            class="nav-link d-flex justify-content-between align-items-center"
+                            data-bs-toggle="collapse"
+                            href="#collapseRules"
+                            role="button"
+                            aria-expanded="false"
+                            aria-controls="collapseRules"
+                        >
+
+                            <span class="d-flex align-items-center gap-2">
+
+                                <span class="nav-icon">
+                                    📜
+                                </span>
+
+                                <span class="nav-text">
+                                    Regeln
+                                </span>
+
+                            </span>
+
+                            <span class="nav-arrow">
+                                ▾
+                            </span>
+
+                        </a>
+
+
+                        <ul
+                            class="sidebar-submenu collapse"
+                            id="collapseRules"
+                        >
+
+                            <li>
+
+                                <a
+                                    class="nav-link {% if active=='rules_show' %}active{% endif %}"
+                                    href="{{ url_for('rules.view_rules') }}"
+                                >
+                                    Anzeigen
+                                </a>
+
+                            </li>
+
+                            <li>
+
+                                <a
+                                    class="nav-link"
+                                    href="{{ url_for('rules.add_rule') }}"
+                                >
+                                    Erstellen
+                                </a>
+
+                            </li>
+
+                            <li>
+
+                                <a
+                                    class="nav-link"
+                                    href="{{ url_for('rules.send_rules_via_hook') }}"
+                                >
+                                    Senden
+                                </a>
+
+                            </li>
+
+                        </ul>
+
+                    </li>
+
+
+
+                    <!-- Lager -->
+
+                    <li class="sidebar-nav-item">
+
+                        <a
+                            class="nav-link {% if active=='warehouse' %}active{% endif %}"
+                            href="{{ url_for('warehouse.view') }}"
+                        >
+
+                            <span class="nav-icon">
+                                📦
+                            </span>
+
+                            <span class="nav-text">
+                                Lagerhalle
+                            </span>
+
+                        </a>
+
+                    </li>
+                </ul>
+
+            </div>
+
+        </div>
+        {% endif %}
+        <!-- ======================================================
+             KOMMUNIKATION
+        ======================================================= -->
+        {% if session.get('is_supporter') %}
+        <div class="sidebar-section">
+
+            <button
+                class="sidebar-section-title"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#collapseCommunication"
+                aria-expanded="true"
+                aria-controls="collapseCommunication"
+            >
+
+                <span>
+                    Kommunikation
+                </span>
+
+                <span class="arrow">
+                    ▾
+                </span>
+
+            </button>
+
+
+            <div
+                class="collapse show"
+                id="collapseCommunication"
+            >
+
+                <ul class="sidebar-nav">
+
+
+                    <li>
+
+                        <a
+                            class="nav-link {% if active=='messaging' %}active{% endif %}"
+                            href="{{ url_for('messaging.messaging_page') }}"
+                        >
+
+                            <span class="nav-icon">
+                                💬
+                            </span>
+
+                            <span class="nav-text">
+                                Nachrichtensystem
+                            </span>
+
+                        </a>
+
+                    </li>
+
+
+                    <li>
+
+                        <a
+                            class="nav-link {% if active=='tickets' %}active{% endif %}"
+                            href="{{ url_for('tickets.tickets_page') }}"
+                        >
+
+                            <span class="nav-icon">
+                                🎫
+                            </span>
+
+                            <span class="nav-text">
+                                Ticketsystem
+                            </span>
+
+                        </a>
+
+                    </li>
+
+
+                </ul>
+
+            </div>
+
+        </div>
+        {% endif %}
+        <!-- ======================================================
+             INTERNES
+        ======================================================= -->
+        {% if session.get('is_admin') %}
+        <div class="sidebar-section">
+
+            <button
+                class="sidebar-section-title"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#collapseInternal"
+                aria-expanded="true"
+                aria-controls="collapseInternal"
+            >
+
+                <span>
+                    Internes
+                </span>
+
+                <span class="arrow">
+                    ▾
+                </span>
+
+            </button>
+
+
+            <div
+                class="collapse show"
+                id="collapseInternal"
+            >
+
+                <ul class="sidebar-nav">
+
+
+                    <!-- Besprechungen -->
+
+                    <li>
+
+                        <a
+                            class="nav-link d-flex justify-content-between align-items-center"
+                            data-bs-toggle="collapse"
+                            href="#collapseMeeting"
+                            role="button"
+                            aria-expanded="false"
+                            aria-controls="collapseMeeting"
+                        >
+
+                            <span class="d-flex align-items-center gap-2">
+
+                                <span class="nav-icon">
+                                    📅
+                                </span>
+
+                                <span class="nav-text">
+                                    Besprechungen
+                                </span>
+
+                            </span>
+
+                            <span class="nav-arrow">
+                                ▾
+                            </span>
+
+                        </a>
+
+
+                        <ul
+                            class="sidebar-submenu collapse"
+                            id="collapseMeeting"
+                        >
+
+                            <li>
+
+                                <a
+                                    class="nav-link"
+                                    href="{{ url_for('meeting.view') }}"
+                                >
+                                    Übersicht
+                                </a>
+
+                            </li>
+
+                            <li>
+
+                                <a
+                                    class="nav-link"
+                                    href="{{ url_for('meeting.create') }}"
+                                >
+                                    Anlegen
+                                </a>
+
+                            </li>
+
+                            <li>
+
+                                <a
+                                    class="nav-link"
+                                    href="{{ url_for('meeting.announce') }}"
+                                >
+                                    Ankündigen
+                                </a>
+
+                            </li>
+
+                        </ul>
+
+                    </li>
+
+
+
+                    <!-- Dokumente -->
+
+                    <li>
+
+                        <a
+                            class="nav-link {% if active=='document' %}active{% endif %}"
+                            href="{{ url_for('document.view') }}"
+                                
+                        >
+
+                            <span class="nav-icon">
+                                📄
+                            </span>
+
+                            <span class="nav-text">
+                                Dokumente
+                            </span>
+
+                        </a>
+
+                    </li>
+
+
+
+                    <!-- Berechtigungen -->
+
+                    <li>
+
+                        <a
+                            class="nav-link {% if active=='license_management' %}active{% endif %}"
+                            href="{{ url_for('license_management.index') }}"
+                        >
+                    
+                            <span class="nav-icon">
+                                🔐
+                            </span>
+                    
+                            <span class="nav-text">
+                                Lizenzen
+                            </span>
+                    
+                        </a>
+                    
+                    </li>
+
+
+
+                    <!-- Awards -->
+
+                    <li>
+
+                        <a
+                            class="nav-link d-flex justify-content-between align-items-center"
+                            data-bs-toggle="collapse"
+                            href="#collapseAwards"
+                            role="button"
+                            aria-expanded="false"
+                            aria-controls="collapseAwards"
+                        >
+
+                            <span class="d-flex align-items-center gap-2">
+
+                                <span class="nav-icon">
+                                    🏆
+                                </span>
+
+                                <span class="nav-text">
+                                    Awards
+                                </span>
+
+                            </span>
+
+                            <span class="nav-arrow">
+                                ▾
+                            </span>
+
+                        </a>
+
+
+                        <ul
+                            class="sidebar-submenu collapse"
+                            id="collapseAwards"
+                        >
+
+                            <li>
+
+                                <a
+                                    class="nav-link"
+                                    href="{{ url_for('rules.view_rules') }}"
+                                >
+                                    Übersicht
+                                </a>
+
+                            </li>
+
+                            <li>
+
+                                <a
+                                    class="nav-link"
+                                    href="{{ url_for('rules.add_rule') }}"
+                                >
+                                    Management
+                                </a>
+
+                            </li>
+
+                        </ul>
+
+                    </li>
+
+
+                </ul>
+
+            </div>
+
+        </div>
+        {% endif %}
+
+        <!-- ======================================================
+             EINSTELLUNGEN
+        ======================================================= -->
+        {% if session.get('is_admin') %}
+        <div class="sidebar-divider"></div>
+        <div class="sidebar-section">
+            <button
+                class="sidebar-section-title"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#collapseSystem"
+                aria-expanded="false"
+                aria-controls="collapseSystem"
+            >
+
+                <span>
+                    Einstellungen
+                </span>
+
+                <span class="arrow">
+                    ▾
+                </span>
+
+            </button>
+
+
+            <div
+                class="collapse"
+                id="collapseSystem"
+            >
+
+                <ul class="sidebar-nav">
+
+
+                    <!-- Status -->
+
+                    <li>
+
+                        <a
+                            class="nav-link {% if active=='status' %}active{% endif %}"
+                            href="{{ url_for('status.status_page') }}"
+                        >
+
+                            <span class="nav-icon">
+                                📡
+                            </span>
+
+                            <span class="nav-text">
+                                Statusmeldungen
+                            </span>
+
+                        </a>
+
+                    </li>
+
+
+
+                    <!-- Einstellungen -->
+
+                    <li>
+
+                        <a
+                            class="nav-link {% if active=='settings' %}active{% endif %}"
+                            href="{{ url_for('settings.index') }}"
+                        >
+
+                            <span class="nav-icon">
+                                ⚙️
+                            </span>
+
+                            <span class="nav-text">
+                                Einstellungen
+                            </span>
+
+                        </a>
+
+                    </li>
+
+
+
+                    <!-- Voice Credits -->
+
+                    <li>
+
+                        <a
+                            class="nav-link {% if active=='voice_credits' %}active{% endif %}"
+                            href="{{ url_for('voice_credits.view') }}"
+                        >
+
+                            <span class="nav-icon">
+                                🎙️
+                            </span>
+
+                            <span class="nav-text">
+                                Voice Credits
+                            </span>
+
+                        </a>
+
+                    </li>
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if session.get('is_supporter') %}
+        <div class="sidebar-divider"></div>
+        <div class="sidebar-section">
+            <button
+                class="sidebar-section-title"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#collapseWorkers"
+                aria-expanded="false"
+                aria-controls="collapseWorkers"
+            >
+
+                <span>
+                    Services & Worker
+                </span>
+
+                <span class="arrow">
+                    ▾
+                </span>
+
+            </button>
+
+
+            <div
+                class="collapse"
+                id="collapseWorkers"
+            >
+
+                <ul class="sidebar-nav">
+
+                    <li>
+
+                        <a
+                            class="nav-link {% if active=='bot' %}active{% endif %}"
+                            href="{{ url_for('bot_control.index') }}"
+                        >
+
+                            <span class="nav-icon">
+                                🤖
+                            </span>
+
+                            <span class="nav-text">
+                                Discord Bot
+                            </span>
+
+                        </a>
+
+                    </li>
+                    <li>
+
+                        <a
+                            class="nav-link {% if active=='grabber' %}active{% endif %}"
+                            href="{{ url_for('grabber_control.index') }}"
+                        >
+
+                            <span class="nav-icon">
+                                🤖
+                            </span>
+
+                            <span class="nav-text">
+                                Marktdaten Grabber
+                            </span>
+
+                        </a>
+
+                    </li>
+                    <li>
+
+                        <a
+                            class="nav-link {% if active=='market_alert_checker' %}active{% endif %}"
+                            href="{{ url_for('market_alert_checker_control.index') }}"
+                        >
+
+                            <span class="nav-icon">
+                                🤖
+                            </span>
+
+                            <span class="nav-text">
+                                Marktalarm 
+                            </span>
+
+                        </a>
+
+                    </li>
+
+
+                </ul>
+
+            </div>
+
+        </div>
+        {% endif %}
+
+
+
+        <!-- ======================================================
+             LOGOUT
+        ======================================================= -->
+
+        {% if session.get('user') %}
+        <div class="sidebar-divider"></div>
+        <div class="sidebar-bottom">
+
+            <a
+                class="nav-link logout-link"
+                href="{{ url_for('auth.logout') }}"
+            >
+
+                <span class="nav-icon">
+                    ↪
+                </span>
+
+                <span class="nav-text">
+                    Abmelden
+                </span>
+
+            </a>
+
+        </div>
+        {% endif %}
+
+
+    </nav>
+
+
+
+    <!-- ==========================================================
+         MAIN CONTENT
+    =========================================================== -->
+
+    <main class="main-content">
+
+        {% block content %}{% endblock %}
+    
+        <footer class="dashboard-footer">
+    
+            Mit
+            <span class="footer-heart">♥</span>
+            gemacht von
+            <span class="footer-brand">
+                LainUp
+            </span>
+    
+        </footer>
+    
+    </main>
+
+
+</div>
+
+
+
+<script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+    crossorigin="anonymous"
+></script>
+
+
+</body>
+
+</html>

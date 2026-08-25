@@ -1,0 +1,657 @@
+{% extends "dashboard.html" %}
+{% block title %}Dokument bearbeiten{% endblock %}
+{% block style_header %}
+
+<link
+    href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css"
+    rel="stylesheet"
+>
+
+<style>
+
+    /* =========================================================
+       ALLGEMEIN
+       ========================================================= */
+
+    .document-card {
+        background-color: #333 !important;
+        color: #fff !important;
+        border: 1px solid #444;
+    }
+
+    .document-card .card-title {
+        color: #fff !important;
+    }
+
+    .document-card .form-label {
+        color: #fff !important;
+        font-weight: 500;
+    }
+
+    .document-card .form-control {
+        background-color: #444 !important;
+        color: #fff !important;
+        border: 1px solid #666 !important;
+    }
+
+    .document-card .form-control:focus {
+        background-color: #444 !important;
+        color: #fff !important;
+        border-color: #0d6efd !important;
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+    }
+
+    .document-card .form-control::placeholder {
+        color: #aaa !important;
+    }
+
+
+    /* =========================================================
+       QUILL CONTAINER
+       ========================================================= */
+
+    .editor-wrapper {
+        border: 1px solid #666;
+        border-radius: 6px;
+        overflow: hidden;
+        background-color: #2b2b2b;
+    }
+
+
+    /* =========================================================
+       QUILL TOOLBAR
+       ========================================================= */
+
+    #toolbar {
+        background-color: #444 !important;
+        border: none !important;
+        border-bottom: 1px solid #666 !important;
+        color: #fff !important;
+    }
+
+
+    /* =========================================================
+       BUTTONS
+       ========================================================= */
+
+    #toolbar button {
+        color: #fff !important;
+        background: transparent !important;
+        border: none !important;
+    }
+
+    #toolbar button svg {
+        width: 18px;
+        height: 18px;
+    }
+
+
+    /* =========================================================
+       QUILL SVG ICONS
+       ========================================================= */
+
+    #toolbar .ql-stroke {
+        stroke: #fff !important;
+    }
+
+    #toolbar .ql-fill {
+        fill: #fff !important;
+    }
+
+    #toolbar .ql-even {
+        fill: #fff !important;
+    }
+
+    #toolbar svg path {
+        stroke: #fff !important;
+    }
+
+    #toolbar svg line {
+        stroke: #fff !important;
+    }
+
+    #toolbar svg polyline {
+        stroke: #fff !important;
+    }
+
+    #toolbar svg polygon {
+        fill: #fff !important;
+    }
+
+    #toolbar svg rect {
+        stroke: #fff !important;
+    }
+
+    #toolbar svg circle {
+        stroke: #fff !important;
+    }
+
+
+    /* =========================================================
+       HOVER
+       ========================================================= */
+
+    #toolbar button:hover {
+        background-color: #555 !important;
+    }
+
+    #toolbar button:hover .ql-stroke {
+        stroke: #4da3ff !important;
+    }
+
+    #toolbar button:hover .ql-fill {
+        fill: #4da3ff !important;
+    }
+
+    #toolbar button:hover svg path {
+        stroke: #4da3ff !important;
+    }
+
+
+    /* =========================================================
+       AKTIVER BUTTON
+       ========================================================= */
+
+    #toolbar button.ql-active {
+        background-color: #555 !important;
+    }
+
+    #toolbar button.ql-active .ql-stroke {
+        stroke: #4da3ff !important;
+    }
+
+    #toolbar button.ql-active .ql-fill {
+        fill: #4da3ff !important;
+    }
+
+    #toolbar button.ql-active svg path {
+        stroke: #4da3ff !important;
+    }
+
+
+    /* =========================================================
+       DROPDOWNS
+       ========================================================= */
+
+    #toolbar .ql-picker {
+        color: #fff !important;
+    }
+
+    #toolbar .ql-picker-label {
+        color: #fff !important;
+    }
+
+    #toolbar .ql-picker-label:hover {
+        color: #4da3ff !important;
+    }
+
+    #toolbar .ql-picker-label .ql-stroke {
+        stroke: #fff !important;
+    }
+
+    #toolbar .ql-picker-label svg {
+        stroke: #fff !important;
+        fill: none !important;
+    }
+
+
+    /* =========================================================
+       DROPDOWN MENÜ
+       ========================================================= */
+
+    #toolbar .ql-picker-options {
+        background-color: #333 !important;
+        border: 1px solid #666 !important;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    }
+
+    #toolbar .ql-picker-item {
+        color: #fff !important;
+    }
+
+    #toolbar .ql-picker-item:hover {
+        background-color: #555 !important;
+        color: #4da3ff !important;
+    }
+
+
+    /* =========================================================
+       COLOR PICKER
+       ========================================================= */
+
+    #toolbar .ql-color .ql-picker-label,
+    #toolbar .ql-background .ql-picker-label {
+        color: #fff !important;
+    }
+
+    #toolbar .ql-color .ql-picker-label svg,
+    #toolbar .ql-background .ql-picker-label svg {
+        stroke: #fff !important;
+    }
+
+
+    /* =========================================================
+       TOOLBAR TRENNER
+       ========================================================= */
+
+    #toolbar .ql-formats {
+        border-right: 1px solid #666;
+        padding-right: 8px;
+        margin-right: 8px;
+    }
+
+    #toolbar .ql-formats:last-child {
+        border-right: none;
+    }
+
+
+    /* =========================================================
+       EDITOR
+       ========================================================= */
+
+    #documentEditor {
+        min-height: 450px;
+    }
+
+    .ql-container {
+        border: none !important;
+        background-color: #2b2b2b !important;
+        font-family: inherit;
+    }
+
+    .ql-editor {
+        min-height: 450px;
+        background-color: #2b2b2b !important;
+        color: #fff !important;
+        font-size: 16px;
+        line-height: 1.6;
+    }
+
+    .ql-editor.ql-blank::before {
+        color: #888 !important;
+        font-style: normal;
+    }
+
+
+    /* =========================================================
+       ÜBERSCHRIFTEN
+       ========================================================= */
+
+    .ql-editor h1,
+    .ql-editor h2,
+    .ql-editor h3 {
+        color: #fff !important;
+    }
+
+
+    /* =========================================================
+       LINKS
+       ========================================================= */
+
+    .ql-editor a {
+        color: #4da3ff !important;
+    }
+
+
+    /* =========================================================
+       LISTEN
+       ========================================================= */
+
+    .ql-editor ul,
+    .ql-editor ol {
+        color: #fff;
+    }
+
+
+    /* =========================================================
+       BUTTONS UNTEN
+       ========================================================= */
+
+    .document-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+    }
+
+</style>
+
+{% endblock %}
+
+
+
+{% block content %}
+<div class="card document-card mb-4">
+    <div class="card-body">
+        <h5 class="card-title mb-4">
+            ✏️ Dokument bearbeiten
+        </h5>
+        <form id="documentForm">
+            <div class="mb-4">
+                <label
+                    for="documentTitle"
+                    class="form-label"
+                >
+                    Titel
+                </label>
+                <input
+                    type="text"
+                    id="documentTitle"
+                    name="title"
+                    class="form-control"
+                    value="{{ document.title }}"
+                    required
+                    autocomplete="off"
+                >
+            </div>
+            <div class="mb-3">
+                <label class="form-label">
+                    Inhalt
+                </label>
+                <div class="editor-wrapper">
+                    <div id="toolbar">
+                        <span class="ql-formats">
+                            <select
+                                class="ql-header"
+                                title="Überschrift"
+                            >
+                                <option selected></option>
+                                <option value="1">
+                                    Überschrift 1
+                                </option>
+                                <option value="2">
+                                    Überschrift 2
+                                </option>
+                                <option value="3">
+                                    Überschrift 3
+                                </option>
+                            </select>
+                        </span>
+                        <span class="ql-formats">
+                            <button
+                                type="button"
+                                class="ql-bold"
+                                title="Fett"
+                            ></button>
+                            <button
+                                type="button"
+                                class="ql-italic"
+                                title="Kursiv"
+                            ></button>
+                            <button
+                                type="button"
+                                class="ql-underline"
+                                title="Unterstrichen"
+                            ></button>
+                            <button
+                                type="button"
+                                class="ql-strike"
+                                title="Durchgestrichen"
+                            ></button>
+                        </span>
+                        <span class="ql-formats">
+                            <select
+                                class="ql-size"
+                                title="Schriftgröße"
+                            >
+                                <option value="small">
+                                    Klein
+                                </option>
+                                <option selected>
+                                    Normal
+                                </option>
+                                <option value="large">
+                                    Groß
+                                </option>
+                                <option value="huge">
+                                    Sehr groß
+                                </option>
+                            </select>
+                        </span>
+                        <span class="ql-formats">
+                            <select
+                                class="ql-color"
+                                title="Textfarbe"
+                            >
+                                <option value="#ffffff"></option>
+                                <option value="#ff0000"></option>
+                                <option value="#ff8800"></option>
+                                <option value="#ffff00"></option>
+                                <option value="#00ff00"></option>
+                                <option value="#00aaff"></option>
+                                <option value="#5500ff"></option>
+                                <option value="#ff00aa"></option>
+                            </select>
+                        </span>
+                        <span class="ql-formats">
+                            <select
+                                class="ql-background"
+                                title="Hintergrundfarbe"
+                            >
+                                <option value="#ffff00"></option>
+                                <option value="#ffcccc"></option>
+                                <option value="#ccffcc"></option>
+                                <option value="#cce5ff"></option>
+                            </select>
+                        </span>
+                        <span class="ql-formats">
+                            <button
+                                type="button"
+                                class="ql-list"
+                                value="ordered"
+                                title="Nummerierte Liste"
+                            ></button>
+                            <button
+                                type="button"
+                                class="ql-list"
+                                value="bullet"
+                                title="Aufzählung"
+                            ></button>
+                        </span>
+                        <span class="ql-formats">
+                            <select
+                                class="ql-align"
+                                title="Ausrichtung"
+                            ></select>
+                        </span>
+                        <span class="ql-formats">
+                            <button
+                                type="button"
+                                class="ql-link"
+                                title="Link"
+                            ></button>
+                        </span>
+                        <span class="ql-formats">
+                            <button
+                                type="button"
+                                class="ql-clean"
+                                title="Formatierung entfernen"
+                            ></button>
+                        </span>
+                    </div>
+                    <div id="documentEditor"></div>
+                </div>
+                <input
+                    type="hidden"
+                    id="documentContent"
+                    name="content"
+                >
+            </div>
+            <div class="document-actions">
+                <a
+                    href="{{ url_for(
+                        'document.detail',
+                        document_id=document.id
+                    ) }}"
+                    class="btn btn-outline-light"
+                >
+                    ← Abbrechen
+                </a>
+                <button
+                    type="submit"
+                    class="btn btn-primary"
+                    id="documentSubmit"
+                >
+                    💾 Änderungen speichern
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+<script>
+    const quill = new Quill(
+        '#documentEditor',
+        {
+            theme: 'snow',
+
+            modules: {
+                toolbar: '#toolbar'
+            }
+        }
+    );
+
+    const existingContent =
+        {{ document.content | tojson }};
+
+
+    quill.root.innerHTML =
+        existingContent || '';
+
+    document
+        .getElementById('documentForm')
+        .addEventListener(
+            'submit',
+            async function(event) {
+
+                event.preventDefault();
+
+                const title =
+                    document
+                        .getElementById('documentTitle')
+                        .value
+                        .trim();
+
+
+                const content =
+                    quill.root.innerHTML;
+
+
+                const plainText =
+                    quill
+                        .getText()
+                        .trim();
+
+                    
+                if (!title) {
+
+                    alert(
+                        'Bitte einen Titel eingeben.'
+                    );
+
+                    return;
+                }
+
+                if (!plainText) {
+
+                    alert(
+                        'Bitte einen Dokumentinhalt eingeben.'
+                    );
+
+                    return;
+                }
+
+                const submitButton =
+                    document.getElementById(
+                        'documentSubmit'
+                    );
+
+
+                submitButton.disabled = true;
+
+                submitButton.textContent =
+                    'Wird gespeichert...';
+
+
+                try {
+
+                    const response =
+                        await fetch(
+                            '{{ url_for(
+                                "document.edit",
+                                document_id=document.id
+                            ) }}',
+                            {
+                                method: 'POST',
+
+                                headers: {
+                                    'Content-Type':
+                                        'application/json'
+                                },
+
+                                body: JSON.stringify({
+
+                                    title:
+                                        title,
+
+                                    content:
+                                        content
+
+                                })
+                            }
+                        );
+
+                    const result =
+                        await response.json();
+
+                    if (
+                        !response.ok ||
+                        !result.success
+                    ) {
+
+                        throw new Error(
+                            result.message ||
+                            'Fehler beim Speichern.'
+                        );
+
+                    }
+
+                    alert(
+                        'Dokument wurde erfolgreich gespeichert.'
+                    );
+
+
+                    window.location.href =
+                        '{{ url_for(
+                            "document.detail",
+                            document_id=document.id
+                        ) }}';
+
+
+                } catch (error) {
+
+                    console.error(
+                        'Fehler:',
+                        error
+                    );
+
+
+                    alert(
+                        'Fehler beim Speichern: ' +
+                        error.message
+                    );
+
+
+                } finally {
+
+                    submitButton.disabled = false;
+
+                    submitButton.textContent =
+                        '💾 Änderungen speichern';
+
+                }
+
+            }
+        );
+
+</script>
+{% endblock %}

@@ -1,0 +1,396 @@
+{% extends "dashboard.html" %}
+
+{% block title %}
+    {% if training %}
+        Ausbildung bearbeiten
+    {% else %}
+        Ausbildung erstellen
+    {% endif %}
+{% endblock %}
+
+
+{% block style_header %}
+<style>
+
+.training-control {
+    padding: 25px;
+    max-width: 900px;
+}
+
+.training-header {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #444;
+}
+
+.training-header h2 {
+    color: #fff;
+    margin: 0;
+    font-size: 24px;
+}
+
+.training-header p {
+    color: #888;
+    font-size: 13px;
+    margin: 6px 0 0;
+}
+
+.training-card {
+    background: #333;
+    border: 1px solid #444;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.training-card-header {
+    background: #2b2d31;
+    border-bottom: 1px solid #444;
+    padding: 15px 18px;
+}
+
+.training-card-header h5 {
+    color: #fff;
+    margin: 0;
+    font-size: 15px;
+}
+
+.training-card-body {
+    padding: 20px;
+}
+
+.form-group {
+    margin-bottom: 18px;
+}
+
+.form-label {
+    display: block;
+    color: #fff;
+    margin-bottom: 7px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.form-input,
+.form-textarea {
+    width: 100%;
+    box-sizing: border-box;
+    background: #444 !important;
+    border: 1px solid #666 !important;
+    color: #fff !important;
+    border-radius: 6px;
+    padding: 10px;
+    font-family: inherit;
+    font-size: 14px;
+}
+
+.form-input::placeholder,
+.form-textarea::placeholder {
+    color: #999;
+}
+
+.form-input:focus,
+.form-textarea:focus {
+    outline: none;
+    border-color: #992d22 !important;
+    box-shadow: 0 0 0 2px rgba(153,45,34,.15);
+}
+
+.form-textarea {
+    min-height: 150px;
+    resize: vertical;
+}
+
+.checkbox-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    color: #ddd;
+    margin-bottom: 12px;
+    font-size: 13px;
+}
+
+.checkbox-row input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #992d22;
+    cursor: pointer;
+}
+
+.checkbox-row label {
+    cursor: pointer;
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 25px;
+    padding-top: 18px;
+    border-top: 1px solid #444;
+}
+
+.btn {
+    border: none;
+    border-radius: 6px;
+    padding: 10px 16px;
+    color: #fff;
+    cursor: pointer;
+    font-weight: 600;
+    text-decoration: none;
+    font-size: 13px;
+    display: inline-block;
+}
+
+.btn-save {
+    background: #198754;
+}
+
+.btn-save:hover {
+    background: #157347;
+}
+
+.btn-cancel {
+    background: #444;
+}
+
+.btn-cancel:hover {
+    background: #555;
+}
+
+.flash-error {
+    background: rgba(220,53,69,.15);
+    border: 1px solid #dc3545;
+    color: #ff6b6b;
+    padding: 10px 12px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    font-size: 13px;
+}
+
+.flash-success {
+    background: rgba(25,135,84,.15);
+    border: 1px solid #198754;
+    color: #5bd391;
+    padding: 10px 12px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    font-size: 13px;
+}
+
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="training-control">
+
+    <div class="training-header">
+
+        <h2>
+            {% if training %}
+                ✏ Ausbildung bearbeiten
+            {% else %}
+                ＋ Ausbildung erstellen
+            {% endif %}
+        </h2>
+
+        <p>
+            Ausbildungsinformationen und Pflichtstatus konfigurieren.
+        </p>
+
+    </div>
+
+
+    {# ======================================================
+       FLASH MESSAGES
+       ====================================================== #}
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+
+        {% for category, message in messages %}
+
+            {% if category == "error" %}
+
+                <div class="flash-error">
+                    {{ message }}
+                </div>
+
+            {% elif category == "success" %}
+
+                <div class="flash-success">
+                    {{ message }}
+                </div>
+
+            {% endif %}
+
+        {% endfor %}
+
+    {% endwith %}
+
+
+    <div class="training-card">
+
+        <div class="training-card-header">
+
+            <h5>
+                Ausbildungsdaten
+            </h5>
+
+        </div>
+
+
+        <div class="training-card-body">
+
+            <form method="POST">
+
+
+                {# ==================================================
+                   NAME
+                   ================================================== #}
+
+                <div class="form-group">
+
+                    <label
+                        class="form-label"
+                        for="name"
+                    >
+                        Name
+                    </label>
+
+                    <input
+                        type="text"
+                        name="name"
+                        id="name"
+                        class="form-input"
+                        required
+                        maxlength="255"
+                        value="{{ training.name if training else '' }}"
+                        placeholder="z. B. Flug"
+                    >
+
+                </div>
+
+
+                {# ==================================================
+                   BESCHREIBUNG
+                   ================================================== #}
+
+                <div class="form-group">
+
+                    <label
+                        class="form-label"
+                        for="description"
+                    >
+                        Beschreibung
+                    </label>
+
+                    <textarea
+                        name="description"
+                        id="description"
+                        class="form-textarea"
+                        placeholder="Beschreibung der Ausbildung..."
+                    >{{ training.description if training else '' }}</textarea>
+
+                </div>
+
+
+                {# ==================================================
+                   AUSBILDUNGSDOKUMENT
+                   ================================================== #}
+
+                <div class="form-group">
+
+                    <label
+                        class="form-label"
+                        for="document"
+                    >
+                        Ausbildungsdokument
+                    </label>
+
+                    <textarea
+                        name="document"
+                        id="document"
+                        class="form-textarea"
+                        placeholder="Dokument / Ausbildungsunterlagen..."
+                    >{{ training.document if training else '' }}</textarea>
+
+                </div>
+
+
+                {# ==================================================
+                   MONATLICHE PFLICHT
+                   ================================================== #}
+
+                <div class="checkbox-row">
+
+                    <input
+                        type="checkbox"
+                        name="required_monthly"
+                        id="required_monthly"
+                        value="on"
+                        {% if training and training.required_monthly %}
+                            checked
+                        {% endif %}
+                    >
+
+                    <label for="required_monthly">
+                        Monatlich verpflichtende Ausbildung
+                    </label>
+
+                </div>
+
+
+                {# ==================================================
+                   AKTIV
+                   ================================================== #}
+
+                <div class="checkbox-row">
+
+                    <input
+                        type="checkbox"
+                        name="active"
+                        id="active"
+                        value="on"
+                        {% if not training or training.active %}
+                            checked
+                        {% endif %}
+                    >
+
+                    <label for="active">
+                        Ausbildung aktiv
+                    </label>
+
+                </div>
+
+
+                {# ==================================================
+                   BUTTONS
+                   ================================================== #}
+
+                <div class="form-actions">
+
+                    <button
+                        type="submit"
+                        class="btn btn-save"
+                    >
+                        ✓ Speichern
+                    </button>
+
+                    <a
+                        href="{{ url_for('training.trainings') }}"
+                        class="btn btn-cancel"
+                    >
+                        Abbrechen
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

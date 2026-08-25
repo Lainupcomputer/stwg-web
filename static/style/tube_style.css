@@ -1,0 +1,60 @@
+ body {
+            background: #000; /* Schwarz */
+            color: #f1f1f1;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: #FFD700; /* Gelb */
+            height: 100px; /* Feste Höhe */
+        }
+
+        .navbar .container {
+            height: 100%; /* Container auf volle Navbar-Höhe */
+            display: flex;
+            align-items: center; /* Vertikal zentrieren */
+        }
+
+        .navbar .navbar-brand {
+            font-weight: bold;
+            color: #000;
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar .navbar-brand img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            margin-right: 15px;
+        }
+
+        .navbar a {
+            color: #000;
+        }
+
+        /* Video Titel */
+        .video-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: #fff;
+            margin-top: 10px;
+        }
+
+        .video-description {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #ddd;
+        }
+
+        /* Responsive: Navbar auf kleinen Bildschirmen anpassen */
+        @media (max-width: 576px) {
+            .navbar {
+                height: auto;
+                padding: 10px 0;
+            }
+            .navbar .navbar-brand img {
+                width: 60px;
+                height: 60px;
+            }
+        }

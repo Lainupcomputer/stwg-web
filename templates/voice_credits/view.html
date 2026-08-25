@@ -1,0 +1,1006 @@
+{% extends "dashboard.html" %}
+
+{% block title %}Voice Credits{% endblock %}
+
+
+{% block style_header %}
+
+<style>
+
+    /* ==========================================
+       VOICE CREDIT STATISTIK
+    ========================================== */
+
+    .voice-stat {
+        border-radius: 8px;
+        padding: 1rem;
+        background-color: #2b2d31 !important;
+        border: 1px solid #444 !important;
+        color: #fff !important;
+    }
+
+    .voice-stat h4 {
+        margin: 0;
+        color: #fff !important;
+    }
+
+
+    /* ==========================================
+       VOICE CARD
+    ========================================== */
+
+    .voice-card {
+        background-color: #2b2d31 !important;
+        border: 1px solid #444 !important;
+        color: #fff !important;
+    }
+
+    .voice-card .card-header {
+        background-color: #212327 !important;
+        border-bottom: 1px solid #444 !important;
+        color: #fff !important;
+    }
+
+    .voice-card .card-body {
+        background-color: #2b2d31 !important;
+        color: #fff !important;
+    }
+
+
+    /* ==========================================
+       TABELLE
+    ========================================== */
+
+    .voice-table {
+        --bs-table-bg: #2b2d31;
+        --bs-table-color: #fff;
+        --bs-table-border-color: #444;
+
+        background-color: #2b2d31 !important;
+        color: #fff !important;
+        margin-bottom: 0 !important;
+    }
+
+    .voice-table thead {
+        background-color: #212327 !important;
+        color: #fff !important;
+    }
+
+    .voice-table thead th {
+        background-color: #212327 !important;
+        color: #fff !important;
+        border-color: #444 !important;
+    }
+
+    .voice-table tbody {
+        background-color: #2b2d31 !important;
+        color: #fff !important;
+    }
+
+    .voice-table tbody tr {
+        background-color: #2b2d31 !important;
+        color: #fff !important;
+    }
+
+    .voice-table tbody td {
+        background-color: #2b2d31 !important;
+        color: #fff !important;
+        border-color: #444 !important;
+    }
+
+    .voice-table tbody tr:hover td {
+        background-color: #36393e !important;
+        color: #fff !important;
+    }
+
+    .voice-table td,
+    .voice-table th {
+        vertical-align: middle;
+    }
+
+
+    /* ==========================================
+       CHANNEL
+    ========================================== */
+
+    .voice-channel {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .voice-channel-icon {
+        width: 34px;
+        height: 34px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        background-color: #212327;
+        border: 1px solid #444;
+        font-size: 16px;
+    }
+
+    .voice-channel-name {
+        font-weight: 600;
+        color: #fff;
+    }
+
+    .voice-channel-id {
+        font-size: 12px;
+        color: #777;
+    }
+
+
+    /* ==========================================
+       RATE
+    ========================================== */
+
+    .voice-rate {
+        white-space: nowrap;
+        font-weight: 600;
+    }
+
+
+    /* ==========================================
+       STATUS
+    ========================================== */
+
+    .voice-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 10px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .voice-status-active {
+        background-color: rgba(40, 167, 69, 0.15);
+        border: 1px solid rgba(40, 167, 69, 0.35);
+        color: #5bd778;
+    }
+
+    .voice-status-disabled {
+        background-color: rgba(220, 53, 69, 0.15);
+        border: 1px solid rgba(220, 53, 69, 0.35);
+        color: #ff6b7a;
+    }
+
+
+    /* ==========================================
+       AKTIONEN
+    ========================================== */
+
+    .voice-actions {
+        display: flex;
+        gap: 5px;
+        flex-wrap: wrap;
+    }
+
+
+    /* ==========================================
+       INFO
+    ========================================== */
+
+    .voice-info {
+        background-color: #212327 !important;
+        border: 1px solid #444 !important;
+        border-radius: 8px;
+        padding: 12px 15px;
+        color: #aaa;
+    }
+
+    .voice-info strong {
+        color: #fff;
+    }
+
+
+    /* ==========================================
+       MODAL
+    ========================================== */
+
+    .voice-modal .modal-content {
+        background-color: #2b2d31 !important;
+        color: #fff !important;
+        border: 1px solid #444 !important;
+    }
+
+    .voice-modal .modal-header {
+        background-color: #212327 !important;
+        color: #fff !important;
+        border-bottom: 1px solid #444 !important;
+    }
+
+    .voice-modal .modal-title {
+        color: #fff !important;
+    }
+
+    .voice-modal .modal-body {
+        background-color: #2b2d31 !important;
+        color: #fff !important;
+    }
+
+    .voice-modal .modal-footer {
+        background-color: #212327 !important;
+        border-top: 1px solid #444 !important;
+    }
+
+
+    /* ==========================================
+       MODAL INPUTS
+    ========================================== */
+
+    .voice-modal .form-control,
+    .voice-modal .form-select {
+        background-color: #36393e !important;
+        color: #fff !important;
+        border: 1px solid #555 !important;
+    }
+
+    .voice-modal .form-control:focus,
+    .voice-modal .form-select:focus {
+        background-color: #36393e !important;
+        color: #fff !important;
+        border-color: #992d22 !important;
+        color: #fff !important;
+        box-shadow: 0 0 0 0.2rem rgba(153, 45, 34, 0.25) !important;
+    }
+
+    .voice-modal .form-select option {
+        background-color: #36393e;
+        color: #fff;
+    }
+
+
+    /* ==========================================
+       CLOSE BUTTON
+    ========================================== */
+
+    .voice-modal .btn-close {
+        filter: invert(1) grayscale(100%) brightness(200%);
+    }
+
+
+    /* ==========================================
+       MODAL BACKDROP
+    ========================================== */
+
+    .modal-backdrop.show {
+        opacity: 0.75;
+    }
+
+
+    /* ==========================================
+       EMPTY STATE
+    ========================================== */
+
+    .voice-empty {
+        padding: 60px 20px !important;
+        text-align: center;
+        color: #777 !important;
+    }
+
+    .voice-empty-icon {
+        font-size: 42px;
+        margin-bottom: 15px;
+    }
+
+</style>
+
+{% endblock %}
+{% block content %}
+<div class="container-fluid px-0">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1">
+                🎧 Voice Credits
+            </h2>
+        </div>
+        <div class="d-flex gap-2">
+            <button
+                type="button"
+                class="btn btn-primary"
+                data-bs-toggle="modal"
+                data-bs-target="#createModal"
+            >
+                + Voice-Channel hinzufügen
+            </button>
+        </div>
+    </div>
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="voice-stat">
+                <div class="text-secondary">
+                    Konfigurierte Channels
+                </div>
+                <h4>
+                    {{ channels|length }}
+                </h4>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="voice-stat">
+                <div class="text-secondary">
+                    Aktive Channels
+                </div>
+                <h4>
+                    {{
+                        channels
+                        |selectattr("enabled", "equalto", true)
+                        |list
+                        |length
+                    }}
+                </h4>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="voice-stat">
+                <div class="text-secondary">
+                    Discord Voice-Channels
+                </div>
+                <h4>
+                    {{ discord_channels|length }}
+                </h4>
+            </div>
+        </div>
+    </div>
+    <div class="voice-info mb-4">
+        <strong>🎧 Voice Credit System</strong>
+        <br>
+        Mitglieder erhalten automatisch Credits,
+        solange sie sich in einem konfigurierten
+        Discord Voice-Channel befinden.
+        <br>
+        Die Vergütung wird in
+        <strong>Credits pro Minute</strong>
+        angegeben.
+    </div>
+    <div class="card voice-card">
+        <div class="card-header">
+            <strong>
+                Konfigurierte Voice-Channels
+            </strong>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0 voice-table">
+                    <thead>
+                        <tr>
+                            <th>
+                                Voice-Channel
+                            </th>
+                            <th>
+                                Channel-ID
+                            </th>
+                            <th>
+                                Vergütung
+                            </th>
+                            <th>
+                                Status
+                            </th>
+                            <th>
+                                Aktionen
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for channel in channels %}
+                        <tr id="row-{{ channel.id }}">
+                            <td>
+                                <div class="voice-channel">
+                                    <div class="voice-channel-icon">
+                                        🔊
+                                    </div>
+                                    <div>
+                                        <div class="voice-channel-name">
+                                            {{ channel.channel_name }}
+                                        </div>
+                                        <div class="voice-channel-id">
+                                            Discord Voice-Channel
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <code>
+                                    {{ channel.channel_id }}
+                                </code>
+                            </td>
+                            <td>
+                                <span class="voice-rate">
+                                    💳
+
+                                    {{ channel.credit_rate }}
+
+                                    Credit{% if channel.credit_rate != 1 %}s{% endif %}
+
+                                    / Minute
+                                </span>
+                            </td>
+                            <td>
+                                {% if channel.enabled %}
+                                    <span
+                                        class="voice-status voice-status-active"
+                                    >
+
+                                        ● Aktiv
+
+                                    </span>
+                                {% else %}
+                                    <span
+                                        class="voice-status voice-status-disabled"
+                                    >
+                                        ● Deaktiviert
+
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="voice-actions">
+                                    <button
+                                        type="button"
+                                        class="btn btn-sm btn-primary"
+                                        onclick="openEditModal(
+                                            {{ channel.id }},
+                                            {{ channel.credit_rate }},
+                                            {{ 'true' if channel.enabled else 'false' }}
+                                        )"
+                                    >
+                                        Bearbeiten
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="btn btn-sm btn-danger"
+                                        onclick="deleteChannel(
+                                            {{ channel.id }}
+                                        )"
+                                    >
+                                        Löschen
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td
+                                colspan="5"
+                                class="voice-empty"
+                            >
+                                <div class="voice-empty-icon">
+                                    🎧
+                                </div>
+                                <div class="mb-3">
+                                    Es sind momentan keine
+                                    Voice-Channels konfiguriert.
+                                </div>
+                                <button
+                                    type="button"
+                                    class="btn btn-primary"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#createModal"
+                                >
+
+                                    + Voice-Channel hinzufügen
+
+                                </button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div
+    class="modal fade voice-modal"
+    id="createModal"
+    tabindex="-1"
+    aria-hidden="true"
+>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    Voice-Channel hinzufügen
+                </h5>
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                ></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label
+                        for="createChannel"
+                        class="form-label"
+                    >
+
+                        Discord Voice-Channel
+                    </label>
+                    <select
+                        id="createChannel"
+                        class="form-select"
+                    >
+                        <option value="">
+                            -- Voice-Channel auswählen --
+                        </option>
+                        {% for channel in discord_channels %}
+                            {% if channel.id|string not in configured_channel_ids %}
+                                <option
+                                    value="{{ channel.id }}"
+                                >
+
+                                    🔊
+                                    {{ channel.name }}
+                                </option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                    {% if discord_channels|length == 0 %}
+                        <div class="text-warning mt-2">
+                            ⚠ Es konnten keine Discord
+                            Voice-Channels geladen werden.
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="mb-3">
+                    <label
+                        for="createRate"
+                        class="form-label"
+                    >
+
+                        Credits pro Minute
+
+                    </label>
+                    <input
+                        type="number"
+                        id="createRate"
+                        class="form-control"
+                        min="0"
+                        step="1"
+                        value="1"
+                    >
+                    <div class="form-text text-secondary">
+
+                        Beispiel:
+                        <strong>1</strong>
+                        bedeutet 1 Credit pro Minute.
+
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-bs-dismiss="modal"
+                >
+
+                    Abbrechen
+
+                </button>
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    onclick="createChannel()"
+                >
+
+                    Hinzufügen
+
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div
+    class="modal fade voice-modal"
+    id="editModal"
+    tabindex="-1"
+    aria-hidden="true"
+>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    Voice-Channel bearbeiten
+                </h5>
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                ></button>
+            </div>
+            <div class="modal-body">
+                <input
+                    type="hidden"
+                    id="editId"
+                >
+                <div class="mb-3">
+                    <label
+                        for="editRate"
+                        class="form-label"
+                    >
+
+                        Credits pro Minute
+
+                    </label>
+                    <input
+                        type="number"
+                        id="editRate"
+                        class="form-control"
+                        min="0"
+                        step="1"
+                    >
+                </div>
+                <div class="form-check form-switch">
+                    <input
+                        class="form-check-input"
+                        type="checkbox"
+                        id="editEnabled"
+                    >
+                    <label
+                        class="form-check-label"
+                        for="editEnabled"
+                    >
+
+                        Channel aktiv
+
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-bs-dismiss="modal"
+                >
+
+                    Abbrechen
+
+                </button>
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    onclick="editChannel()"
+                >
+
+                    Speichern
+
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+function createChannel() {
+
+
+    const channelId =
+        document.getElementById(
+            "createChannel"
+        ).value;
+
+
+    const creditRate =
+        parseInt(
+            document.getElementById(
+                "createRate"
+            ).value
+        );
+
+
+    if (!channelId) {
+
+        alert(
+            "Bitte einen Voice-Channel auswählen."
+        );
+
+        return;
+
+    }
+
+
+    if (
+        isNaN(creditRate)
+        ||
+        creditRate < 0
+    ) {
+
+        alert(
+            "Bitte eine gültige Credit-Anzahl eingeben."
+        );
+
+        return;
+
+    }
+
+
+    fetch(
+        "{{ url_for('voice_credits.create') }}",
+        {
+
+            method: "POST",
+
+            headers: {
+
+                "Content-Type":
+                    "application/json"
+
+            },
+
+            body: JSON.stringify({
+
+                channel_id:
+                    channelId,
+
+                credit_rate:
+                    creditRate
+
+            })
+
+        }
+
+    )
+
+
+    .then(response => response.json())
+
+
+    .then(data => {
+
+
+        if (!data.success) {
+
+            alert(
+                data.message
+            );
+
+            return;
+
+        }
+
+
+        location.reload();
+
+    })
+
+
+    .catch(error => {
+
+        console.error(
+            error
+        );
+
+        alert(
+            "Beim Hinzufügen des Voice-Channels ist ein Fehler aufgetreten."
+        );
+
+    });
+
+
+}
+
+function openEditModal(
+    id,
+    creditRate,
+    enabled
+) {
+
+
+    document.getElementById(
+        "editId"
+    ).value = id;
+
+
+    document.getElementById(
+        "editRate"
+    ).value = creditRate;
+
+
+    document.getElementById(
+        "editEnabled"
+    ).checked =
+        enabled === true
+        ||
+        enabled === "true";
+
+
+    bootstrap.Modal
+        .getOrCreateInstance(
+            document.getElementById(
+                "editModal"
+            )
+        )
+        .show();
+
+
+}
+
+function editChannel() {
+
+
+    const id =
+        document.getElementById(
+            "editId"
+        ).value;
+
+
+    const creditRate =
+        parseInt(
+            document.getElementById(
+                "editRate"
+            ).value
+        );
+
+
+    const enabled =
+        document.getElementById(
+            "editEnabled"
+        ).checked;
+
+
+    if (
+        isNaN(creditRate)
+        ||
+        creditRate < 0
+    ) {
+
+        alert(
+            "Bitte eine gültige Credit-Anzahl eingeben."
+        );
+
+        return;
+
+    }
+
+
+    fetch(
+        "{{ url_for('voice_credits.edit') }}",
+        {
+
+            method: "POST",
+
+            headers: {
+
+                "Content-Type":
+                    "application/json"
+
+            },
+
+            body: JSON.stringify({
+
+                id:
+                    id,
+
+                credit_rate:
+                    creditRate,
+
+                enabled:
+                    enabled
+
+            })
+
+        }
+
+    )
+
+
+    .then(response => response.json())
+
+
+    .then(data => {
+
+
+        if (!data.success) {
+
+            alert(
+                data.message
+            );
+
+            return;
+
+        }
+
+
+        location.reload();
+
+    })
+
+
+    .catch(error => {
+
+        console.error(
+            error
+        );
+
+        alert(
+            "Beim Bearbeiten des Channels ist ein Fehler aufgetreten."
+        );
+
+    });
+
+
+}
+
+function deleteChannel(id) {
+
+
+    if (
+        !confirm(
+            "Möchtest du diesen Voice-Channel wirklich aus der Credit-Verwaltung entfernen?"
+        )
+    ) {
+
+        return;
+
+    }
+
+
+    fetch(
+        "{{ url_for('voice_credits.delete') }}",
+        {
+
+            method: "POST",
+
+            headers: {
+
+                "Content-Type":
+                    "application/json"
+
+            },
+
+            body: JSON.stringify({
+
+                id:
+                    id
+
+            })
+
+        }
+
+    )
+
+
+    .then(response => response.json())
+
+
+    .then(data => {
+
+
+        if (!data.success) {
+
+            alert(
+                data.message
+            );
+
+            return;
+
+        }
+
+
+        location.reload();
+
+    })
+
+
+    .catch(error => {
+
+        console.error(
+            error
+        );
+
+        alert(
+            "Beim Löschen des Channels ist ein Fehler aufgetreten."
+        );
+
+    });
+
+
+}
+</script>
+{% endblock %}
